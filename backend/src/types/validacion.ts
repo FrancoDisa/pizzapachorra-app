@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 import { EstadoPedido, MetodoPago, CategoriaExtra } from './index';
 
 export const pizzaSchema = Joi.object({

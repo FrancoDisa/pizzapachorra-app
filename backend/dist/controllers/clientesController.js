@@ -1,63 +1,27 @@
-"use strict";
 /**
  * Controlador para endpoints de clientes
  * Maneja la lógica de negocio para gestión de clientes
  */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.clientesController = exports.getClientesEstadisticas = exports.getClienteHistorial = exports.autocompleteByTelefono = exports.getClienteByTelefono = exports.deleteCliente = exports.updateCliente = exports.createCliente = exports.getClienteById = exports.getAllClientes = void 0;
-const clientesModel_1 = require("@/models/clientesModel");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const validacion_1 = require("@/types/validacion");
-const logger_1 = require("@/utils/logger");
+import { clientesModel } from '@/models/clientesModel';
+import { ValidationError, BusinessError } from '@/middleware/errorHandler';
+import { validateClienteSchema } from '@/types/validacion';
+import { logger } from '@/utils/logger';
 /**
  * Obtener todos los clientes
  */
-const getAllClientes = async (req, res) => {
+export const getAllClientes = async (req, res) => {
     try {
         const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
         const offset = req.query.offset ? parseInt(req.query.offset) : undefined;
         const search = req.query.search;
         let clientes;
         if (search) {
-            clientes = await clientesModel_1.clientesModel.search(search, limit);
+            clientes = await clientesModel.search(search, limit);
         }
         else {
-            clientes = await clientesModel_1.clientesModel.getAll(limit, offset);
+            clientes = await clientesModel.getAll(limit, offset);
         }
-        logger_1.logger.info(`Clientes obtenidos: ${clientes.length} items`);
+        logger.info(`Clientes obtenidos: ${clientes.length} items`);
         res.json({
             success: true,
             data: clientes,
@@ -66,25 +30,24 @@ const getAllClientes = async (req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al obtener clientes:', error);
+        logger.error('Error al obtener clientes:', error);
         throw error;
     }
 };
-exports.getAllClientes = getAllClientes;
 /**
  * Obtener cliente por ID
  */
-const getClienteById = async (req, res) => {
+export const getClienteById = async (req, res) => {
     try {
         const idParam = req.params.id;
         if (!idParam) {
-            throw new errorHandler_1.ValidationError('ID de cliente requerido');
+            throw new ValidationError('ID de cliente requerido');
         }
         const id = parseInt(idParam);
         if (isNaN(id)) {
-            throw new errorHandler_1.ValidationError('ID de cliente inválido');
+            throw new ValidationError('ID de cliente inválido');
         }
-        const cliente = await clientesModel_1.clientesModel.getById(id);
+        const cliente = await clientesModel.getById(id);
         if (!cliente) {
             res.status(404).json({
                 success: false,
@@ -93,36 +56,35 @@ const getClienteById = async (req, res) => {
             });
             return;
         }
-        logger_1.logger.debug(`Cliente obtenido: ${cliente.nombre || cliente.telefono}`);
+        logger.debug(`Cliente obtenido: ${cliente.nombre || cliente.telefono}`);
         res.json({
             success: true,
             data: cliente
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al obtener cliente por ID:', error);
+        logger.error('Error al obtener cliente por ID:', error);
         throw error;
     }
 };
-exports.getClienteById = getClienteById;
 /**
  * Crear nuevo cliente
  */
-const createCliente = async (req, res) => {
+export const createCliente = async (req, res) => {
     try {
         // Validar datos de entrada
-        const { error, value } = validacion_1.validateClienteSchema.validate(req.body);
+        const { error, value } = validateClienteSchema.validate(req.body);
         if (error) {
-            throw new errorHandler_1.ValidationError(`Datos inválidos: ${error.details.map(d => d.message).join(', ')}`);
+            throw new ValidationError(`Datos inválidos: ${error.details.map(d => d.message).join(', ')}`);
         }
         const clienteData = value;
         // Verificar que no existe un cliente con el mismo teléfono
-        const exists = await clientesModel_1.clientesModel.existsByTelefono(clienteData.telefono);
+        const exists = await clientesModel.existsByTelefono(clienteData.telefono);
         if (exists) {
-            throw new errorHandler_1.BusinessError('Ya existe un cliente con ese número de teléfono');
+            throw new BusinessError('Ya existe un cliente con ese número de teléfono');
         }
-        const newCliente = await clientesModel_1.clientesModel.create(clienteData);
-        logger_1.logger.info(`Cliente creado: ${newCliente.nombre || newCliente.telefono} (ID: ${newCliente.id})`);
+        const newCliente = await clientesModel.create(clienteData);
+        logger.info(`Cliente creado: ${newCliente.nombre || newCliente.telefono} (ID: ${newCliente.id})`);
         res.status(201).json({
             success: true,
             data: newCliente,
@@ -130,32 +92,31 @@ const createCliente = async (req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al crear cliente:', error);
+        logger.error('Error al crear cliente:', error);
         throw error;
     }
 };
-exports.createCliente = createCliente;
 /**
  * Actualizar cliente existente
  */
-const updateCliente = async (req, res) => {
+export const updateCliente = async (req, res) => {
     try {
         const idParam = req.params.id;
         if (!idParam) {
-            throw new errorHandler_1.ValidationError('id requerido');
+            throw new ValidationError('id requerido');
         }
         const id = parseInt(idParam);
         if (isNaN(id)) {
-            throw new errorHandler_1.ValidationError('ID de cliente inválido');
+            throw new ValidationError('ID de cliente inválido');
         }
         // Validar datos de entrada
-        const { error, value } = validacion_1.validateClienteSchema.validate(req.body, { allowUnknown: false });
+        const { error, value } = validateClienteSchema.validate(req.body, { allowUnknown: false });
         if (error) {
-            throw new errorHandler_1.ValidationError(`Datos inválidos: ${error.details.map(d => d.message).join(', ')}`);
+            throw new ValidationError(`Datos inválidos: ${error.details.map(d => d.message).join(', ')}`);
         }
         const clienteData = value;
         // Verificar que el cliente existe
-        const existingCliente = await clientesModel_1.clientesModel.getById(id);
+        const existingCliente = await clientesModel.getById(id);
         if (!existingCliente) {
             res.status(404).json({
                 success: false,
@@ -166,13 +127,13 @@ const updateCliente = async (req, res) => {
         }
         // Verificar teléfono único si se está cambiando
         if (clienteData.telefono && clienteData.telefono !== existingCliente.telefono) {
-            const telefonoExists = await clientesModel_1.clientesModel.existsByTelefono(clienteData.telefono, id);
+            const telefonoExists = await clientesModel.existsByTelefono(clienteData.telefono, id);
             if (telefonoExists) {
-                throw new errorHandler_1.BusinessError('Ya existe un cliente con ese número de teléfono');
+                throw new BusinessError('Ya existe un cliente con ese número de teléfono');
             }
         }
-        const updatedCliente = await clientesModel_1.clientesModel.update(id, clienteData);
-        logger_1.logger.info(`Cliente actualizado: ${updatedCliente?.nombre || updatedCliente?.telefono} (ID: ${id})`);
+        const updatedCliente = await clientesModel.update(id, clienteData);
+        logger.info(`Cliente actualizado: ${updatedCliente?.nombre || updatedCliente?.telefono} (ID: ${id})`);
         res.json({
             success: true,
             data: updatedCliente,
@@ -180,26 +141,25 @@ const updateCliente = async (req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al actualizar cliente:', error);
+        logger.error('Error al actualizar cliente:', error);
         throw error;
     }
 };
-exports.updateCliente = updateCliente;
 /**
  * Eliminar cliente
  */
-const deleteCliente = async (req, res) => {
+export const deleteCliente = async (req, res) => {
     try {
         const idParam = req.params.id;
         if (!idParam) {
-            throw new errorHandler_1.ValidationError('id requerido');
+            throw new ValidationError('id requerido');
         }
         const id = parseInt(idParam);
         if (isNaN(id)) {
-            throw new errorHandler_1.ValidationError('ID de cliente inválido');
+            throw new ValidationError('ID de cliente inválido');
         }
         // Verificar que el cliente existe
-        const existingCliente = await clientesModel_1.clientesModel.getById(id);
+        const existingCliente = await clientesModel.getById(id);
         if (!existingCliente) {
             res.status(404).json({
                 success: false,
@@ -209,43 +169,42 @@ const deleteCliente = async (req, res) => {
             return;
         }
         // Verificar que no tenga pedidos activos antes de eliminar
-        const { pedidosModel } = await Promise.resolve().then(() => __importStar(require('@/models/pedidosModel')));
+        const { pedidosModel } = await import('@/models/pedidosModel');
         const pedidosActivos = await pedidosModel.getAll('nuevo', undefined, undefined, id, 1, 0);
         const pedidosEnPreparacion = await pedidosModel.getAll('en_preparacion', undefined, undefined, id, 1, 0);
         const pedidosListos = await pedidosModel.getAll('listo', undefined, undefined, id, 1, 0);
         if (pedidosActivos.length > 0 || pedidosEnPreparacion.length > 0 || pedidosListos.length > 0) {
-            throw new errorHandler_1.BusinessError('No se puede eliminar el cliente porque tiene pedidos activos');
+            throw new BusinessError('No se puede eliminar el cliente porque tiene pedidos activos');
         }
-        const deleted = await clientesModel_1.clientesModel.delete(id);
+        const deleted = await clientesModel.delete(id);
         if (!deleted) {
-            throw new errorHandler_1.BusinessError('No se pudo eliminar el cliente');
+            throw new BusinessError('No se pudo eliminar el cliente');
         }
-        logger_1.logger.info(`Cliente eliminado: ${existingCliente.nombre || existingCliente.telefono} (ID: ${id})`);
+        logger.info(`Cliente eliminado: ${existingCliente.nombre || existingCliente.telefono} (ID: ${id})`);
         res.json({
             success: true,
             message: 'Cliente eliminado exitosamente'
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al eliminar cliente:', error);
+        logger.error('Error al eliminar cliente:', error);
         throw error;
     }
 };
-exports.deleteCliente = deleteCliente;
 /**
  * Obtener cliente por teléfono
  */
-const getClienteByTelefono = async (req, res) => {
+export const getClienteByTelefono = async (req, res) => {
     try {
         const telefonoParam = req.params.telefono;
         if (!telefonoParam) {
-            throw new errorHandler_1.ValidationError('Teléfono requerido');
+            throw new ValidationError('Teléfono requerido');
         }
         const telefono = telefonoParam.trim();
         if (!telefono) {
-            throw new errorHandler_1.ValidationError('Teléfono requerido');
+            throw new ValidationError('Teléfono requerido');
         }
-        const cliente = await clientesModel_1.clientesModel.getByTelefono(telefono);
+        const cliente = await clientesModel.getByTelefono(telefono);
         if (!cliente) {
             res.status(404).json({
                 success: false,
@@ -255,22 +214,21 @@ const getClienteByTelefono = async (req, res) => {
             });
             return;
         }
-        logger_1.logger.debug(`Cliente encontrado por teléfono: ${cliente.nombre || cliente.telefono}`);
+        logger.debug(`Cliente encontrado por teléfono: ${cliente.nombre || cliente.telefono}`);
         res.json({
             success: true,
             data: cliente
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al obtener cliente por teléfono:', error);
+        logger.error('Error al obtener cliente por teléfono:', error);
         throw error;
     }
 };
-exports.getClienteByTelefono = getClienteByTelefono;
 /**
  * Autocompletar teléfonos
  */
-const autocompleteByTelefono = async (req, res) => {
+export const autocompleteByTelefono = async (req, res) => {
     try {
         const query = req.query.q;
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -282,8 +240,8 @@ const autocompleteByTelefono = async (req, res) => {
             });
             return;
         }
-        const suggestions = await clientesModel_1.clientesModel.autocompleteByTelefono(query, limit);
-        logger_1.logger.debug(`Autocompletado de teléfono '${query}': ${suggestions.length} sugerencias`);
+        const suggestions = await clientesModel.autocompleteByTelefono(query, limit);
+        logger.debug(`Autocompletado de teléfono '${query}': ${suggestions.length} sugerencias`);
         res.json({
             success: true,
             data: suggestions,
@@ -292,27 +250,26 @@ const autocompleteByTelefono = async (req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error en autocompletado de teléfono:', error);
+        logger.error('Error en autocompletado de teléfono:', error);
         throw error;
     }
 };
-exports.autocompleteByTelefono = autocompleteByTelefono;
 /**
  * Obtener historial de pedidos del cliente
  */
-const getClienteHistorial = async (req, res) => {
+export const getClienteHistorial = async (req, res) => {
     try {
         const idParam = req.params.id;
         if (!idParam) {
-            throw new errorHandler_1.ValidationError('id requerido');
+            throw new ValidationError('id requerido');
         }
         const id = parseInt(idParam);
         const limit = req.query.limit ? parseInt(req.query.limit) : 50;
         if (isNaN(id)) {
-            throw new errorHandler_1.ValidationError('ID de cliente inválido');
+            throw new ValidationError('ID de cliente inválido');
         }
         // Verificar que el cliente existe
-        const cliente = await clientesModel_1.clientesModel.getById(id);
+        const cliente = await clientesModel.getById(id);
         if (!cliente) {
             res.status(404).json({
                 success: false,
@@ -321,8 +278,8 @@ const getClienteHistorial = async (req, res) => {
             });
             return;
         }
-        const historial = await clientesModel_1.clientesModel.getHistorialPedidos(id, limit);
-        logger_1.logger.debug(`Historial obtenido para cliente ${id}: ${historial.length} pedidos`);
+        const historial = await clientesModel.getHistorialPedidos(id, limit);
+        logger.debug(`Historial obtenido para cliente ${id}: ${historial.length} pedidos`);
         res.json({
             success: true,
             data: {
@@ -339,18 +296,17 @@ const getClienteHistorial = async (req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al obtener historial del cliente:', error);
+        logger.error('Error al obtener historial del cliente:', error);
         throw error;
     }
 };
-exports.getClienteHistorial = getClienteHistorial;
 /**
  * Obtener estadísticas de clientes
  */
-const getClientesEstadisticas = async (_req, res) => {
+export const getClientesEstadisticas = async (_req, res) => {
     try {
-        const estadisticas = await clientesModel_1.clientesModel.getEstadisticas();
-        logger_1.logger.debug('Estadísticas de clientes obtenidas');
+        const estadisticas = await clientesModel.getEstadisticas();
+        logger.debug('Estadísticas de clientes obtenidas');
         res.json({
             success: true,
             data: estadisticas,
@@ -358,20 +314,19 @@ const getClientesEstadisticas = async (_req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al obtener estadísticas de clientes:', error);
+        logger.error('Error al obtener estadísticas de clientes:', error);
         throw error;
     }
 };
-exports.getClientesEstadisticas = getClientesEstadisticas;
-exports.clientesController = {
-    getAllClientes: exports.getAllClientes,
-    getClienteById: exports.getClienteById,
-    createCliente: exports.createCliente,
-    updateCliente: exports.updateCliente,
-    deleteCliente: exports.deleteCliente,
-    getClienteByTelefono: exports.getClienteByTelefono,
-    autocompleteByTelefono: exports.autocompleteByTelefono,
-    getClienteHistorial: exports.getClienteHistorial,
-    getClientesEstadisticas: exports.getClientesEstadisticas
+export const clientesController = {
+    getAllClientes,
+    getClienteById,
+    createCliente,
+    updateCliente,
+    deleteCliente,
+    getClienteByTelefono,
+    autocompleteByTelefono,
+    getClienteHistorial,
+    getClientesEstadisticas
 };
 //# sourceMappingURL=clientesController.js.map

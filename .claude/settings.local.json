@@ -24,7 +24,20 @@
       "Bash(npm run type-check:*)",
       "Bash(npm uninstall:*)",
       "Bash(timeout 10s npm run dev)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(mv:*)",
+      "Bash(touch:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(docker logs:*)",
+      "Bash(grep:*)",
+      "Bash(timeout 10s npm start)",
+      "Bash(timeout 5s npm run dev)",
+      "Bash(timeout 8s npm run dev)",
+      "Bash(ls:*)",
+      "Bash(npm config get:*)",
+      "Bash(kill:*)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }

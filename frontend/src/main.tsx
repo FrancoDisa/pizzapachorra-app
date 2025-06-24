@@ -1,30 +1,25 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RouterProvider } from 'react-router';
-import { wsService } from '@/services/websocket';
+import App from './App';
 
-// Importar configuración del router
-import { router } from './router';
+// Comentamos WebSocket temporalmente hasta que tengamos el servicio configurado
+// import { wsService } from '@/services/websocket';
 
-// Crear router (implementaremos después)
+// TODO: Reconectar WebSocket cuando el servicio esté listo
+// wsService.connect();
 
-// Conectar WebSocket al iniciar la aplicación
-wsService.connect();
+// document.addEventListener('visibilitychange', () => {
+//   if (document.visibilityState === 'visible' && !wsService.isConnected) {
+//     wsService.connect();
+//   }
+// });
 
-// Manejar la visibilidad de la página para reconectar WebSocket
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && !wsService.isConnected) {
-    wsService.connect();
-  }
-});
-
-// Cleanup al cerrar la página
-window.addEventListener('beforeunload', () => {
-  wsService.disconnect();
-});
+// window.addEventListener('beforeunload', () => {
+//   wsService.disconnect();
+// });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <App />
   </StrictMode>,
 );

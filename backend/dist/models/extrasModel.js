@@ -1,17 +1,14 @@
-"use strict";
 /**
  * Modelo para operaciones CRUD de extras
  * Gestiona la interacción con la tabla extras
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.extrasModel = exports.ExtrasModel = void 0;
-const database_1 = require("@/config/database");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const logger_1 = require("@/utils/logger");
-class ExtrasModel {
+import { config } from '@/config/database';
+import { DatabaseError } from '@/middleware/errorHandler';
+import { logger } from '@/utils/logger';
+export class ExtrasModel {
     pool;
     constructor() {
-        this.pool = database_1.config.getPool();
+        this.pool = config.getPool();
     }
     /**
      * Obtener todos los extras
@@ -25,8 +22,8 @@ class ExtrasModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener extras:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener extras');
+            logger.error('Error al obtener extras:', error);
+            throw new DatabaseError('Error al obtener extras');
         }
     }
     /**
@@ -39,8 +36,8 @@ class ExtrasModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener extra por ID:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener extra');
+            logger.error('Error al obtener extra por ID:', error);
+            throw new DatabaseError('Error al obtener extra');
         }
     }
     /**
@@ -65,8 +62,8 @@ class ExtrasModel {
             return result.rows[0];
         }
         catch (error) {
-            logger_1.logger.error('Error al crear extra:', error);
-            throw new errorHandler_1.DatabaseError('Error al crear extra');
+            logger.error('Error al crear extra:', error);
+            throw new DatabaseError('Error al crear extra');
         }
     }
     /**
@@ -111,8 +108,8 @@ class ExtrasModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al actualizar extra:', error);
-            throw new errorHandler_1.DatabaseError('Error al actualizar extra');
+            logger.error('Error al actualizar extra:', error);
+            throw new DatabaseError('Error al actualizar extra');
         }
     }
     /**
@@ -130,8 +127,8 @@ class ExtrasModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al eliminar extra:', error);
-            throw new errorHandler_1.DatabaseError('Error al eliminar extra');
+            logger.error('Error al eliminar extra:', error);
+            throw new DatabaseError('Error al eliminar extra');
         }
     }
     /**
@@ -146,8 +143,8 @@ class ExtrasModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener extras por categoría:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener extras por categoría');
+            logger.error('Error al obtener extras por categoría:', error);
+            throw new DatabaseError('Error al obtener extras por categoría');
         }
     }
     /**
@@ -173,8 +170,8 @@ class ExtrasModel {
             return menuPorCategoria;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener menú activo de extras:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener menú activo de extras');
+            logger.error('Error al obtener menú activo de extras:', error);
+            throw new DatabaseError('Error al obtener menú activo de extras');
         }
     }
     /**
@@ -192,8 +189,8 @@ class ExtrasModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al verificar existencia de extra:', error);
-            throw new errorHandler_1.DatabaseError('Error al verificar extra');
+            logger.error('Error al verificar existencia de extra:', error);
+            throw new DatabaseError('Error al verificar extra');
         }
     }
     /**
@@ -208,11 +205,10 @@ class ExtrasModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener extras por IDs:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener extras');
+            logger.error('Error al obtener extras por IDs:', error);
+            throw new DatabaseError('Error al obtener extras');
         }
     }
 }
-exports.ExtrasModel = ExtrasModel;
-exports.extrasModel = new ExtrasModel();
+export const extrasModel = new ExtrasModel();
 //# sourceMappingURL=extrasModel.js.map

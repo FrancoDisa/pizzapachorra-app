@@ -1,14 +1,7 @@
-"use strict";
 /**
  * Validación de variables de entorno requeridas
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateEnv = validateEnv;
-exports.getEnvConfig = getEnvConfig;
-exports.isDevelopment = isDevelopment;
-exports.isProduction = isProduction;
-exports.isTest = isTest;
-const logger_1 = require("./logger");
+import { logger } from './logger';
 /**
  * Variables de entorno requeridas
  */
@@ -27,7 +20,7 @@ const defaultEnvVars = {
 /**
  * Validar que todas las variables de entorno requeridas estén presentes
  */
-function validateEnv() {
+export function validateEnv() {
     const errors = [];
     const warnings = [];
     // Verificar variables requeridas
@@ -69,15 +62,15 @@ function validateEnv() {
     }
     // Mostrar warnings
     if (warnings.length > 0) {
-        logger_1.logger.warn('Advertencias de configuración:', warnings);
+        logger.warn('Advertencias de configuración:', warnings);
     }
     // Si hay errores, fallar
     if (errors.length > 0) {
-        logger_1.logger.error('Errores de configuración:', errors);
+        logger.error('Errores de configuración:', errors);
         throw new Error(`Configuración inválida:\n${errors.join('\n')}`);
     }
     // Log de configuración exitosa
-    logger_1.logger.info('Validación de entorno completada:', {
+    logger.info('Validación de entorno completada:', {
         NODE_ENV: process.env.NODE_ENV,
         PORT: process.env.PORT,
         DATABASE_URL: maskDatabaseUrl(process.env.DATABASE_URL || ''),
@@ -123,7 +116,7 @@ function maskDatabaseUrl(url) {
 /**
  * Obtener configuración de entorno tipada
  */
-function getEnvConfig() {
+export function getEnvConfig() {
     return {
         NODE_ENV: process.env.NODE_ENV,
         PORT: process.env.PORT,
@@ -135,19 +128,19 @@ function getEnvConfig() {
 /**
  * Verificar si estamos en entorno de desarrollo
  */
-function isDevelopment() {
+export function isDevelopment() {
     return process.env.NODE_ENV === 'development';
 }
 /**
  * Verificar si estamos en entorno de producción
  */
-function isProduction() {
+export function isProduction() {
     return process.env.NODE_ENV === 'production';
 }
 /**
  * Verificar si estamos en entorno de test
  */
-function isTest() {
+export function isTest() {
     return process.env.NODE_ENV === 'test';
 }
 //# sourceMappingURL=validateEnv.js.map

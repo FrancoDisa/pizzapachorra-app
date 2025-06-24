@@ -1,42 +1,39 @@
-"use strict";
 /**
  * Router para endpoints de pizzas
  * Gestión del menú de pizzas con precios base
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.pizzasRouter = void 0;
-const express_1 = require("express");
-const pizzasController_1 = require("@/controllers/pizzasController");
-const router = (0, express_1.Router)();
-exports.pizzasRouter = router;
+import { Router } from 'express';
+import { pizzasController } from '@/controllers/pizzasController';
+const router = Router();
 /**
  * GET /api/pizzas
  * Obtener todas las pizzas activas del menú
  */
-router.get('/', pizzasController_1.pizzasController.getAllPizzas);
+router.get('/', pizzasController.getAllPizzas);
 /**
  * GET /api/pizzas/menu/activo
  * Obtener menú de pizzas activas ordenado para mostrar
  */
-router.get('/menu/activo', pizzasController_1.pizzasController.getActiveMenu);
+router.get('/menu/activo', pizzasController.getActiveMenu);
 /**
  * GET /api/pizzas/:id
  * Obtener una pizza específica por ID
  */
-router.get('/:id', pizzasController_1.pizzasController.getPizzaById);
+router.get('/:id', pizzasController.getPizzaById);
 /**
  * POST /api/pizzas
  * Crear una nueva pizza
  */
-router.post('/', pizzasController_1.pizzasController.createPizza);
+router.post('/', pizzasController.createPizza);
 /**
  * PUT /api/pizzas/:id
  * Actualizar una pizza existente
  */
-router.put('/:id', pizzasController_1.pizzasController.updatePizza);
+router.put('/:id', pizzasController.updatePizza);
 /**
  * DELETE /api/pizzas/:id
  * Desactivar una pizza (soft delete)
  */
-router.delete('/:id', pizzasController_1.pizzasController.deletePizza);
+router.delete('/:id', pizzasController.deletePizza);
+export { router as pizzasRouter };
 //# sourceMappingURL=pizzas.js.map

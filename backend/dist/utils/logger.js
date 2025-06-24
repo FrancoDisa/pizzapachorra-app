@@ -1,14 +1,8 @@
-"use strict";
 /**
  * Configuración de logging con Winston
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.logger = exports.logPerformance = exports.logBusinessOperation = exports.logDbError = exports.logRequest = void 0;
-const winston_1 = __importDefault(require("winston"));
-const path_1 = __importDefault(require("path"));
+import winston from 'winston';
+import path from 'path';
 // Definir niveles de log personalizados
 const levels = {
     error: 0,
@@ -26,11 +20,11 @@ const colors = {
     debug: 'white',
 };
 // Aplicar colores
-winston_1.default.addColors(colors);
+winston.addColors(colors);
 // Formato personalizado para consola
-const consoleFormat = winston_1.default.format.combine(winston_1.default.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston_1.default.format.colorize({ all: true }), winston_1.default.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`));
+const consoleFormat = winston.format.combine(winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston.format.colorize({ all: true }), winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`));
 // Formato para archivos
-const fileFormat = winston_1.default.format.combine(winston_1.default.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston_1.default.format.errors({ stack: true }), winston_1.default.format.json());
+const fileFormat = winston.format.combine(winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston.format.errors({ stack: true }), winston.format.json());
 // Determinar nivel de log basado en entorno
 const level = () => {
     const env = process.env.NODE_ENV || 'development';
@@ -40,7 +34,7 @@ const level = () => {
 // Configurar transports
 const transports = [
     // Consola
-    new winston_1.default.transports.Console({
+    new winston.transports.Console({
         level: level(),
         format: consoleFormat,
     }),
@@ -48,16 +42,16 @@ const transports = [
 // En producción, agregar archivos de log
 if (process.env.NODE_ENV === 'production') {
     // Log general
-    transports.push(new winston_1.default.transports.File({
-        filename: path_1.default.join(process.cwd(), 'logs', 'app.log'),
+    transports.push(new winston.transports.File({
+        filename: path.join(process.cwd(), 'logs', 'app.log'),
         level: 'info',
         format: fileFormat,
         maxsize: 5242880, // 5MB
         maxFiles: 5,
     }));
     // Log de errores
-    transports.push(new winston_1.default.transports.File({
-        filename: path_1.default.join(process.cwd(), 'logs', 'error.log'),
+    transports.push(new winston.transports.File({
+        filename: path.join(process.cwd(), 'logs', 'error.log'),
         level: 'error',
         format: fileFormat,
         maxsize: 5242880, // 5MB
@@ -65,7 +59,7 @@ if (process.env.NODE_ENV === 'production') {
     }));
 }
 // Crear logger
-const logger = winston_1.default.createLogger({
+const logger = winston.createLogger({
     level: level(),
     levels,
     format: fileFormat,
@@ -73,7 +67,6 @@ const logger = winston_1.default.createLogger({
     // No salir en errores no manejados
     exitOnError: false,
 });
-exports.logger = logger;
 // Stream para Morgan
 logger.stream = {
     write: (message) => {
@@ -81,7 +74,7 @@ logger.stream = {
     },
 };
 // Función helper para logging de requests
-const logRequest = (req, res, responseTime) => {
+export const logRequest = (req, res, responseTime) => {
     const logData = {
         method: req.method,
         url: req.originalUrl,
@@ -97,9 +90,8 @@ const logRequest = (req, res, responseTime) => {
         logger.http('HTTP Request', logData);
     }
 };
-exports.logRequest = logRequest;
 // Función helper para logging de errores de DB
-const logDbError = (error, query, params) => {
+export const logDbError = (error, query, params) => {
     logger.error('Database Error', {
         message: error.message,
         stack: error.stack,
@@ -107,18 +99,16 @@ const logDbError = (error, query, params) => {
         params: params ? JSON.stringify(params).substring(0, 200) : undefined,
     });
 };
-exports.logDbError = logDbError;
 // Función helper para logging de operaciones de negocio
-const logBusinessOperation = (operation, details, level = 'info') => {
+export const logBusinessOperation = (operation, details, level = 'info') => {
     logger[level](`Business Operation: ${operation}`, {
         operation,
         ...details,
         timestamp: new Date().toISOString(),
     });
 };
-exports.logBusinessOperation = logBusinessOperation;
 // Función helper para logging de performance
-const logPerformance = (operation, duration, details) => {
+export const logPerformance = (operation, duration, details) => {
     const logLevel = duration > 1000 ? 'warn' : 'debug';
     logger[logLevel](`Performance: ${operation}`, {
         operation,
@@ -126,6 +116,6 @@ const logPerformance = (operation, duration, details) => {
         ...details,
     });
 };
-exports.logPerformance = logPerformance;
-exports.default = logger;
+export { logger };
+export default logger;
 //# sourceMappingURL=logger.js.map

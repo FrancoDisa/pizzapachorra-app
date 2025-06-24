@@ -37,12 +37,13 @@ USER nextjs
 # ========================================
 FROM base AS deps
 
-# Copiar archivos de configuración de paquetes
+# Copiar archivos de configuración de paquetes desde workspace root
 COPY --chown=nextjs:nodejs package*.json ./
+COPY --chown=nextjs:nodejs backend/package.json ./backend-package.json
 
-# Instalar dependencias con cache optimizado
-RUN --mount=type=cache,target=/home/nextjs/.npm \
-    npm ci --only=production && \
+# Instalar dependencias de producción
+RUN mv backend-package.json package.json && \
+    npm install --only=production && \
     npm cache clean --force
 
 # ========================================
@@ -50,16 +51,16 @@ RUN --mount=type=cache,target=/home/nextjs/.npm \
 # ========================================
 FROM base AS development
 
-# Copiar archivos de configuración
+# Copiar archivos de configuración desde workspace root
 COPY --chown=nextjs:nodejs package*.json ./
-COPY --chown=nextjs:nodejs tsconfig.json ./
+COPY --chown=nextjs:nodejs backend/package.json ./backend-package.json
+COPY --chown=nextjs:nodejs backend/tsconfig.json ./
 
 # Instalar todas las dependencias (incluidas las de desarrollo)
-RUN --mount=type=cache,target=/home/nextjs/.npm \
-    npm ci
+RUN mv backend-package.json package.json && npm install
 
-# Copiar código fuente
-COPY --chown=nextjs:nodejs . .
+# Copiar código fuente del backend
+COPY --chown=nextjs:nodejs backend/ .
 
 # Exponer puerto
 EXPOSE 3001
@@ -90,8 +91,8 @@ COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
 # Copiar código compilado desde etapa builder
 COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
 
-# Copiar archivos de configuración necesarios
-COPY --chown=nextjs:nodejs package.json ./
+# Copiar archivo de configuración necesario
+COPY --chown=nextjs:nodejs backend/package.json ./
 
 # Exponer puerto
 EXPOSE 3001

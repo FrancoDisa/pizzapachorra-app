@@ -1,17 +1,14 @@
-"use strict";
 /**
  * Modelo para operaciones CRUD de pizzas
  * Gestiona la interacción con la tabla pizzas
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.pizzasModel = exports.PizzasModel = void 0;
-const database_1 = require("@/config/database");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const logger_1 = require("@/utils/logger");
-class PizzasModel {
+import { config } from '@/config/database';
+import { DatabaseError } from '@/middleware/errorHandler';
+import { logger } from '@/utils/logger';
+export class PizzasModel {
     pool;
     constructor() {
-        this.pool = database_1.config.getPool();
+        this.pool = config.getPool();
     }
     /**
      * Obtener todas las pizzas
@@ -25,8 +22,8 @@ class PizzasModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener pizzas:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener pizzas');
+            logger.error('Error al obtener pizzas:', error);
+            throw new DatabaseError('Error al obtener pizzas');
         }
     }
     /**
@@ -39,8 +36,8 @@ class PizzasModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener pizza por ID:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener pizza');
+            logger.error('Error al obtener pizza por ID:', error);
+            throw new DatabaseError('Error al obtener pizza');
         }
     }
     /**
@@ -66,8 +63,8 @@ class PizzasModel {
             return result.rows[0];
         }
         catch (error) {
-            logger_1.logger.error('Error al crear pizza:', error);
-            throw new errorHandler_1.DatabaseError('Error al crear pizza');
+            logger.error('Error al crear pizza:', error);
+            throw new DatabaseError('Error al crear pizza');
         }
     }
     /**
@@ -117,8 +114,8 @@ class PizzasModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al actualizar pizza:', error);
-            throw new errorHandler_1.DatabaseError('Error al actualizar pizza');
+            logger.error('Error al actualizar pizza:', error);
+            throw new DatabaseError('Error al actualizar pizza');
         }
     }
     /**
@@ -136,8 +133,8 @@ class PizzasModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al eliminar pizza:', error);
-            throw new errorHandler_1.DatabaseError('Error al eliminar pizza');
+            logger.error('Error al eliminar pizza:', error);
+            throw new DatabaseError('Error al eliminar pizza');
         }
     }
     /**
@@ -154,8 +151,8 @@ class PizzasModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener menú activo:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener menú activo');
+            logger.error('Error al obtener menú activo:', error);
+            throw new DatabaseError('Error al obtener menú activo');
         }
     }
     /**
@@ -173,11 +170,10 @@ class PizzasModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al verificar existencia de pizza:', error);
-            throw new errorHandler_1.DatabaseError('Error al verificar pizza');
+            logger.error('Error al verificar existencia de pizza:', error);
+            throw new DatabaseError('Error al verificar pizza');
         }
     }
 }
-exports.PizzasModel = PizzasModel;
-exports.pizzasModel = new PizzasModel();
+export const pizzasModel = new PizzasModel();
 //# sourceMappingURL=pizzasModel.js.map

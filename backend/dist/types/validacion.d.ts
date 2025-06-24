@@ -1,4 +1,4 @@
-import * as Joi from 'joi';
+import Joi from 'joi';
 export declare const pizzaSchema: Joi.ObjectSchema<any>;
 export declare const extraSchema: Joi.ObjectSchema<any>;
 export declare const clienteSchema: Joi.ObjectSchema<any>;
