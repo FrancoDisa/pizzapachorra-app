@@ -151,3 +151,39 @@ Required:
 - Real-time kitchen display without interactive elements
 - All logging goes through Winston with structured format
 - Database operations use connection pooling with health checks
+
+## TypeScript Development
+- All interfaces and types are defined in `src/types/`
+- Use Joi for schema validation with comprehensive test coverage
+- Follow strict TypeScript configuration with exactOptionalPropertyTypes
+- Export types from centralized index files for easy imports
+- Maintain test coverage above 80% for all type validations
+
+## Testing Guidelines
+- Jest configured with ts-jest for TypeScript support
+- Test files in `__tests__` directories or `.test.ts` suffix
+- All Joi schemas must have corresponding unit tests
+- Run `npm test` for unit tests, `npm run test:coverage` for coverage
+- ESLint configured for code quality checks
+
+## Code Quality Standards
+- Run `npm run lint` before committing changes
+- Use TypeScript strict mode with no implicit any
+- Prefix unused parameters with underscore (_) 
+- Follow error handling patterns from middleware/errorHandler.ts
+- All functions should have clear return types
+
+## Claude Development Workflow
+- ALWAYS use TodoWrite tool for planning and tracking complex tasks (3+ steps)
+- Update todolist.md file after completing significant milestones
+- Run verification tests after implementing new functionality
+- Keep CLAUDE.md updated with new patterns and conventions discovered
+- Maintain code quality through linting and testing before considering work complete
+- Document any new development commands or patterns in the appropriate sections above
+
+## Task Management Guidelines
+- Use TodoWrite for any multi-step implementation work
+- Mark todos as in_progress before starting work
+- Mark todos as completed immediately after finishing
+- Update todolist.md progress percentages after major completions
+- Create verification plans when user asks "how to test if everything works"
