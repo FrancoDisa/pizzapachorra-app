@@ -1,41 +1,5 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.validatePedidoSchema = exports.validateClienteSchema = exports.validateExtraSchema = exports.validatePizzaSchema = exports.actualizarEstadoSchema = exports.crearPedidoSchema = exports.pedidoItemSchema = exports.pedidoSchema = exports.clienteSchema = exports.extraSchema = exports.pizzaSchema = void 0;
-const Joi = __importStar(require("joi"));
-exports.pizzaSchema = Joi.object({
+import Joi from 'joi';
+export const pizzaSchema = Joi.object({
     id: Joi.number().integer().positive(),
     nombre: Joi.string().max(100).required(),
     precio_base: Joi.number().positive().precision(2).required(),
@@ -46,7 +10,7 @@ exports.pizzaSchema = Joi.object({
     created_at: Joi.date(),
     updated_at: Joi.date()
 });
-exports.extraSchema = Joi.object({
+export const extraSchema = Joi.object({
     id: Joi.number().integer().positive(),
     nombre: Joi.string().max(50).required(),
     precio: Joi.number().positive().precision(2).required(),
@@ -55,7 +19,7 @@ exports.extraSchema = Joi.object({
     orden_categoria: Joi.number().integer().min(0).default(0),
     created_at: Joi.date()
 });
-exports.clienteSchema = Joi.object({
+export const clienteSchema = Joi.object({
     id: Joi.number().integer().positive(),
     telefono: Joi.string().pattern(/^\+?[0-9\s\-()]{10,20}$/).required(),
     nombre: Joi.string().max(100).allow('', null),
@@ -68,7 +32,7 @@ exports.clienteSchema = Joi.object({
     created_at: Joi.date(),
     updated_at: Joi.date()
 });
-exports.pedidoSchema = Joi.object({
+export const pedidoSchema = Joi.object({
     id: Joi.number().integer().positive(),
     numero_pedido: Joi.string().max(20).required(),
     cliente_id: Joi.number().integer().positive().allow(null),
@@ -87,7 +51,7 @@ exports.pedidoSchema = Joi.object({
     created_at: Joi.date(),
     updated_at: Joi.date()
 });
-exports.pedidoItemSchema = Joi.object({
+export const pedidoItemSchema = Joi.object({
     id: Joi.number().integer().positive(),
     pedido_id: Joi.number().integer().positive().required(),
     pizza_id: Joi.number().integer().positive().required(),
@@ -104,7 +68,7 @@ exports.pedidoItemSchema = Joi.object({
     notas: Joi.string().max(500).allow('', null),
     created_at: Joi.date()
 });
-exports.crearPedidoSchema = Joi.object({
+export const crearPedidoSchema = Joi.object({
     cliente_id: Joi.number().integer().positive().allow(null),
     cliente_data: Joi.when('cliente_id', {
         is: Joi.exist(),
@@ -144,22 +108,22 @@ exports.crearPedidoSchema = Joi.object({
     notas: Joi.string().max(1000).allow('', null),
     tiempo_estimado: Joi.number().integer().min(0).allow(null)
 });
-exports.actualizarEstadoSchema = Joi.object({
+export const actualizarEstadoSchema = Joi.object({
     estado: Joi.string().valid(...['nuevo', 'en_preparacion', 'listo', 'entregado', 'cancelado']).required(),
     motivo: Joi.string().max(500).allow('', null),
     usuario: Joi.string().max(50).default('sistema')
 });
 // Schemas para validación en controladores
-exports.validatePizzaSchema = exports.pizzaSchema.keys({
+export const validatePizzaSchema = pizzaSchema.keys({
     id: Joi.forbidden(),
     created_at: Joi.forbidden(),
     updated_at: Joi.forbidden()
 });
-exports.validateExtraSchema = exports.extraSchema.keys({
+export const validateExtraSchema = extraSchema.keys({
     id: Joi.forbidden(),
     created_at: Joi.forbidden()
 });
-exports.validateClienteSchema = exports.clienteSchema.keys({
+export const validateClienteSchema = clienteSchema.keys({
     id: Joi.forbidden(),
     total_pedidos: Joi.forbidden(),
     total_gastado: Joi.forbidden(),
@@ -167,5 +131,5 @@ exports.validateClienteSchema = exports.clienteSchema.keys({
     created_at: Joi.forbidden(),
     updated_at: Joi.forbidden()
 });
-exports.validatePedidoSchema = exports.crearPedidoSchema;
+export const validatePedidoSchema = crearPedidoSchema;
 //# sourceMappingURL=validacion.js.map

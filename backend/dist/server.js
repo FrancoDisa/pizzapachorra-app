@@ -1,42 +1,34 @@
-"use strict";
 /**
  * Servidor principal de Pizza Pachorra
  * Sistema de gestión de pedidos para pizzería
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.io = exports.server = exports.app = void 0;
-const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
-const helmet_1 = __importDefault(require("helmet"));
-const compression_1 = __importDefault(require("compression"));
-const morgan_1 = __importDefault(require("morgan"));
-const http_1 = require("http");
-const socket_io_1 = require("socket.io");
-const dotenv_1 = __importDefault(require("dotenv"));
-const database_1 = require("@/config/database");
-const logger_1 = require("@/utils/logger");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const validateEnv_1 = require("@/utils/validateEnv");
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import dotenv from 'dotenv';
+import { config } from '@/config/database';
+import { logger } from '@/utils/logger';
+import { errorHandler } from '@/middleware/errorHandler';
+import { validateEnv } from '@/utils/validateEnv';
 // Importar rutas
-const pizzas_1 = require("@/routes/pizzas");
-const extras_1 = require("@/routes/extras");
-const clientes_1 = require("@/routes/clientes");
-const pedidos_1 = require("@/routes/pedidos");
-const health_1 = require("@/routes/health");
+import { pizzasRouter } from '@/routes/pizzas';
+import { extrasRouter } from '@/routes/extras';
+import { clientesRouter } from '@/routes/clientes';
+import { pedidosRouter } from '@/routes/pedidos';
+import { healthRouter } from '@/routes/health';
 // Configurar variables de entorno
-dotenv_1.default.config();
+dotenv.config();
 // Validar variables de entorno requeridas
-(0, validateEnv_1.validateEnv)();
+validateEnv();
 // Crear aplicación Express
-const app = (0, express_1.default)();
-exports.app = app;
-const server = (0, http_1.createServer)(app);
-exports.server = server;
+const app = express();
+const server = createServer(app);
 // Configurar Socket.IO
-const io = new socket_io_1.Server(server, {
+const io = new SocketIOServer(server, {
     cors: {
         origin: process.env.CORS_ORIGIN || "http://localhost:3000",
         methods: ["GET", "POST", "PUT", "DELETE"],
@@ -45,9 +37,8 @@ const io = new socket_io_1.Server(server, {
     pingTimeout: 60000,
     pingInterval: 25000
 });
-exports.io = io;
 // Middleware de seguridad
-app.use((0, helmet_1.default)({
+app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
@@ -64,23 +55,23 @@ app.use((0, helmet_1.default)({
     crossOriginEmbedderPolicy: false,
 }));
 // CORS configurado
-app.use((0, cors_1.default)({
+app.use(cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 // Middleware general
-app.use((0, compression_1.default)());
-app.use(express_1.default.json({ limit: '10mb' }));
-app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Logging
 const logFormat = process.env.NODE_ENV === 'production'
     ? 'combined'
     : 'dev';
-app.use((0, morgan_1.default)(logFormat, {
+app.use(morgan(logFormat, {
     stream: {
-        write: (message) => logger_1.logger.info(message.trim())
+        write: (message) => logger.info(message.trim())
     }
 }));
 // Middleware para inyectar io en req
@@ -89,11 +80,11 @@ app.use((req, _res, next) => {
     next();
 });
 // Rutas de la API
-app.use('/api/health', health_1.healthRouter);
-app.use('/api/pizzas', pizzas_1.pizzasRouter);
-app.use('/api/extras', extras_1.extrasRouter);
-app.use('/api/clientes', clientes_1.clientesRouter);
-app.use('/api/pedidos', pedidos_1.pedidosRouter);
+app.use('/api/health', healthRouter);
+app.use('/api/pizzas', pizzasRouter);
+app.use('/api/extras', extrasRouter);
+app.use('/api/clientes', clientesRouter);
+app.use('/api/pedidos', pedidosRouter);
 // Ruta raíz
 app.get('/', (_req, res) => {
     res.json({
@@ -112,23 +103,23 @@ app.use('*', (req, res) => {
     });
 });
 // Middleware de manejo de errores (debe ir al final)
-app.use(errorHandler_1.errorHandler);
+app.use(errorHandler);
 // Configuración de Socket.IO para tiempo real
 io.on('connection', (socket) => {
-    logger_1.logger.info(`Cliente conectado: ${socket.id}`);
+    logger.info(`Cliente conectado: ${socket.id}`);
     // Unirse a sala de cocina
     socket.on('join_cocina', () => {
         socket.join('cocina');
-        logger_1.logger.info(`Socket ${socket.id} se unió a cocina`);
+        logger.info(`Socket ${socket.id} se unió a cocina`);
     });
     // Unirse a sala de administración
     socket.on('join_admin', () => {
         socket.join('admin');
-        logger_1.logger.info(`Socket ${socket.id} se unió a admin`);
+        logger.info(`Socket ${socket.id} se unió a admin`);
     });
     // Manejar desconexión
     socket.on('disconnect', (reason) => {
-        logger_1.logger.info(`Cliente desconectado: ${socket.id}, razón: ${reason}`);
+        logger.info(`Cliente desconectado: ${socket.id}, razón: ${reason}`);
     });
     // Eventos de pedidos
     socket.on('pedido_actualizado', (data) => {
@@ -150,46 +141,46 @@ const PORT = process.env.PORT || 3001;
 async function startServer() {
     try {
         // Verificar conexión a la base de datos
-        await database_1.config.testConnection();
-        logger_1.logger.info('Conexión a base de datos establecida');
+        await config.testConnection();
+        logger.info('Conexión a base de datos establecida');
         // Iniciar servidor
         server.listen(PORT, () => {
-            logger_1.logger.info(`🍕 Servidor Pizza Pachorra iniciado`);
-            logger_1.logger.info(`🚀 Puerto: ${PORT}`);
-            logger_1.logger.info(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
-            logger_1.logger.info(`📡 Socket.IO configurado para tiempo real`);
+            logger.info(`🍕 Servidor Pizza Pachorra iniciado`);
+            logger.info(`🚀 Puerto: ${PORT}`);
+            logger.info(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+            logger.info(`📡 Socket.IO configurado para tiempo real`);
             if (process.env.NODE_ENV === 'development') {
-                logger_1.logger.info(`📱 API disponible en: http://localhost:${PORT}/api`);
-                logger_1.logger.info(`🔍 Health check: http://localhost:${PORT}/api/health`);
+                logger.info(`📱 API disponible en: http://localhost:${PORT}/api`);
+                logger.info(`🔍 Health check: http://localhost:${PORT}/api/health`);
             }
         });
     }
     catch (error) {
-        logger_1.logger.error('Error al iniciar el servidor:', error);
+        logger.error('Error al iniciar el servidor:', error);
         process.exit(1);
     }
 }
 // Manejo de errores no capturados
 process.on('uncaughtException', (error) => {
-    logger_1.logger.error('Error no capturado:', error);
+    logger.error('Error no capturado:', error);
     process.exit(1);
 });
 process.on('unhandledRejection', (reason, promise) => {
-    logger_1.logger.error('Promise rechazada no manejada:', { reason, promise });
+    logger.error('Promise rechazada no manejada:', { reason, promise });
     process.exit(1);
 });
 // Manejo de señales de terminación
 process.on('SIGTERM', () => {
-    logger_1.logger.info('Señal SIGTERM recibida, cerrando servidor...');
+    logger.info('Señal SIGTERM recibida, cerrando servidor...');
     server.close(() => {
-        logger_1.logger.info('Servidor cerrado');
+        logger.info('Servidor cerrado');
         process.exit(0);
     });
 });
 process.on('SIGINT', () => {
-    logger_1.logger.info('Señal SIGINT recibida, cerrando servidor...');
+    logger.info('Señal SIGINT recibida, cerrando servidor...');
     server.close(() => {
-        logger_1.logger.info('Servidor cerrado');
+        logger.info('Servidor cerrado');
         process.exit(0);
     });
 });
@@ -197,4 +188,5 @@ process.on('SIGINT', () => {
 if (require.main === module) {
     startServer();
 }
+export { app, server, io };
 //# sourceMappingURL=server.js.map

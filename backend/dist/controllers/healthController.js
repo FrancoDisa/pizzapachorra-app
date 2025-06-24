@@ -1,20 +1,17 @@
-"use strict";
 /**
  * Controlador para endpoints de health check
  * Maneja las verificaciones de estado del sistema
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.healthController = exports.getAllServicesHealth = exports.getDatabaseHealth = exports.getOverallHealth = void 0;
-const database_1 = require("@/config/database");
-const logger_1 = require("@/utils/logger");
+import { config } from '@/config/database';
+import { logger } from '@/utils/logger';
 /**
  * Obtener estado general del sistema
  */
-const getOverallHealth = async (_req, res) => {
+export const getOverallHealth = async (_req, res) => {
     try {
         const startTime = Date.now();
         // Verificar base de datos
-        const dbHealth = await database_1.config.healthCheck();
+        const dbHealth = await config.healthCheck();
         // Verificar memoria
         const memoryUsage = process.memoryUsage();
         const memoryStatus = {
@@ -49,7 +46,7 @@ const getOverallHealth = async (_req, res) => {
             }
         };
         // Log del health check
-        logger_1.logger.info('Health check realizado:', {
+        logger.info('Health check realizado:', {
             status: healthData.status,
             responseTime: healthData.responseTime,
             dbStatus: dbHealth.status
@@ -62,7 +59,7 @@ const getOverallHealth = async (_req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error en health check general:', error);
+        logger.error('Error en health check general:', error);
         res.status(503).json({
             success: false,
             error: 'Health check failed',
@@ -73,14 +70,13 @@ const getOverallHealth = async (_req, res) => {
         });
     }
 };
-exports.getOverallHealth = getOverallHealth;
 /**
  * Obtener estado específico de la base de datos
  */
-const getDatabaseHealth = async (_req, res) => {
+export const getDatabaseHealth = async (_req, res) => {
     try {
-        const dbHealth = await database_1.config.healthCheck();
-        const poolStats = database_1.config.getPoolStats();
+        const dbHealth = await config.healthCheck();
+        const poolStats = config.getPoolStats();
         const databaseData = {
             status: dbHealth.status,
             connection: dbHealth.details,
@@ -91,7 +87,7 @@ const getDatabaseHealth = async (_req, res) => {
             },
             timestamp: new Date().toISOString()
         };
-        logger_1.logger.debug('Database health check:', databaseData);
+        logger.debug('Database health check:', databaseData);
         const statusCode = dbHealth.status === 'healthy' ? 200 : 503;
         res.status(statusCode).json({
             success: dbHealth.status === 'healthy',
@@ -99,7 +95,7 @@ const getDatabaseHealth = async (_req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error en health check de base de datos:', error);
+        logger.error('Error en health check de base de datos:', error);
         res.status(503).json({
             success: false,
             error: 'Database health check failed',
@@ -110,15 +106,14 @@ const getDatabaseHealth = async (_req, res) => {
         });
     }
 };
-exports.getDatabaseHealth = getDatabaseHealth;
 /**
  * Obtener estado de todos los servicios
  */
-const getAllServicesHealth = async (_req, res) => {
+export const getAllServicesHealth = async (_req, res) => {
     try {
         const startTime = Date.now();
         // Verificar base de datos
-        const dbHealth = await database_1.config.healthCheck();
+        const dbHealth = await config.healthCheck();
         // Verificar memoria
         const memoryUsage = process.memoryUsage();
         const memoryHealthy = memoryUsage.heapUsed / memoryUsage.heapTotal < 0.9; // <90% uso
@@ -167,7 +162,7 @@ const getAllServicesHealth = async (_req, res) => {
                 unhealthy: Object.values(services).filter(s => !s.healthy).length
             }
         };
-        logger_1.logger.info('Servicios health check:', {
+        logger.info('Servicios health check:', {
             status: healthData.status,
             healthy: healthData.summary.healthy,
             total: healthData.summary.total
@@ -179,7 +174,7 @@ const getAllServicesHealth = async (_req, res) => {
         });
     }
     catch (error) {
-        logger_1.logger.error('Error en health check de servicios:', error);
+        logger.error('Error en health check de servicios:', error);
         res.status(503).json({
             success: false,
             error: 'Services health check failed',
@@ -190,10 +185,9 @@ const getAllServicesHealth = async (_req, res) => {
         });
     }
 };
-exports.getAllServicesHealth = getAllServicesHealth;
-exports.healthController = {
-    getOverallHealth: exports.getOverallHealth,
-    getDatabaseHealth: exports.getDatabaseHealth,
-    getAllServicesHealth: exports.getAllServicesHealth
+export const healthController = {
+    getOverallHealth,
+    getDatabaseHealth,
+    getAllServicesHealth
 };
 //# sourceMappingURL=healthController.js.map

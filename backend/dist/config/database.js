@@ -1,11 +1,8 @@
-"use strict";
 /**
  * Configuración de la base de datos PostgreSQL
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.pool = exports.config = void 0;
-const pg_1 = require("pg");
-const logger_1 = require("@/utils/logger");
+import { Pool } from 'pg';
+import { logger } from '@/utils/logger';
 // Configuración de la conexión
 const dbConfig = {
     connectionString: process.env.DATABASE_URL,
@@ -17,20 +14,19 @@ const dbConfig = {
     query_timeout: 30000, // timeout para queries
 };
 // Crear pool de conexiones
-const pool = new pg_1.Pool(dbConfig);
-exports.pool = pool;
+const pool = new Pool(dbConfig);
 // Eventos del pool
 pool.on('connect', (_client) => {
-    logger_1.logger.debug('Nueva conexión a PostgreSQL establecida');
+    logger.debug('Nueva conexión a PostgreSQL establecida');
 });
 pool.on('acquire', (_client) => {
-    logger_1.logger.debug('Cliente adquirido del pool');
+    logger.debug('Cliente adquirido del pool');
 });
 pool.on('error', (err, _client) => {
-    logger_1.logger.error('Error inesperado en cliente de PostgreSQL:', err);
+    logger.error('Error inesperado en cliente de PostgreSQL:', err);
 });
 pool.on('remove', (_client) => {
-    logger_1.logger.debug('Cliente removido del pool');
+    logger.debug('Cliente removido del pool');
 });
 /**
  * Clase para manejar la configuración de la base de datos
@@ -53,7 +49,7 @@ class DatabaseConfig {
         try {
             const client = await this.pool.connect();
             const result = await client.query('SELECT NOW() as current_time, current_database() as database');
-            logger_1.logger.info('Conexión a base de datos exitosa:', {
+            logger.info('Conexión a base de datos exitosa:', {
                 database: result.rows[0]?.database,
                 time: result.rows[0]?.current_time,
                 totalConnections: this.pool.totalCount,
@@ -63,7 +59,7 @@ class DatabaseConfig {
             client.release();
         }
         catch (error) {
-            logger_1.logger.error('Error al conectar con la base de datos:', error);
+            logger.error('Error al conectar con la base de datos:', error);
             throw error;
         }
     }
@@ -75,7 +71,7 @@ class DatabaseConfig {
         try {
             const result = await this.pool.query(text, params);
             const duration = Date.now() - start;
-            logger_1.logger.debug('Query ejecutada:', {
+            logger.debug('Query ejecutada:', {
                 text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
                 duration: `${duration}ms`,
                 rows: result.rowCount
@@ -84,7 +80,7 @@ class DatabaseConfig {
         }
         catch (error) {
             const duration = Date.now() - start;
-            logger_1.logger.error('Error en query:', {
+            logger.error('Error en query:', {
                 text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
                 params,
                 duration: `${duration}ms`,
@@ -102,12 +98,12 @@ class DatabaseConfig {
             await client.query('BEGIN');
             const result = await callback(client);
             await client.query('COMMIT');
-            logger_1.logger.debug('Transacción completada exitosamente');
+            logger.debug('Transacción completada exitosamente');
             return result;
         }
         catch (error) {
             await client.query('ROLLBACK');
-            logger_1.logger.error('Error en transacción, rollback ejecutado:', error);
+            logger.error('Error en transacción, rollback ejecutado:', error);
             throw error;
         }
         finally {
@@ -120,10 +116,10 @@ class DatabaseConfig {
     async close() {
         try {
             await this.pool.end();
-            logger_1.logger.info('Pool de conexiones cerrado');
+            logger.info('Pool de conexiones cerrado');
         }
         catch (error) {
-            logger_1.logger.error('Error al cerrar pool de conexiones:', error);
+            logger.error('Error al cerrar pool de conexiones:', error);
             throw error;
         }
     }
@@ -167,5 +163,7 @@ class DatabaseConfig {
     }
 }
 // Crear instancia singleton
-exports.config = new DatabaseConfig();
+export const config = new DatabaseConfig();
+// Exportar pool para uso directo si es necesario
+export { pool };
 //# sourceMappingURL=database.js.map

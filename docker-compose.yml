@@ -26,8 +26,8 @@ services:
   # Backend API con Node.js y Express
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./backend/Dockerfile
       target: development
     container_name: pizzapachorra_backend
     restart: unless-stopped

@@ -1,17 +1,14 @@
-"use strict";
 /**
  * Modelo para operaciones CRUD de pedidos
  * Gestiona la interacción con las tablas pedidos, pedido_items y historial_estados
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.pedidosModel = exports.PedidosModel = void 0;
-const database_1 = require("@/config/database");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const logger_1 = require("@/utils/logger");
-class PedidosModel {
+import { config } from '@/config/database';
+import { DatabaseError } from '@/middleware/errorHandler';
+import { logger } from '@/utils/logger';
+export class PedidosModel {
     pool;
     constructor() {
-        this.pool = database_1.config.getPool();
+        this.pool = config.getPool();
     }
     /**
      * Obtener todos los pedidos con filtros
@@ -58,8 +55,8 @@ class PedidosModel {
             return pedidos;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener pedidos:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener pedidos');
+            logger.error('Error al obtener pedidos:', error);
+            throw new DatabaseError('Error al obtener pedidos');
         }
     }
     /**
@@ -85,8 +82,8 @@ class PedidosModel {
             return await this.buildPedidoCompleto(result.rows[0]);
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener pedido por ID:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener pedido');
+            logger.error('Error al obtener pedido por ID:', error);
+            throw new DatabaseError('Error al obtener pedido');
         }
     }
     /**
@@ -153,8 +150,8 @@ class PedidosModel {
         }
         catch (error) {
             await client.query('ROLLBACK');
-            logger_1.logger.error('Error al crear pedido:', error);
-            throw new errorHandler_1.DatabaseError('Error al crear pedido');
+            logger.error('Error al crear pedido:', error);
+            throw new DatabaseError('Error al crear pedido');
         }
         finally {
             client.release();
@@ -197,8 +194,8 @@ class PedidosModel {
             return await this.getById(id);
         }
         catch (error) {
-            logger_1.logger.error('Error al actualizar pedido:', error);
-            throw new errorHandler_1.DatabaseError('Error al actualizar pedido');
+            logger.error('Error al actualizar pedido:', error);
+            throw new DatabaseError('Error al actualizar pedido');
         }
     }
     /**
@@ -248,8 +245,8 @@ class PedidosModel {
         }
         catch (error) {
             await client.query('ROLLBACK');
-            logger_1.logger.error('Error al cambiar estado de pedido:', error);
-            throw new errorHandler_1.DatabaseError('Error al cambiar estado de pedido');
+            logger.error('Error al cambiar estado de pedido:', error);
+            throw new DatabaseError('Error al cambiar estado de pedido');
         }
         finally {
             client.release();
@@ -290,8 +287,8 @@ class PedidosModel {
             return pedidos;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener pedidos de cocina:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener pedidos de cocina');
+            logger.error('Error al obtener pedidos de cocina:', error);
+            throw new DatabaseError('Error al obtener pedidos de cocina');
         }
     }
     /**
@@ -318,8 +315,8 @@ class PedidosModel {
             return result.rows[0];
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener resumen del día:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener resumen del día');
+            logger.error('Error al obtener resumen del día:', error);
+            throw new DatabaseError('Error al obtener resumen del día');
         }
     }
     /**
@@ -336,8 +333,8 @@ class PedidosModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener historial de estados:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener historial de estados');
+            logger.error('Error al obtener historial de estados:', error);
+            throw new DatabaseError('Error al obtener historial de estados');
         }
     }
     /**
@@ -447,11 +444,10 @@ class PedidosModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al verificar existencia de pedido:', error);
-            throw new errorHandler_1.DatabaseError('Error al verificar pedido');
+            logger.error('Error al verificar existencia de pedido:', error);
+            throw new DatabaseError('Error al verificar pedido');
         }
     }
 }
-exports.PedidosModel = PedidosModel;
-exports.pedidosModel = new PedidosModel();
+export const pedidosModel = new PedidosModel();
 //# sourceMappingURL=pedidosModel.js.map

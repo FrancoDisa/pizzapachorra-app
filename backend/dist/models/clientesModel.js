@@ -1,17 +1,14 @@
-"use strict";
 /**
  * Modelo para operaciones CRUD de clientes
  * Gestiona la interacción con la tabla clientes
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.clientesModel = exports.ClientesModel = void 0;
-const database_1 = require("@/config/database");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const logger_1 = require("@/utils/logger");
-class ClientesModel {
+import { config } from '@/config/database';
+import { DatabaseError } from '@/middleware/errorHandler';
+import { logger } from '@/utils/logger';
+export class ClientesModel {
     pool;
     constructor() {
-        this.pool = database_1.config.getPool();
+        this.pool = config.getPool();
     }
     /**
      * Obtener todos los clientes
@@ -32,8 +29,8 @@ class ClientesModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener clientes:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener clientes');
+            logger.error('Error al obtener clientes:', error);
+            throw new DatabaseError('Error al obtener clientes');
         }
     }
     /**
@@ -46,8 +43,8 @@ class ClientesModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener cliente por ID:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener cliente');
+            logger.error('Error al obtener cliente por ID:', error);
+            throw new DatabaseError('Error al obtener cliente');
         }
     }
     /**
@@ -60,8 +57,8 @@ class ClientesModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener cliente por teléfono:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener cliente por teléfono');
+            logger.error('Error al obtener cliente por teléfono:', error);
+            throw new DatabaseError('Error al obtener cliente por teléfono');
         }
     }
     /**
@@ -86,8 +83,8 @@ class ClientesModel {
             return result.rows[0];
         }
         catch (error) {
-            logger_1.logger.error('Error al crear cliente:', error);
-            throw new errorHandler_1.DatabaseError('Error al crear cliente');
+            logger.error('Error al crear cliente:', error);
+            throw new DatabaseError('Error al crear cliente');
         }
     }
     /**
@@ -133,8 +130,8 @@ class ClientesModel {
             return result.rows.length > 0 ? result.rows[0] : null;
         }
         catch (error) {
-            logger_1.logger.error('Error al actualizar cliente:', error);
-            throw new errorHandler_1.DatabaseError('Error al actualizar cliente');
+            logger.error('Error al actualizar cliente:', error);
+            throw new DatabaseError('Error al actualizar cliente');
         }
     }
     /**
@@ -147,8 +144,8 @@ class ClientesModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al eliminar cliente:', error);
-            throw new errorHandler_1.DatabaseError('Error al eliminar cliente');
+            logger.error('Error al eliminar cliente:', error);
+            throw new DatabaseError('Error al eliminar cliente');
         }
     }
     /**
@@ -170,8 +167,8 @@ class ClientesModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error en autocompletado de teléfono:', error);
-            throw new errorHandler_1.DatabaseError('Error en autocompletado');
+            logger.error('Error en autocompletado de teléfono:', error);
+            throw new DatabaseError('Error en autocompletado');
         }
     }
     /**
@@ -201,8 +198,8 @@ class ClientesModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al buscar clientes:', error);
-            throw new errorHandler_1.DatabaseError('Error al buscar clientes');
+            logger.error('Error al buscar clientes:', error);
+            throw new DatabaseError('Error al buscar clientes');
         }
     }
     /**
@@ -234,8 +231,8 @@ class ClientesModel {
             await this.pool.query(query, [clienteId]);
         }
         catch (error) {
-            logger_1.logger.error('Error al actualizar estadísticas del cliente:', error);
-            throw new errorHandler_1.DatabaseError('Error al actualizar estadísticas del cliente');
+            logger.error('Error al actualizar estadísticas del cliente:', error);
+            throw new DatabaseError('Error al actualizar estadísticas del cliente');
         }
     }
     /**
@@ -264,8 +261,8 @@ class ClientesModel {
             return result.rows;
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener historial de pedidos:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener historial de pedidos');
+            logger.error('Error al obtener historial de pedidos:', error);
+            throw new DatabaseError('Error al obtener historial de pedidos');
         }
     }
     /**
@@ -288,8 +285,8 @@ class ClientesModel {
             return result.rows[0];
         }
         catch (error) {
-            logger_1.logger.error('Error al obtener estadísticas de clientes:', error);
-            throw new errorHandler_1.DatabaseError('Error al obtener estadísticas');
+            logger.error('Error al obtener estadísticas de clientes:', error);
+            throw new DatabaseError('Error al obtener estadísticas');
         }
     }
     /**
@@ -307,11 +304,10 @@ class ClientesModel {
             return result.rows.length > 0;
         }
         catch (error) {
-            logger_1.logger.error('Error al verificar existencia de cliente:', error);
-            throw new errorHandler_1.DatabaseError('Error al verificar cliente');
+            logger.error('Error al verificar existencia de cliente:', error);
+            throw new DatabaseError('Error al verificar cliente');
         }
     }
 }
-exports.ClientesModel = ClientesModel;
-exports.clientesModel = new ClientesModel();
+export const clientesModel = new ClientesModel();
 //# sourceMappingURL=clientesModel.js.map

@@ -1,18 +1,12 @@
-"use strict";
 /**
  * Middleware de manejo centralizado de errores
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotFoundError = exports.AuthorizationError = exports.AuthenticationError = exports.BusinessError = exports.DatabaseError = exports.ValidationError = exports.ApplicationError = void 0;
-exports.errorHandler = errorHandler;
-exports.asyncHandler = asyncHandler;
-exports.createValidationError = createValidationError;
-const logger_1 = require("@/utils/logger");
-const validateEnv_1 = require("@/utils/validateEnv");
+import { logger } from '@/utils/logger';
+import { isProduction } from '@/utils/validateEnv';
 /**
  * Clase para errores de aplicación
  */
-class ApplicationError extends Error {
+export class ApplicationError extends Error {
     statusCode;
     isOperational;
     code;
@@ -27,72 +21,65 @@ class ApplicationError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
-exports.ApplicationError = ApplicationError;
 /**
  * Errores específicos de validación
  */
-class ValidationError extends ApplicationError {
+export class ValidationError extends ApplicationError {
     constructor(message, details) {
         super(message, 400, true, 'VALIDATION_ERROR', details);
         this.name = 'ValidationError';
     }
 }
-exports.ValidationError = ValidationError;
 /**
  * Errores de base de datos
  */
-class DatabaseError extends ApplicationError {
+export class DatabaseError extends ApplicationError {
     constructor(message, originalError) {
         super(message, 500, true, 'DATABASE_ERROR', { originalError: originalError?.message });
         this.name = 'DatabaseError';
     }
 }
-exports.DatabaseError = DatabaseError;
 /**
  * Errores de negocio
  */
-class BusinessError extends ApplicationError {
+export class BusinessError extends ApplicationError {
     constructor(message, statusCode = 422, details) {
         super(message, statusCode, true, 'BUSINESS_ERROR', details);
         this.name = 'BusinessError';
     }
 }
-exports.BusinessError = BusinessError;
 /**
  * Errores de autenticación
  */
-class AuthenticationError extends ApplicationError {
+export class AuthenticationError extends ApplicationError {
     constructor(message = 'No autorizado') {
         super(message, 401, true, 'AUTHENTICATION_ERROR');
         this.name = 'AuthenticationError';
     }
 }
-exports.AuthenticationError = AuthenticationError;
 /**
  * Errores de autorización
  */
-class AuthorizationError extends ApplicationError {
+export class AuthorizationError extends ApplicationError {
     constructor(message = 'Acceso denegado') {
         super(message, 403, true, 'AUTHORIZATION_ERROR');
         this.name = 'AuthorizationError';
     }
 }
-exports.AuthorizationError = AuthorizationError;
 /**
  * Errores de recurso no encontrado
  */
-class NotFoundError extends ApplicationError {
+export class NotFoundError extends ApplicationError {
     constructor(resource = 'Recurso') {
         super(`${resource} no encontrado`, 404, true, 'NOT_FOUND_ERROR');
         this.name = 'NotFoundError';
     }
 }
-exports.NotFoundError = NotFoundError;
 /**
  * Convertir errores de PostgreSQL a errores de aplicación
  */
 function handleDatabaseError(error) {
-    logger_1.logger.error('Error de base de datos:', error);
+    logger.error('Error de base de datos:', error);
     switch (error.code) {
         case '23505': // unique_violation
             return new ValidationError('El registro ya existe', {
@@ -130,7 +117,7 @@ function handleDatabaseError(error) {
 /**
  * Middleware principal de manejo de errores
  */
-function errorHandler(error, req, res, _next) {
+export function errorHandler(error, req, res, _next) {
     let appError;
     // Convertir errores específicos
     if (error.name === 'ValidationError' && 'details' in error) {
@@ -156,7 +143,7 @@ function errorHandler(error, req, res, _next) {
     }
     // Log del error
     const logLevel = appError.statusCode && appError.statusCode < 500 ? 'warn' : 'error';
-    logger_1.logger[logLevel]('Error en aplicación:', {
+    logger[logLevel]('Error en aplicación:', {
         name: appError.name,
         message: appError.message,
         statusCode: appError.statusCode,
@@ -165,7 +152,7 @@ function errorHandler(error, req, res, _next) {
         method: req.method,
         ip: req.ip,
         userAgent: req.get('User-Agent'),
-        stack: (0, validateEnv_1.isProduction)() ? undefined : appError.stack,
+        stack: isProduction() ? undefined : appError.stack,
         details: appError.details
     });
     // Preparar respuesta
@@ -178,16 +165,16 @@ function errorHandler(error, req, res, _next) {
         method: req.method
     };
     // Agregar detalles en desarrollo o si es error operacional
-    if (!(0, validateEnv_1.isProduction)() || appError.isOperational) {
+    if (!isProduction() || appError.isOperational) {
         if (appError.details) {
             response.details = appError.details;
         }
-        if (!(0, validateEnv_1.isProduction)()) {
+        if (!isProduction()) {
             response.stack = appError.stack;
         }
     }
     // En producción, no revelar detalles de errores internos
-    if ((0, validateEnv_1.isProduction)() && (!appError.isOperational || appError.statusCode === 500)) {
+    if (isProduction() && (!appError.isOperational || appError.statusCode === 500)) {
         response.message = 'Error interno del servidor';
         delete response.details;
         delete response.stack;
@@ -198,7 +185,7 @@ function errorHandler(error, req, res, _next) {
 /**
  * Middleware para capturar errores asíncronos
  */
-function asyncHandler(fn) {
+export function asyncHandler(fn) {
     return (req, res, next) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
@@ -206,7 +193,7 @@ function asyncHandler(fn) {
 /**
  * Crear error de validación desde esquema Joi
  */
-function createValidationError(joiError) {
+export function createValidationError(joiError) {
     const details = joiError.details?.map((detail) => ({
         field: detail.path?.join('.'),
         message: detail.message,

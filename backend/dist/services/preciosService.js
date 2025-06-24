@@ -1,15 +1,12 @@
-"use strict";
 /**
  * Servicio para cálculo de precios de pizzas
  * Implementa la lógica compleja de precios para pizzas enteras y mitad-y-mitad
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.preciosService = exports.PreciosService = void 0;
-const pizzasModel_1 = require("@/models/pizzasModel");
-const extrasModel_1 = require("@/models/extrasModel");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const logger_1 = require("@/utils/logger");
-class PreciosService {
+import { pizzasModel } from '@/models/pizzasModel';
+import { extrasModel } from '@/models/extrasModel';
+import { BusinessError } from '@/middleware/errorHandler';
+import { logger } from '@/utils/logger';
+export class PreciosService {
     /**
      * Calcular precio de una pizza completa
      */
@@ -17,17 +14,17 @@ class PreciosService {
         try {
             const { pizza_principal, extras_principales, ingredientes_removidos, pizza_mitad2, extras_mitad2, ingredientes_removidos_mitad2, cantidad } = parametros;
             // Verificar que las pizzas existen
-            const pizzaBase = await pizzasModel_1.pizzasModel.getById(pizza_principal.id);
+            const pizzaBase = await pizzasModel.getById(pizza_principal.id);
             if (!pizzaBase) {
-                throw new errorHandler_1.BusinessError(`Pizza con ID ${pizza_principal.id} no encontrada`);
+                throw new BusinessError(`Pizza con ID ${pizza_principal.id} no encontrada`);
             }
             const es_mitad_y_mitad = !!pizza_mitad2;
             let calculo;
             if (es_mitad_y_mitad) {
                 // Validar pizza mitad 2
-                const pizzaMitad2 = await pizzasModel_1.pizzasModel.getById(pizza_mitad2.id);
+                const pizzaMitad2 = await pizzasModel.getById(pizza_mitad2.id);
                 if (!pizzaMitad2) {
-                    throw new errorHandler_1.BusinessError(`Pizza mitad 2 con ID ${pizza_mitad2.id} no encontrada`);
+                    throw new BusinessError(`Pizza mitad 2 con ID ${pizza_mitad2.id} no encontrada`);
                 }
                 calculo = await this.calcularPizzaMitadYMitad(pizzaBase, extras_principales, ingredientes_removidos, pizzaMitad2, extras_mitad2 || [], ingredientes_removidos_mitad2 || []);
             }
@@ -46,7 +43,7 @@ class PreciosService {
             return calculo;
         }
         catch (error) {
-            logger_1.logger.error('Error al calcular precio de pizza:', error);
+            logger.error('Error al calcular precio de pizza:', error);
             throw error;
         }
     }
@@ -55,7 +52,7 @@ class PreciosService {
      */
     async calcularPizzaEntera(pizza, extrasIds, ingredientesRemovidos) {
         // Obtener extras
-        const extras = await extrasModel_1.extrasModel.getByIds(extrasIds);
+        const extras = await extrasModel.getByIds(extrasIds);
         const extrasAplicados = extras.map(extra => ({
             extra,
             cantidad: 1,
@@ -87,8 +84,8 @@ class PreciosService {
         // Precio base: promedio de ambas pizzas
         const precio_base = (pizza1.precio_base + pizza2.precio_base) / 2;
         // Obtener extras de ambas mitades
-        const extrasData1 = await extrasModel_1.extrasModel.getByIds(extras1);
-        const extrasData2 = await extrasModel_1.extrasModel.getByIds(extras2);
+        const extrasData1 = await extrasModel.getByIds(extras1);
+        const extrasData2 = await extrasModel.getByIds(extras2);
         // Identificar extras que están en ambas mitades
         const extrasEnAmbas = extrasData1.filter(extra1 => extrasData2.some(extra2 => extra2.id === extra1.id));
         // Extras solo en mitad 1
@@ -198,7 +195,7 @@ class PreciosService {
             };
         }
         catch (error) {
-            logger_1.logger.error('Error al calcular resumen de pedido:', error);
+            logger.error('Error al calcular resumen de pedido:', error);
             throw error;
         }
     }
@@ -208,11 +205,11 @@ class PreciosService {
     async validarExtras(extrasIds) {
         if (extrasIds.length === 0)
             return [];
-        const extras = await extrasModel_1.extrasModel.getByIds(extrasIds);
+        const extras = await extrasModel.getByIds(extrasIds);
         if (extras.length !== extrasIds.length) {
             const extrasEncontrados = extras.map(e => e.id);
             const extrasNoEncontrados = extrasIds.filter(id => !extrasEncontrados.includes(id));
-            throw new errorHandler_1.BusinessError(`Extras no encontrados: ${extrasNoEncontrados.join(', ')}`);
+            throw new BusinessError(`Extras no encontrados: ${extrasNoEncontrados.join(', ')}`);
         }
         return extras;
     }
@@ -228,6 +225,5 @@ class PreciosService {
         return `${year}${month}${day}-${timestamp}`;
     }
 }
-exports.PreciosService = PreciosService;
-exports.preciosService = new PreciosService();
+export const preciosService = new PreciosService();
 //# sourceMappingURL=preciosService.js.map
