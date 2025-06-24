@@ -12,7 +12,7 @@ import { isProduction } from '@/utils/validateEnv';
 export interface AppError extends Error {
   statusCode?: number;
   isOperational?: boolean;
-  code?: string;
+  code?: string | undefined;
   details?: any;
 }
 
@@ -22,14 +22,14 @@ export interface AppError extends Error {
 export class ApplicationError extends Error implements AppError {
   public statusCode: number;
   public isOperational: boolean;
-  public code?: string;
+  public code?: string | undefined;
   public details?: any;
 
   constructor(
     message: string,
     statusCode: number = 500,
     isOperational: boolean = true,
-    code?: string,
+    code?: string | undefined,
     details?: any
   ) {
     super(message);
@@ -159,7 +159,7 @@ export function errorHandler(
   error: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
   let appError: AppError;
 

@@ -5,8 +5,8 @@ interface EnvConfig {
     NODE_ENV: string;
     PORT: string;
     DATABASE_URL: string;
-    JWT_SECRET?: string;
-    CORS_ORIGIN?: string;
+    JWT_SECRET?: string | undefined;
+    CORS_ORIGIN?: string | undefined;
 }
 /**
  * Validar que todas las variables de entorno requeridas estén presentes

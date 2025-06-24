@@ -115,4 +115,7 @@ export interface CrearPedidoItemRequest {
 export type EstadoPedido = 'nuevo' | 'en_preparacion' | 'listo' | 'entregado' | 'cancelado';
 export type MetodoPago = 'efectivo' | 'tarjeta' | 'transferencia';
 export type CategoriaExtra = 'condimentos' | 'vegetales' | 'proteinas' | 'carnes' | 'quesos' | 'especiales' | 'general';
+export * from './estados';
+export * from './precios';
+export * from './validacion';
 //# sourceMappingURL=index.d.ts.map

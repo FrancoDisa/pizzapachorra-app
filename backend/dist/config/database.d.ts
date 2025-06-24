@@ -2,7 +2,7 @@
  * Configuración de la base de datos PostgreSQL
  */
 import { Pool } from 'pg';
-declare const pool: any;
+declare const pool: Pool;
 /**
  * Clase para manejar la configuración de la base de datos
  */
@@ -33,9 +33,9 @@ declare class DatabaseConfig {
      * Obtener estadísticas del pool
      */
     getPoolStats(): {
-        totalCount: any;
-        idleCount: any;
-        waitingCount: any;
+        totalCount: number;
+        idleCount: number;
+        waitingCount: number;
     };
     /**
      * Verificar salud de la base de datos

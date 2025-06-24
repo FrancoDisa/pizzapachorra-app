@@ -8,7 +8,17 @@
       "Bash(npm test:*)",
       "Bash(rm:*)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(docker compose:*)",
+      "Bash(docker system prune:*)",
+      "Bash(npm start)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(npm run build:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)"
     ],
     "deny": []
   }

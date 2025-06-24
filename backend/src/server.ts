@@ -88,7 +88,7 @@ app.use(morgan(logFormat, {
 }));
 
 // Middleware para inyectar io en req
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   (req as any).io = io;
   next();
 });
@@ -101,7 +101,7 @@ app.use('/api/clientes', clientesRouter);
 app.use('/api/pedidos', pedidosRouter);
 
 // Ruta raíz
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({
     message: 'Pizza Pachorra API',
     version: '1.0.0',

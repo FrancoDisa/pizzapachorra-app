@@ -1,7 +1,8 @@
 /**
  * Configuración de logging con Winston
  */
-declare const logger: any;
+import winston from 'winston';
+declare const logger: winston.Logger;
 export declare const logRequest: (req: any, res: any, responseTime?: number) => void;
 export declare const logDbError: (error: Error, query?: string, params?: any[]) => void;
 export declare const logBusinessOperation: (operation: string, details: Record<string, any>, level?: "info" | "warn" | "error") => void;

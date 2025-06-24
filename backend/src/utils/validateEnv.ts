@@ -8,8 +8,8 @@ interface EnvConfig {
   NODE_ENV: string;
   PORT: string;
   DATABASE_URL: string;
-  JWT_SECRET?: string;
-  CORS_ORIGIN?: string;
+  JWT_SECRET?: string | undefined;
+  CORS_ORIGIN?: string | undefined;
 }
 
 /**
@@ -102,9 +102,9 @@ export function validateEnv(): EnvConfig {
     NODE_ENV: process.env.NODE_ENV!,
     PORT: process.env.PORT!,
     DATABASE_URL: process.env.DATABASE_URL!,
-    JWT_SECRET: process.env.JWT_SECRET,
-    CORS_ORIGIN: process.env.CORS_ORIGIN,
-  };
+    JWT_SECRET: process.env.JWT_SECRET || defaultEnvVars.JWT_SECRET,
+    CORS_ORIGIN: process.env.CORS_ORIGIN || defaultEnvVars.CORS_ORIGIN,
+  } as EnvConfig;
 }
 
 /**
@@ -115,8 +115,8 @@ function isValidDatabaseUrl(url: string): boolean {
     const parsed = new URL(url);
     return (
       parsed.protocol === 'postgresql:' &&
-      parsed.hostname &&
-      parsed.pathname &&
+      !!parsed.hostname &&
+      !!parsed.pathname &&
       parsed.pathname !== '/'
     );
   } catch {
@@ -145,9 +145,9 @@ export function getEnvConfig(): EnvConfig {
     NODE_ENV: process.env.NODE_ENV!,
     PORT: process.env.PORT!,
     DATABASE_URL: process.env.DATABASE_URL!,
-    JWT_SECRET: process.env.JWT_SECRET,
-    CORS_ORIGIN: process.env.CORS_ORIGIN,
-  };
+    JWT_SECRET: process.env.JWT_SECRET || defaultEnvVars.JWT_SECRET,
+    CORS_ORIGIN: process.env.CORS_ORIGIN || defaultEnvVars.CORS_ORIGIN,
+  } as EnvConfig;
 }
 
 /**

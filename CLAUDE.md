@@ -181,9 +181,101 @@ Required:
 - Maintain code quality through linting and testing before considering work complete
 - Document any new development commands or patterns in the appropriate sections above
 
+## Backend Verification Guidelines
+
+### Complete Verification Process
+When asked to verify backend completeness, follow this comprehensive checklist:
+
+1. **Structure Analysis**
+   - Verify all MVC components exist (models, controllers, routes, services)
+   - Check middleware implementation (error handling, logging, validation)
+   - Confirm TypeScript configuration and type definitions
+
+2. **Database Verification**
+   - Search for schema files: `find . -name "*.sql" -o -name "*migration*" -o -name "*schema*"`
+   - Verify all business entities are implemented
+   - Check database connection pooling and health checks
+   - Confirm triggers, indexes, and relationships
+
+3. **API Endpoints Verification**
+   - Use Task tool to analyze all route files and controllers
+   - Verify CRUD operations for all entities
+   - Check endpoint patterns match business requirements
+   - Confirm proper error handling and validation
+
+4. **Error Handling & Logging**
+   - Search for winston/logger usage: `rg -n "logger|log|winston" --type ts`
+   - Verify centralized error middleware exists
+   - Check custom error types (ValidationError, BusinessError, etc.)
+   - Confirm structured logging implementation
+
+5. **WebSocket Implementation**
+   - Search for Socket.io usage: `rg -n "socket\.io|websocket|emit" --type ts`
+   - Verify real-time events match business requirements
+   - Check room-based messaging (cocina, admin)
+
+6. **Code Quality Verification**
+   ```bash
+   # Always run these commands in sequence:
+   npm run lint          # Check code style
+   npm run build         # Verify TypeScript compilation
+   npm test             # Run unit tests
+   ```
+
+7. **Context7 Standards Verification**
+   - Use Context7 to check Express.js and Node.js best practices
+   - Compare error handling patterns with official documentation
+   - Verify middleware usage follows conventions
+
+### TypeScript Error Resolution
+When encountering TypeScript compilation errors:
+
+1. **Parameter Validation Errors** (`string | undefined` not assignable to `string`):
+   ```typescript
+   // Fix pattern:
+   const idParam = req.params.id;
+   if (!idParam) {
+     throw new ValidationError('ID requerido');
+   }
+   const id = parseInt(idParam);
+   ```
+
+2. **Optional Property Errors** (exactOptionalPropertyTypes):
+   ```typescript
+   // Fix interface definitions:
+   interface MyInterface {
+     optionalField?: string | undefined;
+   }
+   ```
+
+3. **Unused Parameter Errors**:
+   ```typescript
+   // Prefix with underscore:
+   export const handler = async (_req: Request, res: Response) => {}
+   ```
+
+### Route Order Issues
+Always place specific routes before parameterized routes:
+```typescript
+// Correct order:
+router.get('/', getAllItems);
+router.get('/menu/activo', getActiveMenu);  // Specific route first
+router.get('/:id', getItemById);           // Parameterized route last
+```
+
+### Verification Report Template
+Always provide a structured verification report with:
+- Executive summary with completion percentage
+- Component-by-component analysis (✅ Complete, ⚠️ Issues, ❌ Missing)
+- Issues identified with priority levels (🔴 High, 🟡 Medium, 🟢 Low)
+- Specific action items with file locations and line numbers
+- Comparison with Express.js/Node.js best practices from Context7
+- Final recommendation (Ready for production/Needs fixes)
+
 ## Task Management Guidelines
 - Use TodoWrite for any multi-step implementation work
 - Mark todos as in_progress before starting work
 - Mark todos as completed immediately after finishing
 - Update todolist.md progress percentages after major completions
 - Create verification plans when user asks "how to test if everything works"
+- **MANDATORY**: Register completion of any process in todolist.md after finishing

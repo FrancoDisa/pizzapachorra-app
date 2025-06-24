@@ -35,7 +35,7 @@ export interface ParametrosCalculoPizza {
   pizza_principal: Pizza;
   extras_principales: number[];
   ingredientes_removidos: string[];
-  pizza_mitad2?: Pizza;
+  pizza_mitad2?: Pizza | undefined;
   extras_mitad2?: number[];
   ingredientes_removidos_mitad2?: string[];
   cantidad: number;

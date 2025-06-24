@@ -8,7 +8,7 @@ import { Request, Response, NextFunction } from 'express';
 export interface AppError extends Error {
     statusCode?: number;
     isOperational?: boolean;
-    code?: string;
+    code?: string | undefined;
     details?: any;
 }
 /**
@@ -17,9 +17,9 @@ export interface AppError extends Error {
 export declare class ApplicationError extends Error implements AppError {
     statusCode: number;
     isOperational: boolean;
-    code?: string;
+    code?: string | undefined;
     details?: any;
-    constructor(message: string, statusCode?: number, isOperational?: boolean, code?: string, details?: any);
+    constructor(message: string, statusCode?: number, isOperational?: boolean, code?: string | undefined, details?: any);
 }
 /**
  * Errores específicos de validación
@@ -60,7 +60,7 @@ export declare class NotFoundError extends ApplicationError {
 /**
  * Middleware principal de manejo de errores
  */
-export declare function errorHandler(error: Error | AppError, req: Request, res: Response, next: NextFunction): void;
+export declare function errorHandler(error: Error | AppError, req: Request, res: Response, _next: NextFunction): void;
 /**
  * Middleware para capturar errores asíncronos
  */

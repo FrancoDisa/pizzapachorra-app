@@ -123,3 +123,26 @@ export const actualizarEstadoSchema = Joi.object({
   motivo: Joi.string().max(500).allow('', null),
   usuario: Joi.string().max(50).default('sistema')
 });
+
+// Schemas para validación en controladores
+export const validatePizzaSchema = pizzaSchema.keys({
+  id: Joi.forbidden(),
+  created_at: Joi.forbidden(),
+  updated_at: Joi.forbidden()
+});
+
+export const validateExtraSchema = extraSchema.keys({
+  id: Joi.forbidden(),
+  created_at: Joi.forbidden()
+});
+
+export const validateClienteSchema = clienteSchema.keys({
+  id: Joi.forbidden(),
+  total_pedidos: Joi.forbidden(),
+  total_gastado: Joi.forbidden(),
+  ultimo_pedido: Joi.forbidden(),
+  created_at: Joi.forbidden(),
+  updated_at: Joi.forbidden()
+});
+
+export const validatePedidoSchema = crearPedidoSchema;

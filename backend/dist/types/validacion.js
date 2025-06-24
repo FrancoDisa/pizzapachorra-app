@@ -1,122 +1,171 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.actualizarEstadoSchema = exports.crearPedidoSchema = exports.pedidoItemSchema = exports.pedidoSchema = exports.clienteSchema = exports.extraSchema = exports.pizzaSchema = void 0;
-const joi_1 = __importDefault(require("joi"));
-exports.pizzaSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive(),
-    nombre: joi_1.default.string().max(100).required(),
-    precio_base: joi_1.default.number().positive().precision(2).required(),
-    ingredientes: joi_1.default.array().items(joi_1.default.string().max(50)).required(),
-    descripcion: joi_1.default.string().max(500).allow('', null),
-    activa: joi_1.default.boolean().default(true),
-    orden_menu: joi_1.default.number().integer().min(0).default(0),
-    created_at: joi_1.default.date(),
-    updated_at: joi_1.default.date()
+exports.validatePedidoSchema = exports.validateClienteSchema = exports.validateExtraSchema = exports.validatePizzaSchema = exports.actualizarEstadoSchema = exports.crearPedidoSchema = exports.pedidoItemSchema = exports.pedidoSchema = exports.clienteSchema = exports.extraSchema = exports.pizzaSchema = void 0;
+const Joi = __importStar(require("joi"));
+exports.pizzaSchema = Joi.object({
+    id: Joi.number().integer().positive(),
+    nombre: Joi.string().max(100).required(),
+    precio_base: Joi.number().positive().precision(2).required(),
+    ingredientes: Joi.array().items(Joi.string().max(50)).required(),
+    descripcion: Joi.string().max(500).allow('', null),
+    activa: Joi.boolean().default(true),
+    orden_menu: Joi.number().integer().min(0).default(0),
+    created_at: Joi.date(),
+    updated_at: Joi.date()
 });
-exports.extraSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive(),
-    nombre: joi_1.default.string().max(50).required(),
-    precio: joi_1.default.number().positive().precision(2).required(),
-    categoria: joi_1.default.string().valid(...Object.values(['condimentos', 'vegetales', 'proteinas', 'carnes', 'quesos', 'especiales', 'general'])).default('general'),
-    activo: joi_1.default.boolean().default(true),
-    orden_categoria: joi_1.default.number().integer().min(0).default(0),
-    created_at: joi_1.default.date()
+exports.extraSchema = Joi.object({
+    id: Joi.number().integer().positive(),
+    nombre: Joi.string().max(50).required(),
+    precio: Joi.number().positive().precision(2).required(),
+    categoria: Joi.string().valid(...Object.values(['condimentos', 'vegetales', 'proteinas', 'carnes', 'quesos', 'especiales', 'general'])).default('general'),
+    activo: Joi.boolean().default(true),
+    orden_categoria: Joi.number().integer().min(0).default(0),
+    created_at: Joi.date()
 });
-exports.clienteSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive(),
-    telefono: joi_1.default.string().pattern(/^\+?[0-9\s\-\(\)]{10,20}$/).required(),
-    nombre: joi_1.default.string().max(100).allow('', null),
-    direccion: joi_1.default.string().max(500).allow('', null),
-    referencias: joi_1.default.string().max(500).allow('', null),
-    notas: joi_1.default.string().max(1000).allow('', null),
-    total_pedidos: joi_1.default.number().integer().min(0).default(0),
-    total_gastado: joi_1.default.number().min(0).precision(2).default(0),
-    ultimo_pedido: joi_1.default.date().allow(null),
-    created_at: joi_1.default.date(),
-    updated_at: joi_1.default.date()
+exports.clienteSchema = Joi.object({
+    id: Joi.number().integer().positive(),
+    telefono: Joi.string().pattern(/^\+?[0-9\s\-()]{10,20}$/).required(),
+    nombre: Joi.string().max(100).allow('', null),
+    direccion: Joi.string().max(500).allow('', null),
+    referencias: Joi.string().max(500).allow('', null),
+    notas: Joi.string().max(1000).allow('', null),
+    total_pedidos: Joi.number().integer().min(0).default(0),
+    total_gastado: Joi.number().min(0).precision(2).default(0),
+    ultimo_pedido: Joi.date().allow(null),
+    created_at: Joi.date(),
+    updated_at: Joi.date()
 });
-exports.pedidoSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive(),
-    numero_pedido: joi_1.default.string().max(20).required(),
-    cliente_id: joi_1.default.number().integer().positive().allow(null),
-    estado: joi_1.default.string().valid(...['nuevo', 'en_preparacion', 'listo', 'entregado', 'cancelado']).required(),
-    subtotal: joi_1.default.number().min(0).precision(2).required(),
-    descuento: joi_1.default.number().min(0).precision(2).default(0),
-    total: joi_1.default.number().min(0).precision(2).required(),
-    metodo_pago: joi_1.default.string().valid(...['efectivo', 'tarjeta', 'transferencia']).default('efectivo'),
-    notas: joi_1.default.string().max(1000).allow('', null),
-    tiempo_estimado: joi_1.default.number().integer().min(0).allow(null),
-    fecha_pedido: joi_1.default.date().required(),
-    fecha_preparacion: joi_1.default.date().allow(null),
-    fecha_listo: joi_1.default.date().allow(null),
-    fecha_entrega: joi_1.default.date().allow(null),
-    fecha_cancelacion: joi_1.default.date().allow(null),
-    created_at: joi_1.default.date(),
-    updated_at: joi_1.default.date()
+exports.pedidoSchema = Joi.object({
+    id: Joi.number().integer().positive(),
+    numero_pedido: Joi.string().max(20).required(),
+    cliente_id: Joi.number().integer().positive().allow(null),
+    estado: Joi.string().valid(...['nuevo', 'en_preparacion', 'listo', 'entregado', 'cancelado']).required(),
+    subtotal: Joi.number().min(0).precision(2).required(),
+    descuento: Joi.number().min(0).precision(2).default(0),
+    total: Joi.number().min(0).precision(2).required(),
+    metodo_pago: Joi.string().valid(...['efectivo', 'tarjeta', 'transferencia']).default('efectivo'),
+    notas: Joi.string().max(1000).allow('', null),
+    tiempo_estimado: Joi.number().integer().min(0).allow(null),
+    fecha_pedido: Joi.date().required(),
+    fecha_preparacion: Joi.date().allow(null),
+    fecha_listo: Joi.date().allow(null),
+    fecha_entrega: Joi.date().allow(null),
+    fecha_cancelacion: Joi.date().allow(null),
+    created_at: Joi.date(),
+    updated_at: Joi.date()
 });
-exports.pedidoItemSchema = joi_1.default.object({
-    id: joi_1.default.number().integer().positive(),
-    pedido_id: joi_1.default.number().integer().positive().required(),
-    pizza_id: joi_1.default.number().integer().positive().required(),
-    cantidad: joi_1.default.number().integer().min(1).required(),
-    es_mitad_y_mitad: joi_1.default.boolean().default(false),
-    extras_principales: joi_1.default.array().items(joi_1.default.number().integer().positive()).default([]),
-    ingredientes_removidos: joi_1.default.array().items(joi_1.default.string().max(50)).default([]),
-    pizza_id_mitad2: joi_1.default.number().integer().positive().allow(null),
-    extras_mitad2: joi_1.default.array().items(joi_1.default.number().integer().positive()).default([]),
-    ingredientes_removidos_mitad2: joi_1.default.array().items(joi_1.default.string().max(50)).default([]),
-    precio_base: joi_1.default.number().positive().precision(2).required(),
-    precio_extras: joi_1.default.number().min(0).precision(2).default(0),
-    precio_total: joi_1.default.number().positive().precision(2).required(),
-    notas: joi_1.default.string().max(500).allow('', null),
-    created_at: joi_1.default.date()
+exports.pedidoItemSchema = Joi.object({
+    id: Joi.number().integer().positive(),
+    pedido_id: Joi.number().integer().positive().required(),
+    pizza_id: Joi.number().integer().positive().required(),
+    cantidad: Joi.number().integer().min(1).required(),
+    es_mitad_y_mitad: Joi.boolean().default(false),
+    extras_principales: Joi.array().items(Joi.number().integer().positive()).default([]),
+    ingredientes_removidos: Joi.array().items(Joi.string().max(50)).default([]),
+    pizza_id_mitad2: Joi.number().integer().positive().allow(null),
+    extras_mitad2: Joi.array().items(Joi.number().integer().positive()).default([]),
+    ingredientes_removidos_mitad2: Joi.array().items(Joi.string().max(50)).default([]),
+    precio_base: Joi.number().positive().precision(2).required(),
+    precio_extras: Joi.number().min(0).precision(2).default(0),
+    precio_total: Joi.number().positive().precision(2).required(),
+    notas: Joi.string().max(500).allow('', null),
+    created_at: Joi.date()
 });
-exports.crearPedidoSchema = joi_1.default.object({
-    cliente_id: joi_1.default.number().integer().positive().allow(null),
-    cliente_data: joi_1.default.when('cliente_id', {
-        is: null,
-        then: joi_1.default.object({
-            telefono: joi_1.default.string().pattern(/^\+?[0-9\s\-\(\)]{10,20}$/).required(),
-            nombre: joi_1.default.string().max(100).allow('', null),
-            direccion: joi_1.default.string().max(500).allow('', null),
-            referencias: joi_1.default.string().max(500).allow('', null)
-        }).required(),
-        otherwise: joi_1.default.forbidden()
+exports.crearPedidoSchema = Joi.object({
+    cliente_id: Joi.number().integer().positive().allow(null),
+    cliente_data: Joi.when('cliente_id', {
+        is: Joi.exist(),
+        then: Joi.forbidden(),
+        otherwise: Joi.object({
+            telefono: Joi.string().pattern(/^\+?[0-9\s\-()]{10,20}$/).required(),
+            nombre: Joi.string().max(100).allow('', null),
+            direccion: Joi.string().max(500).allow('', null),
+            referencias: Joi.string().max(500).allow('', null)
+        }).required()
     }),
-    items: joi_1.default.array().items(joi_1.default.object({
-        pizza_id: joi_1.default.number().integer().positive().required(),
-        cantidad: joi_1.default.number().integer().min(1).required(),
-        es_mitad_y_mitad: joi_1.default.boolean().default(false),
-        extras_principales: joi_1.default.array().items(joi_1.default.number().integer().positive()).default([]),
-        ingredientes_removidos: joi_1.default.array().items(joi_1.default.string().max(50)).default([]),
-        pizza_id_mitad2: joi_1.default.when('es_mitad_y_mitad', {
+    items: Joi.array().items(Joi.object({
+        pizza_id: Joi.number().integer().positive().required(),
+        cantidad: Joi.number().integer().min(1).required(),
+        es_mitad_y_mitad: Joi.boolean().default(false),
+        extras_principales: Joi.array().items(Joi.number().integer().positive()).default([]),
+        ingredientes_removidos: Joi.array().items(Joi.string().max(50)).default([]),
+        pizza_id_mitad2: Joi.when('es_mitad_y_mitad', {
             is: true,
-            then: joi_1.default.number().integer().positive().required(),
-            otherwise: joi_1.default.forbidden()
+            then: Joi.number().integer().positive().required(),
+            otherwise: Joi.forbidden()
         }),
-        extras_mitad2: joi_1.default.when('es_mitad_y_mitad', {
+        extras_mitad2: Joi.when('es_mitad_y_mitad', {
             is: true,
-            then: joi_1.default.array().items(joi_1.default.number().integer().positive()).default([]),
-            otherwise: joi_1.default.forbidden()
+            then: Joi.array().items(Joi.number().integer().positive()).default([]),
+            otherwise: Joi.forbidden()
         }),
-        ingredientes_removidos_mitad2: joi_1.default.when('es_mitad_y_mitad', {
+        ingredientes_removidos_mitad2: Joi.when('es_mitad_y_mitad', {
             is: true,
-            then: joi_1.default.array().items(joi_1.default.string().max(50)).default([]),
-            otherwise: joi_1.default.forbidden()
+            then: Joi.array().items(Joi.string().max(50)).default([]),
+            otherwise: Joi.forbidden()
         }),
-        notas: joi_1.default.string().max(500).allow('', null)
+        notas: Joi.string().max(500).allow('', null)
     })).min(1).required(),
-    descuento: joi_1.default.number().min(0).precision(2).default(0),
-    metodo_pago: joi_1.default.string().valid(...['efectivo', 'tarjeta', 'transferencia']).default('efectivo'),
-    notas: joi_1.default.string().max(1000).allow('', null),
-    tiempo_estimado: joi_1.default.number().integer().min(0).allow(null)
+    descuento: Joi.number().min(0).precision(2).default(0),
+    metodo_pago: Joi.string().valid(...['efectivo', 'tarjeta', 'transferencia']).default('efectivo'),
+    notas: Joi.string().max(1000).allow('', null),
+    tiempo_estimado: Joi.number().integer().min(0).allow(null)
 });
-exports.actualizarEstadoSchema = joi_1.default.object({
-    estado: joi_1.default.string().valid(...['nuevo', 'en_preparacion', 'listo', 'entregado', 'cancelado']).required(),
-    motivo: joi_1.default.string().max(500).allow('', null),
-    usuario: joi_1.default.string().max(50).default('sistema')
+exports.actualizarEstadoSchema = Joi.object({
+    estado: Joi.string().valid(...['nuevo', 'en_preparacion', 'listo', 'entregado', 'cancelado']).required(),
+    motivo: Joi.string().max(500).allow('', null),
+    usuario: Joi.string().max(50).default('sistema')
 });
+// Schemas para validación en controladores
+exports.validatePizzaSchema = exports.pizzaSchema.keys({
+    id: Joi.forbidden(),
+    created_at: Joi.forbidden(),
+    updated_at: Joi.forbidden()
+});
+exports.validateExtraSchema = exports.extraSchema.keys({
+    id: Joi.forbidden(),
+    created_at: Joi.forbidden()
+});
+exports.validateClienteSchema = exports.clienteSchema.keys({
+    id: Joi.forbidden(),
+    total_pedidos: Joi.forbidden(),
+    total_gastado: Joi.forbidden(),
+    ultimo_pedido: Joi.forbidden(),
+    created_at: Joi.forbidden(),
+    updated_at: Joi.forbidden()
+});
+exports.validatePedidoSchema = exports.crearPedidoSchema;
 //# sourceMappingURL=validacion.js.map

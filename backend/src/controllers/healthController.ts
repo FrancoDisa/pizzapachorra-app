@@ -10,7 +10,7 @@ import { logger } from '@/utils/logger';
 /**
  * Obtener estado general del sistema
  */
-export const getOverallHealth = async (req: Request, res: Response): Promise<void> => {
+export const getOverallHealth = async (_req: Request, res: Response): Promise<void> => {
   try {
     const startTime = Date.now();
     
@@ -85,7 +85,7 @@ export const getOverallHealth = async (req: Request, res: Response): Promise<voi
 /**
  * Obtener estado específico de la base de datos
  */
-export const getDatabaseHealth = async (req: Request, res: Response): Promise<void> => {
+export const getDatabaseHealth = async (_req: Request, res: Response): Promise<void> => {
   try {
     const dbHealth = await config.healthCheck();
     const poolStats = config.getPoolStats();
@@ -126,7 +126,7 @@ export const getDatabaseHealth = async (req: Request, res: Response): Promise<vo
 /**
  * Obtener estado de todos los servicios
  */
-export const getAllServicesHealth = async (req: Request, res: Response): Promise<void> => {
+export const getAllServicesHealth = async (_req: Request, res: Response): Promise<void> => {
   try {
     const startTime = Date.now();
     

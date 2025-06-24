@@ -130,7 +130,7 @@ function handleDatabaseError(error) {
 /**
  * Middleware principal de manejo de errores
  */
-function errorHandler(error, req, res, next) {
+function errorHandler(error, req, res, _next) {
     let appError;
     // Convertir errores específicos
     if (error.name === 'ValidationError' && 'details' in error) {
