@@ -51,18 +51,22 @@ npm run db:reset     # Reset database to initial state
 
 ### Frontend Development
 ```bash
-# Inside frontend container (when implemented)
-npm run dev          # Start Vite development server
+# Inside frontend directory
+npm run dev          # Start Vite development server (port 3000)
 npm run build        # Build for production
 npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run test         # Run tests
+npm run type-check   # TypeScript type checking
+npm run lint         # Run ESLint with React/TypeScript rules
+npm run lint:fix     # Auto-fix ESLint issues
+npm run format       # Format code with Prettier + Tailwind plugin
+npm run format:check # Check code formatting
+npm run test         # Run tests (when implemented)
 ```
 
 ## Architecture Overview
 
 ### Service Architecture
-- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS (port 3000 → 5173)
+- **Frontend**: React 19 + TypeScript 5.8 + Vite 6 + Tailwind CSS v4 (port 3000)
 - **Backend**: Node.js 22 + Express 4 + TypeScript + Socket.io (port 3001)
 - **Database**: PostgreSQL 16 with custom schema (port 5432)
 - **Nginx**: Reverse proxy serving frontend and routing API calls (port 80)
@@ -80,6 +84,47 @@ backend/src/
 ├── utils/           # Utilities (logger, env validation)
 └── server.ts        # Main application entry point
 ```
+
+### Frontend Structure
+```
+frontend/
+├── app/
+│   ├── root.tsx         # Root layout component
+│   ├── routes.ts        # Route configuration
+│   └── globals.css      # Global styles with Tailwind
+├── src/
+│   ├── components/      # Reusable UI components
+│   │   └── Layout.tsx   # Main layout with navigation
+│   ├── pages/           # Page components
+│   │   ├── dashboard.tsx # Main dashboard
+│   │   ├── cocina.tsx   # Kitchen display
+│   │   └── pedidos/     # Order management pages
+│   ├── stores/          # Zustand state management
+│   │   └── index.ts     # Main app store
+│   ├── services/        # External services
+│   │   ├── api.ts       # HTTP API client
+│   │   └── websocket.ts # WebSocket service
+│   ├── types/           # TypeScript definitions
+│   │   └── index.ts     # Shared types with backend
+│   ├── utils/           # Utility functions
+│   ├── router.tsx       # Router configuration
+│   └── main.tsx         # Application entry point
+├── vite.config.ts       # Vite configuration
+├── tailwind.config.js   # Tailwind CSS configuration
+├── postcss.config.js    # PostCSS configuration
+├── eslint.config.js     # ESLint configuration
+├── .prettierrc          # Prettier configuration
+└── tsconfig.json        # TypeScript configuration
+```
+
+### Key Frontend Features
+- **State Management**: Zustand store with TypeScript, persistence, and devtools
+- **Routing**: React Router v7 with typed routes and nested layouts
+- **Styling**: Tailwind CSS v4 with custom theme and utility classes
+- **Type Safety**: Strict TypeScript with shared types from backend
+- **Real-time**: WebSocket client with automatic reconnection
+- **Development**: Hot reload, type checking, linting, and formatting
+- **Build**: Optimized production builds with Vite
 
 ### Key Backend Features
 - **Database Connection**: PostgreSQL pool with health checks and connection management
@@ -271,6 +316,126 @@ Always provide a structured verification report with:
 - Specific action items with file locations and line numbers
 - Comparison with Express.js/Node.js best practices from Context7
 - Final recommendation (Ready for production/Needs fixes)
+
+## Frontend Development Guidelines
+
+### React + TypeScript + Vite Best Practices
+
+#### Project Setup
+Always verify and use the latest stable versions with Context7:
+- **React**: v19+ with hooks and strict mode
+- **TypeScript**: v5.8+ with strict configuration
+- **Vite**: v6+ with optimized plugins
+- **Tailwind CSS**: v4+ with PostCSS integration
+- **React Router**: v7+ with typed routes
+- **Zustand**: v5+ for state management
+
+#### Configuration Standards
+1. **TypeScript Configuration**:
+   ```json
+   {
+     "compilerOptions": {
+       "exactOptionalPropertyTypes": true,
+       "strict": true,
+       "noUnusedLocals": true,
+       "noUnusedParameters": true
+     }
+   }
+   ```
+
+2. **ESLint Configuration** (ES Modules):
+   ```javascript
+   export default tseslint.config([
+     { ignores: ['dist'] },
+     {
+       files: ['**/*.{ts,tsx}'],
+       extends: [js.configs.recommended, ...tseslint.configs.recommended],
+       rules: {
+         '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+         'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
+       }
+     }
+   ])
+   ```
+
+3. **Vite Configuration**:
+   ```typescript
+   export default defineConfig({
+     plugins: [react()],
+     server: {
+       port: 3000,
+       proxy: { '/api': { target: 'http://backend:3001' } }
+     }
+   })
+   ```
+
+#### State Management with Zustand
+```typescript
+export const useAppStore = create<AppStore>()(
+  devtools(
+    persist(
+      (set) => ({
+        // State and actions
+      }),
+      { name: 'app-storage', partialize: (state) => ({ /* persist only needed data */ }) }
+    )
+  )
+)
+```
+
+#### API Integration Patterns
+```typescript
+// Typed API client with error handling
+async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    ...options,
+  });
+  
+  if (!response.ok) {
+    throw new ApiError(response.status, `Error ${response.status}`);
+  }
+  
+  return await response.json();
+}
+```
+
+#### WebSocket Service Pattern
+```typescript
+class WebSocketService {
+  private ws: WebSocket | null = null;
+  private reconnectAttempts = 0;
+  
+  connect(): void {
+    this.ws = new WebSocket(this.url);
+    this.ws.onopen = () => { /* handle connection */ };
+    this.ws.onmessage = (event) => { /* handle messages */ };
+    this.ws.onclose = () => { /* handle reconnection */ };
+  }
+}
+```
+
+### Common Issues and Solutions
+
+#### TypeScript Errors
+1. **Unused React imports**: Remove `import React` in modern React
+2. **ESLint case declarations**: Wrap case blocks in braces `case 'value': { ... }`
+3. **Any types**: Replace with specific types or `Record<string, unknown>`
+
+#### Build Issues
+1. **Tailwind v4 + Vite**: Use PostCSS plugin instead of Vite plugin
+2. **ES Modules**: Set `"type": "module"` in package.json
+3. **WebSocket reconnection**: Always implement with exponential backoff
+
+### Verification Checklist
+Before marking frontend work as complete:
+- ✅ `npm run type-check` - No TypeScript errors
+- ✅ `npm run lint` - No ESLint warnings
+- ✅ `npm run build` - Successful production build
+- ✅ `npm run dev` - Development server starts correctly
+- ✅ All routes accessible and functional
+- ✅ WebSocket connection working
+- ✅ API integration functional
 
 ## Task Management Guidelines
 - Use TodoWrite for any multi-step implementation work
