@@ -1,0 +1,56 @@
+/* @ts-ignore */
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos base personalizados */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* Estilos para componentes personalizados */
+.pizza-card {
+  background-color: #1e293b;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #334155;
+  transition: border-color 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.pizza-card:hover {
+  border-color: #f97316;
+}
+
+.btn-primary {
+  background-color: #ea580c;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #c2410c;
+}
+
+.btn-secondary {
+  background-color: #475569;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: #334155;
+} 
