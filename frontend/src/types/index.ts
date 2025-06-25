@@ -98,3 +98,67 @@ export interface AppConfig {
   apiUrl: string;
   wsUrl: string;
 }
+
+// Tipos específicos para funcionalidad de cocina
+export interface KitchenOrderState {
+  tiempoTranscurrido: number; // en minutos
+  prioridad: 'normal' | 'urgente' | 'critico';
+  enPreparacionDesde?: Date;
+}
+
+export interface OrderTimerState {
+  orderId: number;
+  startTime: Date;
+  elapsed: number; // en minutos
+  status: 'running' | 'paused' | 'completed';
+}
+
+export interface KitchenFilter {
+  estado?: EstadoPedido[];
+  busqueda?: string;
+  prioridad?: 'normal' | 'urgente' | 'critico';
+  ordenamiento: 'tiempo_asc' | 'tiempo_desc' | 'id_asc' | 'id_desc' | 'prioridad';
+}
+
+export interface KitchenSettings {
+  notificacionesAudio: boolean;
+  volumenAudio: number; // 0-100
+  tiempoAlertaUrgente: number; // minutos para marcar como urgente
+  tiempoAlertaCritico: number; // minutos para marcar como crítico
+  modoFullscreen: boolean;
+  actualizacionAutomatica: boolean;
+}
+
+// Tipos para pizzas con información completa para cocina
+export interface PizzaWithDetails extends Pizza {
+  extras_agregados?: Extra[];
+  extras_removidos?: Extra[];
+}
+
+export interface PedidoItemWithDetails extends PedidoItem {
+  pizza?: Pizza | undefined;
+  pizza_mitad_1_data?: Pizza | undefined;
+  pizza_mitad_2_data?: Pizza | undefined;
+  extras_agregados_data?: Extra[] | undefined;
+  extras_removidos_data?: Extra[] | undefined;
+}
+
+export interface PedidoWithDetails extends Pedido {
+  items: PedidoItemWithDetails[];
+  tiempoTranscurrido?: number;
+  prioridad?: 'normal' | 'urgente' | 'critico';
+}
+
+// Tipos para notificaciones de audio
+export interface AudioNotification {
+  type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo';
+  audioFile: string;
+  enabled: boolean;
+}
+
+export interface KitchenAudioSettings {
+  nuevoPedido: AudioNotification;
+  cambioEstado: AudioNotification;
+  alertaTiempo: AudioNotification;
+  volumenGeneral: number;
+}

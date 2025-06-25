@@ -1,6 +1,18 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { MenuData, Pedido, Cliente, AppState, Pizza, Extra } from '@/types';
+import type { 
+  MenuData, 
+  Pedido, 
+  Cliente, 
+  AppState, 
+  Pizza, 
+  Extra,
+  KitchenFilter,
+  KitchenSettings,
+  OrderTimerState,
+  PedidoWithDetails,
+  KitchenAudioSettings
+} from '@/types';
 
 interface AppStore extends AppState {
   // Actions para menu
@@ -23,18 +35,70 @@ interface AppStore extends AppState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+
+  // Kitchen-specific state and actions
+  kitchenFilter: KitchenFilter;
+  kitchenSettings: KitchenSettings;
+  audioSettings: KitchenAudioSettings;
+  orderTimers: OrderTimerState[];
+  
+  // Kitchen actions
+  setKitchenFilter: (filter: Partial<KitchenFilter>) => void;
+  updateKitchenSettings: (settings: Partial<KitchenSettings>) => void;
+  updateAudioSettings: (settings: Partial<KitchenAudioSettings>) => void;
+  addOrderTimer: (timer: OrderTimerState) => void;
+  updateOrderTimer: (orderId: number, timer: Partial<OrderTimerState>) => void;
+  removeOrderTimer: (orderId: number) => void;
+  clearOrderTimers: () => void;
+  
+  // Kitchen helper methods
+  getKitchenOrders: () => PedidoWithDetails[];
+  getOrdersByStatus: (estado: string) => PedidoWithDetails[];
+  getPriorityOrders: () => PedidoWithDetails[];
 }
 
 export const useAppStore = create<AppStore>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         // Estado inicial
         menu: { pizzas: [], extras: [] },
         pedidos: [],
         clientes: [],
         loading: false,
         error: null,
+
+        // Kitchen state inicial
+        kitchenFilter: {
+          ordenamiento: 'tiempo_asc'
+        },
+        kitchenSettings: {
+          notificacionesAudio: true,
+          volumenAudio: 70,
+          tiempoAlertaUrgente: 15,
+          tiempoAlertaCritico: 30,
+          modoFullscreen: false,
+          actualizacionAutomatica: true
+        },
+        audioSettings: {
+          nuevoPedido: {
+            type: 'nuevo_pedido',
+            audioFile: '/sounds/nuevo-pedido.mp3',
+            enabled: true
+          },
+          cambioEstado: {
+            type: 'cambio_estado',
+            audioFile: '/sounds/cambio-estado.mp3',
+            enabled: true
+          },
+          alertaTiempo: {
+            type: 'alerta_tiempo',
+            audioFile: '/sounds/alerta-tiempo.mp3',
+            enabled: true
+          },
+          volumenGeneral: 70
+        },
+        orderTimers: [],
 
         // Menu actions
         setMenu: (menu) => set({ menu }),
@@ -75,13 +139,112 @@ export const useAppStore = create<AppStore>()(
         // UI actions
         setLoading: (loading) => set({ loading }),
         setError: (error) => set({ error }),
-        clearError: () => set({ error: null })
+        clearError: () => set({ error: null }),
+
+        // Kitchen actions
+        setKitchenFilter: (filter) => set((state) => ({
+          kitchenFilter: { ...state.kitchenFilter, ...filter }
+        })),
+
+        updateKitchenSettings: (settings) => set((state) => ({
+          kitchenSettings: { ...state.kitchenSettings, ...settings }
+        })),
+
+        updateAudioSettings: (settings) => set((state) => ({
+          audioSettings: { ...state.audioSettings, ...settings }
+        })),
+
+        addOrderTimer: (timer) => set((state) => ({
+          orderTimers: [...state.orderTimers.filter(t => t.orderId !== timer.orderId), timer]
+        })),
+
+        updateOrderTimer: (orderId, timerUpdate) => set((state) => ({
+          orderTimers: state.orderTimers.map(timer => 
+            timer.orderId === orderId ? { ...timer, ...timerUpdate } : timer
+          )
+        })),
+
+        removeOrderTimer: (orderId) => set((state) => ({
+          orderTimers: state.orderTimers.filter(timer => timer.orderId !== orderId)
+        })),
+
+        clearOrderTimers: () => set({ orderTimers: [] }),
+
+        // Kitchen helper methods
+        getKitchenOrders: () => {
+          const state = get();
+          const now = new Date();
+          
+          return state.pedidos
+            .filter(pedido => ['nuevo', 'en_preparacion', 'listo'].includes(pedido.estado))
+            .map(pedido => {
+              const tiempoTranscurrido = Math.floor(
+                (now.getTime() - new Date(pedido.created_at).getTime()) / (1000 * 60)
+              );
+              
+              let prioridad: 'normal' | 'urgente' | 'critico' = 'normal';
+              if (tiempoTranscurrido >= state.kitchenSettings.tiempoAlertaCritico) {
+                prioridad = 'critico';
+              } else if (tiempoTranscurrido >= state.kitchenSettings.tiempoAlertaUrgente) {
+                prioridad = 'urgente';
+              }
+
+              return {
+                ...pedido,
+                tiempoTranscurrido,
+                prioridad,
+                items: pedido.items.map(item => ({
+                  ...item,
+                  pizza: state.menu.pizzas.find(p => p.id === item.pizza_id),
+                  pizza_mitad_1_data: item.pizza_mitad_1 ? 
+                    state.menu.pizzas.find(p => p.id === item.pizza_mitad_1) : undefined,
+                  pizza_mitad_2_data: item.pizza_mitad_2 ? 
+                    state.menu.pizzas.find(p => p.id === item.pizza_mitad_2) : undefined,
+                  extras_agregados_data: item.extras_agregados
+                    .map(id => state.menu.extras.find(e => e.id === id))
+                    .filter((e): e is Extra => Boolean(e)),
+                  extras_removidos_data: item.extras_removidos
+                    .map(id => state.menu.extras.find(e => e.id === id))
+                    .filter((e): e is Extra => Boolean(e))
+                }))
+              };
+            })
+            .sort((a, b) => {
+              const { ordenamiento } = state.kitchenFilter;
+              switch (ordenamiento) {
+                case 'tiempo_desc':
+                  return b.tiempoTranscurrido! - a.tiempoTranscurrido!;
+                case 'id_asc':
+                  return a.id - b.id;
+                case 'id_desc':
+                  return b.id - a.id;
+                case 'prioridad':
+                  const prioridadOrder = { critico: 3, urgente: 2, normal: 1 };
+                  return prioridadOrder[b.prioridad!] - prioridadOrder[a.prioridad!];
+                default: // tiempo_asc
+                  return a.tiempoTranscurrido! - b.tiempoTranscurrido!;
+              }
+            });
+        },
+
+        getOrdersByStatus: (estado) => {
+          const orders = get().getKitchenOrders();
+          return orders.filter(pedido => pedido.estado === estado);
+        },
+
+        getPriorityOrders: () => {
+          const orders = get().getKitchenOrders();
+          return orders.filter(pedido => pedido.prioridad !== 'normal');
+        }
       }),
       {
         name: 'pizza-pachorra-storage',
         partialize: (state) => ({
           menu: state.menu,
-          clientes: state.clientes
+          clientes: state.clientes,
+          kitchenSettings: state.kitchenSettings,
+          audioSettings: state.audioSettings,
+          kitchenFilter: state.kitchenFilter
         })
       }
     ),
@@ -95,3 +258,12 @@ export const usePedidos = () => useAppStore((state) => state.pedidos);
 export const useClientes = () => useAppStore((state) => state.clientes);
 export const useLoading = () => useAppStore((state) => state.loading);
 export const useError = () => useAppStore((state) => state.error);
+
+// Kitchen-specific selectors
+export const useKitchenFilter = () => useAppStore((state) => state.kitchenFilter);
+export const useKitchenSettings = () => useAppStore((state) => state.kitchenSettings);
+export const useAudioSettings = () => useAppStore((state) => state.audioSettings);
+export const useOrderTimers = () => useAppStore((state) => state.orderTimers);
+export const useKitchenOrders = () => useAppStore((state) => state.getKitchenOrders());
+export const useOrdersByStatus = (estado: string) => useAppStore((state) => state.getOrdersByStatus(estado));
+export const usePriorityOrders = () => useAppStore((state) => state.getPriorityOrders());

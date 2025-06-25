@@ -81,17 +81,48 @@ class WebSocketService {
       case 'nuevo_pedido': {
         const nuevoPedido = message.data as Pedido;
         store.addPedido(nuevoPedido);
-        this.showNotification('Nuevo pedido', `Pedido #${nuevoPedido.id} recibido`);
+        
+        // Solo mostrar notificación si es relevante para cocina
+        if (['nuevo', 'en_preparacion'].includes(nuevoPedido.estado)) {
+          this.showNotification('Nuevo pedido', `Pedido #${nuevoPedido.id} recibido`);
+          this.playAudioNotification('nuevo_pedido');
+          
+          // Crear timer para el nuevo pedido
+          store.addOrderTimer({
+            orderId: nuevoPedido.id,
+            startTime: new Date(),
+            elapsed: 0,
+            status: 'running'
+          });
+        }
         break;
       }
 
       case 'cambio_estado': {
         const pedidoActualizado = message.data as Pedido;
         store.updatePedido(pedidoActualizado);
-        this.showNotification(
-          'Estado actualizado', 
-          `Pedido #${pedidoActualizado.id}: ${pedidoActualizado.estado}`
-        );
+        
+        // Manejar transiciones de estado específicas de cocina
+        if (pedidoActualizado.estado === 'en_preparacion') {
+          store.updateOrderTimer(pedidoActualizado.id, { 
+            status: 'running',
+            startTime: new Date()
+          });
+          this.showNotification(
+            'Pedido en preparación', 
+            `Pedido #${pedidoActualizado.id} comenzó preparación`
+          );
+        } else if (pedidoActualizado.estado === 'listo') {
+          store.updateOrderTimer(pedidoActualizado.id, { status: 'completed' });
+          this.showNotification(
+            'Pedido listo', 
+            `Pedido #${pedidoActualizado.id} está listo`
+          );
+        } else if (['entregado', 'cancelado'].includes(pedidoActualizado.estado)) {
+          store.removeOrderTimer(pedidoActualizado.id);
+        }
+        
+        this.playAudioNotification('cambio_estado');
         break;
       }
 
@@ -137,6 +168,38 @@ class WebSocketService {
     console.log(`🔔 ${title}: ${body}`);
   }
 
+  private playAudioNotification(type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo'): void {
+    const store = useAppStore.getState();
+    const { audioSettings, kitchenSettings } = store;
+    
+    if (!kitchenSettings.notificacionesAudio) return;
+    
+    let notification;
+    switch (type) {
+      case 'nuevo_pedido':
+        notification = audioSettings.nuevoPedido;
+        break;
+      case 'cambio_estado':
+        notification = audioSettings.cambioEstado;
+        break;
+      case 'alerta_tiempo':
+        notification = audioSettings.alertaTiempo;
+        break;
+    }
+    
+    if (!notification.enabled) return;
+    
+    try {
+      const audio = new Audio(notification.audioFile);
+      audio.volume = (audioSettings.volumenGeneral / 100) * (kitchenSettings.volumenAudio / 100);
+      audio.play().catch(error => {
+        console.warn('Error playing audio notification:', error);
+      });
+    } catch (error) {
+      console.warn('Error creating audio notification:', error);
+    }
+  }
+
   send(message: Record<string, unknown>): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
@@ -147,6 +210,10 @@ class WebSocketService {
 
   get isConnected(): boolean {
     return this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  playNotificationSound(type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo'): void {
+    this.playAudioNotification(type);
   }
 }
 
@@ -160,6 +227,7 @@ export function useWebSocket() {
     connect: () => wsService.connect(),
     disconnect: () => wsService.disconnect(),
     send: (message: Record<string, unknown>) => wsService.send(message),
+    playSound: (type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo') => wsService.playNotificationSound(type),
     isConnected: wsService.isConnected
   };
 }
