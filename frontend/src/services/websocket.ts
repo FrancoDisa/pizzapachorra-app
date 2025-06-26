@@ -1,12 +1,12 @@
+import { io, Socket } from 'socket.io-client';
 import type { WebSocketMessage, Pedido, Cliente } from '@/types';
 import { useAppStore } from '@/stores';
 
 class WebSocketService {
-  private ws: WebSocket | null = null;
+  private socket: Socket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 3000;
-  private pingInterval: ReturnType<typeof setInterval> | null = null;
   private messageQueue: WebSocketMessage[] = [];
   private isProcessingQueue = false;
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -15,51 +15,96 @@ class WebSocketService {
 
   connect(): void {
     try {
-      this.ws = new WebSocket(this.url);
+      // Disconnect existing connection if any
+      if (this.socket) {
+        this.socket.disconnect();
+      }
+
+      // Create Socket.IO connection
+      this.socket = io(this.url, {
+        transports: ['websocket', 'polling'],
+        timeout: 20000,
+        reconnection: true,
+        reconnectionAttempts: this.maxReconnectAttempts,
+        reconnectionDelay: this.reconnectInterval,
+        forceNew: true
+      });
       
-      this.ws.onopen = () => {
-        console.log('WebSocket conectado');
+      this.socket.on('connect', () => {
+        console.log('✅ Socket.IO conectado:', this.socket?.id);
+        console.log('🔗 URL:', this.url);
         this.reconnectAttempts = 0;
-        this.startPing();
-      };
-
-      this.ws.onmessage = (event) => {
-        try {
-          const message: WebSocketMessage = JSON.parse(event.data);
-          this.queueMessage(message);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-
-      this.ws.onclose = (event) => {
-        console.log('WebSocket desconectado:', event.code, event.reason);
-        this.stopPing();
         
-        if (!event.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
-          setTimeout(() => {
-            this.reconnectAttempts++;
-            console.log(`Reintentando conexión WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-            this.connect();
-          }, this.reconnectInterval);
-        }
-      };
+        // Join cocina room for kitchen updates
+        this.socket?.emit('join_cocina');
+        console.log('🏠 Unido a sala cocina');
+      });
 
-      this.ws.onerror = (error) => {
-        console.error('Error en WebSocket:', error);
-      };
+      this.socket.on('disconnect', (reason) => {
+        console.log('❌ Socket.IO desconectado:', reason);
+        if (reason === 'io server disconnect') {
+          // Server initiated disconnect, try to reconnect
+          this.socket?.connect();
+        }
+      });
+
+      this.socket.on('connect_error', (error) => {
+        console.error('🚨 Error de conexión Socket.IO:', error);
+        console.error('🔍 Detalles:', {
+          url: this.url,
+          transport: this.socket?.io?.engine?.transport?.name,
+          attemps: this.reconnectAttempts
+        });
+        this.reconnectAttempts++;
+      });
+
+      this.socket.on('reconnect', (attemptNumber) => {
+        console.log('🔄 Socket.IO reconectado en intento:', attemptNumber);
+      });
+
+      this.socket.on('reconnect_attempt', (attemptNumber) => {
+        console.log('🔄 Intento de reconexión:', attemptNumber);
+      });
+
+      this.socket.on('reconnect_error', (error) => {
+        console.error('🚨 Error de reconexión:', error);
+      });
+
+      this.socket.on('reconnect_failed', () => {
+        console.error('❌ Falló la reconexión después de todos los intentos');
+      });
+
+      // Listen for order events
+      this.socket.on('nuevo_pedido', (data: Pedido) => {
+        console.log('📦 Nuevo pedido recibido:', data.id);
+        this.queueMessage({ type: 'nuevo_pedido', data });
+      });
+
+      this.socket.on('pedido_actualizado', (data: Pedido) => {
+        console.log('📝 Pedido actualizado:', data.id);
+        this.queueMessage({ type: 'pedido_actualizado', data });
+      });
+
+      this.socket.on('cambio_estado', (data: Pedido) => {
+        console.log('🔄 Cambio de estado:', data.id, '→', data.estado);
+        this.queueMessage({ type: 'cambio_estado', data });
+      });
+
+      this.socket.on('cliente_actualizado', (data: Cliente) => {
+        console.log('👤 Cliente actualizado:', data.id);
+        this.queueMessage({ type: 'cliente_actualizado', data });
+      });
 
     } catch (error) {
-      console.error('Error creando WebSocket:', error);
+      console.error('Error creando conexión Socket.IO:', error);
     }
   }
 
   disconnect(): void {
-    this.stopPing();
     this.clearDebounceTimer();
-    if (this.ws) {
-      this.ws.close(1000, 'Desconexión manual');
-      this.ws = null;
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
     }
   }
 
@@ -115,20 +160,6 @@ class WebSocketService {
     }
   }
 
-  private startPing(): void {
-    this.pingInterval = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ type: 'ping' }));
-      }
-    }, 30000); // Ping cada 30 segundos
-  }
-
-  private stopPing(): void {
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval);
-      this.pingInterval = null;
-    }
-  }
 
   private async processBatchedMessages(type: string, messages: WebSocketMessage[]): Promise<void> {
     if (messages.length === 0) return;
@@ -289,15 +320,15 @@ class WebSocketService {
   }
 
   send(message: Record<string, unknown>): void {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
+    if (this.socket?.connected) {
+      this.socket.emit('message', message);
     } else {
-      console.warn('WebSocket no está conectado');
+      console.warn('Socket.IO no está conectado');
     }
   }
 
   get isConnected(): boolean {
-    return this.ws?.readyState === WebSocket.OPEN;
+    return this.socket?.connected || false;
   }
 
   playNotificationSound(type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo'): void {
@@ -306,7 +337,7 @@ class WebSocketService {
 }
 
 // Instancia singleton del servicio WebSocket
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
+const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:3001';
 export const wsService = new WebSocketService(WS_URL);
 
 // Hook para usar WebSocket en componentes React

@@ -66,9 +66,10 @@ export function useKitchenOrders() {
           return a.id - b.id;
         case 'id_desc':
           return b.id - a.id;
-        case 'prioridad':
+        case 'prioridad': {
           const prioridadOrder = { critico: 3, urgente: 2, normal: 1 };
           return prioridadOrder[b.prioridad!] - prioridadOrder[a.prioridad!];
+        }
         default: // tiempo_asc
           return a.tiempoTranscurrido! - b.tiempoTranscurrido!;
       }

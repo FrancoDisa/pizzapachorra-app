@@ -43,7 +43,9 @@
       "Bash(npm run:*)",
       "Bash(timeout 30s npm run build)",
       "Bash(docker-compose build:*)",
-      "Bash(docker-compose restart:*)"
+      "Bash(docker-compose restart:*)",
+      "Bash(npm outdated)",
+      "Bash(docker-compose logs:*)"
     ],
     "deny": []
   }

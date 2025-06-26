@@ -53,4 +53,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Pattern**: Always check if state actually changed before updating to prevent infinite loops
 - **Prevention**: Avoid putting frequently changing values as useEffect dependencies
 
+### Memory: Socket.IO vs WebSocket Client Compatibility Issue (2025-06-26)
+
+- **Error**: Kitchen view showing "Desconectado" despite backend WebSocket server running properly
+- **Root Cause**: Frontend using generic WebSocket client (`new WebSocket()`) trying to connect to Socket.IO server
+- **Technical Issue**: Socket.IO uses a different protocol than standard WebSocket - requires `socket.io-client` library
+- **Solution Pattern**:
+  1. Replace `new WebSocket(url)` with `io(url, options)` from socket.io-client
+  2. Change URL from `ws://localhost:3001` to `http://localhost:3001` for Socket.IO
+  3. Use Socket.IO specific events: `connect`, `disconnect`, `connect_error` instead of WebSocket events
+  4. Implement Socket.IO rooms with `socket.emit('join_cocina')` for targeted messaging
+- **Backend Verification**: Always test Socket.IO endpoint with `curl "http://host/socket.io/?EIO=4&transport=polling"`
+- **Connection Testing**: Create manual test script with Socket.IO client before debugging frontend
+- **Key Insight**: Socket.IO and WebSocket are NOT interchangeable - client must match server implementation
+
 [... rest of the existing content remains unchanged ...]

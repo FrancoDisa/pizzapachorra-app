@@ -185,7 +185,7 @@ process.on('SIGINT', () => {
     });
 });
 // Iniciar el servidor solo si este archivo es ejecutado directamente
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     startServer();
 }
 export { app, server, io };
