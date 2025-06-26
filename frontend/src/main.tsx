@@ -1,11 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-
-// Comentamos WebSocket temporalmente hasta que tengamos el servicio configurado
+import { RouterProvider } from 'react-router';
+import { router } from './router';
 // import { wsService } from '@/services/websocket';
 
-// TODO: Reconectar WebSocket cuando el servicio esté listo
+// TODO: Habilitar WebSocket cuando el backend tenga servidor WS configurado
 // wsService.connect();
 
 // document.addEventListener('visibilitychange', () => {
@@ -20,6 +19,6 @@ import App from './App';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>,
 );

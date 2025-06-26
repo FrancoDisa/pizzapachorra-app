@@ -7,6 +7,9 @@ class WebSocketService {
   private maxReconnectAttempts = 5;
   private reconnectInterval = 3000;
   private pingInterval: ReturnType<typeof setInterval> | null = null;
+  private messageQueue: WebSocketMessage[] = [];
+  private isProcessingQueue = false;
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private url: string) {}
 
@@ -23,7 +26,7 @@ class WebSocketService {
       this.ws.onmessage = (event) => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
-          this.handleMessage(message);
+          this.queueMessage(message);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
@@ -53,9 +56,62 @@ class WebSocketService {
 
   disconnect(): void {
     this.stopPing();
+    this.clearDebounceTimer();
     if (this.ws) {
       this.ws.close(1000, 'Desconexión manual');
       this.ws = null;
+    }
+  }
+
+  private queueMessage(message: WebSocketMessage): void {
+    this.messageQueue.push(message);
+    this.debounceProcessQueue();
+  }
+
+  private debounceProcessQueue(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    
+    this.debounceTimer = setTimeout(() => {
+      this.processMessageQueue();
+    }, 100); // 100ms debounce
+  }
+
+  private clearDebounceTimer(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+  }
+
+  private async processMessageQueue(): Promise<void> {
+    if (this.isProcessingQueue || this.messageQueue.length === 0) {
+      return;
+    }
+
+    this.isProcessingQueue = true;
+    const messagesToProcess = [...this.messageQueue];
+    this.messageQueue = [];
+
+    try {
+      // Agrupar mensajes por tipo para batch updates
+      const messagesByType = messagesToProcess.reduce((groups, message) => {
+        if (!groups[message.type]) {
+          groups[message.type] = [];
+        }
+        groups[message.type].push(message);
+        return groups;
+      }, {} as Record<string, WebSocketMessage[]>);
+
+      // Procesar mensajes en batch para evitar múltiples re-renders
+      for (const [type, messages] of Object.entries(messagesByType)) {
+        await this.processBatchedMessages(type, messages);
+      }
+    } catch (error) {
+      console.error('Error processing message queue:', error);
+    } finally {
+      this.isProcessingQueue = false;
     }
   }
 
@@ -74,74 +130,93 @@ class WebSocketService {
     }
   }
 
-  private handleMessage(message: WebSocketMessage): void {
-    const store = useAppStore.getState();
+  private async processBatchedMessages(type: string, messages: WebSocketMessage[]): Promise<void> {
+    if (messages.length === 0) return;
 
-    switch (message.type) {
-      case 'nuevo_pedido': {
-        const nuevoPedido = message.data as Pedido;
-        store.addPedido(nuevoPedido);
-        
-        // Solo mostrar notificación si es relevante para cocina
-        if (['nuevo', 'en_preparacion'].includes(nuevoPedido.estado)) {
-          this.showNotification('Nuevo pedido', `Pedido #${nuevoPedido.id} recibido`);
-          this.playAudioNotification('nuevo_pedido');
+    try {
+      const store = useAppStore.getState();
+
+      switch (type) {
+        case 'nuevo_pedido': {
+          // Procesar todos los nuevos pedidos en batch
+          const nuevoPedidos = messages.map(msg => msg.data as Pedido);
           
-          // Crear timer para el nuevo pedido
-          store.addOrderTimer({
-            orderId: nuevoPedido.id,
-            startTime: new Date(),
-            elapsed: 0,
-            status: 'running'
-          });
+          // Batch update de pedidos
+          for (const pedido of nuevoPedidos) {
+            store.addPedido(pedido);
+            
+            if (['nuevo', 'en_preparacion'].includes(pedido.estado)) {
+              // Mostrar notificación solo del último pedido para evitar spam
+              if (pedido === nuevoPedidos[nuevoPedidos.length - 1]) {
+                this.showNotification('Nuevo pedido', `${nuevoPedidos.length} pedido(s) recibido(s)`);
+                this.playAudioNotification('nuevo_pedido');
+              }
+              
+              // Crear timer
+              store.addOrderTimer({
+                orderId: pedido.id,
+                startTime: new Date(),
+                elapsed: 0,
+                status: 'running'
+              });
+            }
+          }
+          break;
         }
-        break;
-      }
 
-      case 'cambio_estado': {
-        const pedidoActualizado = message.data as Pedido;
-        store.updatePedido(pedidoActualizado);
-        
-        // Manejar transiciones de estado específicas de cocina
-        if (pedidoActualizado.estado === 'en_preparacion') {
-          store.updateOrderTimer(pedidoActualizado.id, { 
-            status: 'running',
-            startTime: new Date()
-          });
+        case 'cambio_estado': {
+          const pedidosActualizados = messages.map(msg => msg.data as Pedido);
+          
+          for (const pedido of pedidosActualizados) {
+            store.updatePedido(pedido);
+            
+            // Manejar transiciones de estado
+            if (pedido.estado === 'en_preparacion') {
+              store.updateOrderTimer(pedido.id, { 
+                status: 'running',
+                startTime: new Date()
+              });
+            } else if (pedido.estado === 'listo') {
+              store.updateOrderTimer(pedido.id, { status: 'completed' });
+            } else if (['entregado', 'cancelado'].includes(pedido.estado)) {
+              store.removeOrderTimer(pedido.id);
+            }
+          }
+          
+          // Notificación solo del último cambio
+          const lastPedido = pedidosActualizados[pedidosActualizados.length - 1];
           this.showNotification(
-            'Pedido en preparación', 
-            `Pedido #${pedidoActualizado.id} comenzó preparación`
+            'Estado actualizado', 
+            `Pedido #${lastPedido.id} - ${lastPedido.estado}`
           );
-        } else if (pedidoActualizado.estado === 'listo') {
-          store.updateOrderTimer(pedidoActualizado.id, { status: 'completed' });
-          this.showNotification(
-            'Pedido listo', 
-            `Pedido #${pedidoActualizado.id} está listo`
-          );
-        } else if (['entregado', 'cancelado'].includes(pedidoActualizado.estado)) {
-          store.removeOrderTimer(pedidoActualizado.id);
+          this.playAudioNotification('cambio_estado');
+          break;
         }
-        
-        this.playAudioNotification('cambio_estado');
-        break;
-      }
 
-      case 'pedido_actualizado': {
-        const pedidoModificado = message.data as Pedido;
-        store.updatePedido(pedidoModificado);
-        break;
-      }
+        case 'pedido_actualizado': {
+          const pedidosModificados = messages.map(msg => msg.data as Pedido);
+          for (const pedido of pedidosModificados) {
+            store.updatePedido(pedido);
+          }
+          break;
+        }
 
-      case 'cliente_actualizado': {
-        const clienteActualizado = message.data as Cliente;
-        store.updateCliente(clienteActualizado);
-        break;
-      }
+        case 'cliente_actualizado': {
+          const clientesActualizados = messages.map(msg => msg.data as Cliente);
+          for (const cliente of clientesActualizados) {
+            store.updateCliente(cliente);
+          }
+          break;
+        }
 
-      default:
-        console.log('Mensaje WebSocket no manejado:', message);
+        default:
+          console.log(`Mensajes WebSocket no manejados (${type}):`, messages);
+      }
+    } catch (error) {
+      console.error(`Error processing batch messages for type ${type}:`, error);
     }
   }
+
 
   private showNotification(title: string, body: string): void {
     // Verificar si el navegador soporta notificaciones
@@ -168,7 +243,18 @@ class WebSocketService {
     console.log(`🔔 ${title}: ${body}`);
   }
 
+  private lastAudioPlay: { [key: string]: number } = {};
+  private minAudioInterval = 1000; // Mínimo 1 segundo entre reproducciones del mismo tipo
+
   private playAudioNotification(type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo'): void {
+    const now = Date.now();
+    const lastPlay = this.lastAudioPlay[type] || 0;
+    
+    // Prevenir reproducciones muy frecuentes del mismo tipo
+    if (now - lastPlay < this.minAudioInterval) {
+      return;
+    }
+    
     const store = useAppStore.getState();
     const { audioSettings, kitchenSettings } = store;
     
@@ -195,6 +281,8 @@ class WebSocketService {
       audio.play().catch(error => {
         console.warn('Error playing audio notification:', error);
       });
+      
+      this.lastAudioPlay[type] = now;
     } catch (error) {
       console.warn('Error creating audio notification:', error);
     }

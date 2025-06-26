@@ -2,6 +2,9 @@ import { usePedidos } from '@/stores';
 
 export default function PedidosIndex() {
   const pedidos = usePedidos();
+  
+  // Asegurar que pedidos sea un array
+  const pedidosArray = Array.isArray(pedidos) ? pedidos : [];
 
   return (
     <div>
@@ -15,13 +18,13 @@ export default function PedidosIndex() {
       <div className="card p-6">
         <h2 className="text-lg font-semibold text-amber-50 mb-4">Lista de Pedidos</h2>
         
-        {pedidos.length === 0 ? (
+        {pedidosArray.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-slate-400">No hay pedidos registrados</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {pedidos.map((pedido) => (
+            {pedidosArray.map((pedido) => (
               <div key={pedido.id} className="bg-slate-700 rounded-lg p-4">
                 <div className="flex justify-between items-start">
                   <div>

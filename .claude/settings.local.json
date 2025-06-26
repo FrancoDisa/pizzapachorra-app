@@ -37,7 +37,13 @@
       "Bash(ls:*)",
       "Bash(npm config get:*)",
       "Bash(kill:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout 10s npm run dev:frontend)",
+      "Bash(npm run:*)",
+      "Bash(timeout 30s npm run build)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose restart:*)"
     ],
     "deny": []
   }

@@ -52,10 +52,41 @@ interface AppStore extends AppState {
   clearOrderTimers: () => void;
   
   // Kitchen helper methods
-  getKitchenOrders: () => PedidoWithDetails[];
-  getOrdersByStatus: (estado: string) => PedidoWithDetails[];
-  getPriorityOrders: () => PedidoWithDetails[];
+  getKitchenOrderIds: () => number[];
+  getOrderWithDetails: (orderId: number) => PedidoWithDetails | null;
 }
+
+// Safeguards para prevenir infinite loops
+const createSafeUpdater = <T>(updater: (state: T) => Partial<T>) => {
+  let isUpdating = false;
+  return (state: T): T => {
+    if (isUpdating) {
+      console.warn('Prevented potential infinite loop in store update');
+      return state;
+    }
+    
+    isUpdating = true;
+    try {
+      const updates = updater(state);
+      return { ...state, ...updates };
+    } finally {
+      isUpdating = false;
+    }
+  };
+};
+
+// Rate limiting para updates frecuentes (unused pero disponible para futuro uso)
+// const createRateLimitedUpdate = <T>(updateFn: (updates: Partial<T>) => void, limit = 100) => {
+//   let lastUpdate = 0;
+//   return (updates: Partial<T>) => {
+//     const now = Date.now();
+//     if (now - lastUpdate < limit) {
+//       return; // Skip update if too frequent
+//     }
+//     lastUpdate = now;
+//     updateFn(updates);
+//   };
+// };
 
 export const useAppStore = create<AppStore>()(
   devtools(
@@ -115,16 +146,20 @@ export const useAppStore = create<AppStore>()(
           }
         })),
 
-        // Pedidos actions
-        setPedidos: (pedidos) => set({ pedidos }),
+        // Pedidos actions con protecciones
+        setPedidos: (pedidos) => set({ pedidos: Array.isArray(pedidos) ? pedidos : [] }),
         addPedido: (pedido) => set((state) => ({
-          pedidos: [pedido, ...state.pedidos]
+          pedidos: [pedido, ...(Array.isArray(state.pedidos) ? state.pedidos : [])]
         })),
         updatePedido: (pedido) => set((state) => ({
-          pedidos: state.pedidos.map(p => p.id === pedido.id ? pedido : p)
+          pedidos: Array.isArray(state.pedidos) 
+            ? state.pedidos.map(p => p.id === pedido.id ? pedido : p)
+            : [pedido]
         })),
         removePedido: (id) => set((state) => ({
-          pedidos: state.pedidos.filter(p => p.id !== id)
+          pedidos: Array.isArray(state.pedidos) 
+            ? state.pedidos.filter(p => p.id !== id)
+            : []
         })),
 
         // Clientes actions
@@ -141,101 +176,157 @@ export const useAppStore = create<AppStore>()(
         setError: (error) => set({ error }),
         clearError: () => set({ error: null }),
 
-        // Kitchen actions
-        setKitchenFilter: (filter) => set((state) => ({
+        // Kitchen actions con safeguards
+        setKitchenFilter: (filter) => set(createSafeUpdater((state) => ({
           kitchenFilter: { ...state.kitchenFilter, ...filter }
-        })),
+        }))),
 
-        updateKitchenSettings: (settings) => set((state) => ({
+        updateKitchenSettings: (settings) => set(createSafeUpdater((state) => ({
           kitchenSettings: { ...state.kitchenSettings, ...settings }
-        })),
+        }))),
 
-        updateAudioSettings: (settings) => set((state) => ({
+        updateAudioSettings: (settings) => set(createSafeUpdater((state) => ({
           audioSettings: { ...state.audioSettings, ...settings }
-        })),
+        }))),
 
-        addOrderTimer: (timer) => set((state) => ({
+        addOrderTimer: (timer) => set(createSafeUpdater((state) => ({
           orderTimers: [...state.orderTimers.filter(t => t.orderId !== timer.orderId), timer]
-        })),
+        }))),
 
-        updateOrderTimer: (orderId, timerUpdate) => set((state) => ({
+        updateOrderTimer: (orderId, timerUpdate) => set(createSafeUpdater((state) => ({
           orderTimers: state.orderTimers.map(timer => 
             timer.orderId === orderId ? { ...timer, ...timerUpdate } : timer
           )
-        })),
+        }))),
 
-        removeOrderTimer: (orderId) => set((state) => ({
+        removeOrderTimer: (orderId) => set(createSafeUpdater((state) => ({
           orderTimers: state.orderTimers.filter(timer => timer.orderId !== orderId)
-        })),
+        }))),
 
         clearOrderTimers: () => set({ orderTimers: [] }),
 
-        // Kitchen helper methods
-        getKitchenOrders: () => {
-          const state = get();
-          const now = new Date();
+        // Kitchen helper methods - devuelve IDs para evitar infinite loops
+        getKitchenOrderIds: (() => {
+          let cachedResult: number[] = [];
+          let lastPedidosHash = '';
+          let lastFilterHash = '';
           
-          return state.pedidos
-            .filter(pedido => ['nuevo', 'en_preparacion', 'listo'].includes(pedido.estado))
-            .map(pedido => {
-              const tiempoTranscurrido = Math.floor(
-                (now.getTime() - new Date(pedido.created_at).getTime()) / (1000 * 60)
-              );
+          return () => {
+            const state = get();
+            
+            // Verificar que pedidos sea un array
+            if (!Array.isArray(state.pedidos)) {
+              console.warn('state.pedidos is not an array:', state.pedidos);
+              return [];
+            }
+            
+            // Crear hash para detectar cambios
+            const pedidosHash = JSON.stringify(state.pedidos.map(p => ({ id: p.id, estado: p.estado })));
+            const filterHash = state.kitchenFilter.ordenamiento;
+            
+            // Solo recalcular si algo cambió
+            if (pedidosHash !== lastPedidosHash || filterHash !== lastFilterHash) {
+              cachedResult = state.pedidos
+                .filter(pedido => ['nuevo', 'en_preparacion', 'listo'].includes(pedido.estado))
+                .map(pedido => pedido.id)
+                .sort((a, b) => {
+                  const { ordenamiento } = state.kitchenFilter;
+                  
+                  switch (ordenamiento) {
+                    case 'id_asc':
+                      return a - b;
+                    case 'id_desc':
+                      return b - a;
+                    default: // tiempo_asc, tiempo_desc, prioridad se manejan en el hook
+                      return a - b;
+                  }
+                });
               
-              let prioridad: 'normal' | 'urgente' | 'critico' = 'normal';
-              if (tiempoTranscurrido >= state.kitchenSettings.tiempoAlertaCritico) {
-                prioridad = 'critico';
-              } else if (tiempoTranscurrido >= state.kitchenSettings.tiempoAlertaUrgente) {
-                prioridad = 'urgente';
-              }
+              lastPedidosHash = pedidosHash;
+              lastFilterHash = filterHash;
+            }
+            
+            return cachedResult;
+          };
+        })(),
 
-              return {
-                ...pedido,
-                tiempoTranscurrido,
-                prioridad,
-                items: pedido.items.map(item => ({
-                  ...item,
-                  pizza: state.menu.pizzas.find(p => p.id === item.pizza_id),
-                  pizza_mitad_1_data: item.pizza_mitad_1 ? 
-                    state.menu.pizzas.find(p => p.id === item.pizza_mitad_1) : undefined,
-                  pizza_mitad_2_data: item.pizza_mitad_2 ? 
-                    state.menu.pizzas.find(p => p.id === item.pizza_mitad_2) : undefined,
-                  extras_agregados_data: item.extras_agregados
-                    .map(id => state.menu.extras.find(e => e.id === id))
-                    .filter((e): e is Extra => Boolean(e)),
-                  extras_removidos_data: item.extras_removidos
-                    .map(id => state.menu.extras.find(e => e.id === id))
-                    .filter((e): e is Extra => Boolean(e))
-                }))
-              };
-            })
-            .sort((a, b) => {
-              const { ordenamiento } = state.kitchenFilter;
-              switch (ordenamiento) {
-                case 'tiempo_desc':
-                  return b.tiempoTranscurrido! - a.tiempoTranscurrido!;
-                case 'id_asc':
-                  return a.id - b.id;
-                case 'id_desc':
-                  return b.id - a.id;
-                case 'prioridad':
-                  const prioridadOrder = { critico: 3, urgente: 2, normal: 1 };
-                  return prioridadOrder[b.prioridad!] - prioridadOrder[a.prioridad!];
-                default: // tiempo_asc
-                  return a.tiempoTranscurrido! - b.tiempoTranscurrido!;
-              }
+        // Método helper para obtener un pedido con detalles (con caching)
+        getOrderWithDetails: (() => {
+          const cache = new Map<number, { result: PedidoWithDetails | null; timestamp: number; pedidoHash: string }>();
+          const CACHE_TTL = 30000; // 30 segundos para cache de tiempo transcurrido
+          
+          return (orderId: number) => {
+            const state = get();
+            
+            // Verificar que pedidos sea un array
+            if (!Array.isArray(state.pedidos)) {
+              console.warn('state.pedidos is not an array in getOrderWithDetails:', state.pedidos);
+              return null;
+            }
+            
+            const pedido = state.pedidos.find(p => p.id === orderId);
+            if (!pedido) {
+              cache.delete(orderId);
+              return null;
+            }
+
+            // Hash para detectar cambios en el pedido
+            const pedidoHash = JSON.stringify({
+              id: pedido.id,
+              estado: pedido.estado,
+              created_at: pedido.created_at,
+              itemsCount: pedido.items.length
             });
-        },
 
-        getOrdersByStatus: (estado) => {
-          const orders = get().getKitchenOrders();
-          return orders.filter(pedido => pedido.estado === estado);
-        },
+            const now = Date.now();
+            const cached = cache.get(orderId);
+            
+            // Usar cache si existe, no expiró y el pedido no cambió
+            if (cached && 
+                now - cached.timestamp < CACHE_TTL && 
+                cached.pedidoHash === pedidoHash) {
+              return cached.result;
+            }
 
-        getPriorityOrders: () => {
-          const orders = get().getKitchenOrders();
-          return orders.filter(pedido => pedido.prioridad !== 'normal');
-        }
+            // Calcular nuevo resultado
+            const tiempoTranscurrido = Math.floor(
+              (now - new Date(pedido.created_at).getTime()) / (1000 * 60)
+            );
+            
+            let prioridad: 'normal' | 'urgente' | 'critico' = 'normal';
+            if (tiempoTranscurrido >= state.kitchenSettings.tiempoAlertaCritico) {
+              prioridad = 'critico';
+            } else if (tiempoTranscurrido >= state.kitchenSettings.tiempoAlertaUrgente) {
+              prioridad = 'urgente';
+            }
+
+            const result = {
+              ...pedido,
+              tiempoTranscurrido,
+              prioridad,
+              items: pedido.items.map(item => ({
+                ...item,
+                pizza: state.menu.pizzas.find(p => p.id === item.pizza_id),
+                pizza_mitad_1_data: item.pizza_mitad_1 ? 
+                  state.menu.pizzas.find(p => p.id === item.pizza_mitad_1) : undefined,
+                pizza_mitad_2_data: item.pizza_mitad_2 ? 
+                  state.menu.pizzas.find(p => p.id === item.pizza_mitad_2) : undefined,
+                extras_agregados_data: item.extras_agregados
+                  .map(id => state.menu.extras.find(e => e.id === id))
+                  .filter((e): e is Extra => Boolean(e)),
+                extras_removidos_data: item.extras_removidos
+                  .map(id => state.menu.extras.find(e => e.id === id))
+                  .filter((e): e is Extra => Boolean(e))
+              }))
+            };
+
+            // Guardar en cache
+            cache.set(orderId, { result, timestamp: now, pedidoHash });
+            
+            return result;
+          };
+        })(),
+
       }),
       {
         name: 'pizza-pachorra-storage',
@@ -254,7 +345,7 @@ export const useAppStore = create<AppStore>()(
 
 // Selectores útiles
 export const useMenu = () => useAppStore((state) => state.menu);
-export const usePedidos = () => useAppStore((state) => state.pedidos);
+export const usePedidos = () => useAppStore((state) => Array.isArray(state.pedidos) ? state.pedidos : []);
 export const useClientes = () => useAppStore((state) => state.clientes);
 export const useLoading = () => useAppStore((state) => state.loading);
 export const useError = () => useAppStore((state) => state.error);
@@ -264,6 +355,4 @@ export const useKitchenFilter = () => useAppStore((state) => state.kitchenFilter
 export const useKitchenSettings = () => useAppStore((state) => state.kitchenSettings);
 export const useAudioSettings = () => useAppStore((state) => state.audioSettings);
 export const useOrderTimers = () => useAppStore((state) => state.orderTimers);
-export const useKitchenOrders = () => useAppStore((state) => state.getKitchenOrders());
-export const useOrdersByStatus = (estado: string) => useAppStore((state) => state.getOrdersByStatus(estado));
-export const usePriorityOrders = () => useAppStore((state) => state.getPriorityOrders());
+export const useKitchenOrderIds = () => useAppStore((state) => state.getKitchenOrderIds());

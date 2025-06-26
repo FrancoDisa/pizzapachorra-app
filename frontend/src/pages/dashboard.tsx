@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import Layout from '@/components/Layout';
 import { useAppStore, usePedidos, useLoading, useError } from '@/stores';
 import { pedidosApi, menuApi, clientesApi } from '@/services/api';
 
@@ -36,45 +35,41 @@ export default function Dashboard() {
     loadInitialData();
   }, [setLoading, setError, setPedidos, setMenu, setClientes]);
 
-  // Estadísticas rápidas
+  // Estadísticas rápidas - Asegurar que pedidos sea un array
+  const pedidosArray = Array.isArray(pedidos) ? pedidos : [];
   const estadisticas = {
-    total: pedidos.length,
-    nuevos: pedidos.filter(p => p.estado === 'nuevo').length,
-    enPreparacion: pedidos.filter(p => p.estado === 'en_preparacion').length,
-    listos: pedidos.filter(p => p.estado === 'listo').length,
-    entregados: pedidos.filter(p => p.estado === 'entregado').length,
+    total: pedidosArray.length,
+    nuevos: pedidosArray.filter(p => p.estado === 'nuevo').length,
+    enPreparacion: pedidosArray.filter(p => p.estado === 'en_preparacion').length,
+    listos: pedidosArray.filter(p => p.estado === 'listo').length,
+    entregados: pedidosArray.filter(p => p.estado === 'entregado').length,
   };
 
   if (loading) {
     return (
-      <Layout title="Dashboard">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Layout title="Dashboard">
-        <div className="bg-red-900/50 border border-red-700 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-red-400 mb-2">Error</h3>
-          <p className="text-red-300">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 btn-primary"
-          >
-            Recargar
-          </button>
-        </div>
-      </Layout>
+      <div className="bg-red-900/50 border border-red-700 rounded-lg p-4">
+        <h3 className="text-lg font-medium text-red-400 mb-2">Error</h3>
+        <p className="text-red-300">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-4 btn-primary"
+        >
+          Recargar
+        </button>
+      </div>
     );
   }
 
   return (
-    <Layout title="Dashboard">
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h2 className="text-3xl font-bold text-amber-50">Dashboard</h2>
@@ -150,7 +145,7 @@ export default function Dashboard() {
         <div className="card p-6">
           <h3 className="text-xl font-semibold text-amber-50 mb-4">Pedidos Recientes</h3>
           
-          {pedidos.length === 0 ? (
+          {pedidosArray.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-slate-400">No hay pedidos registrados</p>
             </div>
@@ -167,7 +162,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pedidos.slice(0, 5).map((pedido) => (
+                  {pedidosArray.slice(0, 5).map((pedido) => (
                     <tr key={pedido.id} className="border-b border-slate-700">
                       <td className="py-2 text-amber-50">#{pedido.id}</td>
                       <td className="py-2 text-amber-50">{pedido.cliente.nombre || pedido.cliente.telefono}</td>
@@ -187,7 +182,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      </div>
-    </Layout>
+    </div>
   );
 }

@@ -19,9 +19,7 @@ export {
   useKitchenFilter,
   useKitchenSettings,
   useAudioSettings,
-  useOrderTimers,
-  useOrdersByStatus,
-  usePriorityOrders
+  useOrderTimers
 } from '@/stores';
 
 // Re-export WebSocket hook

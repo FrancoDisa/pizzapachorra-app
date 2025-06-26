@@ -1,6 +1,6 @@
 import { useState, useEffect, memo, useCallback } from 'react';
-import Layout from '@/components/Layout';
 import AudioSettings from '@/components/kitchen/AudioSettings';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { 
   useKitchenOrders, 
   useWebSocket, 
@@ -171,23 +171,41 @@ const StatusColumn = memo(function StatusColumn({
   );
 });
 
-// Componente principal
+// Componente principal con error boundary
 export default function Cocina() {
+  return (
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Error en componente Cocina:', error, errorInfo);
+        // Log para debugging
+        if (error.message.includes('Maximum update depth')) {
+          console.error('Infinite loop detectado en Cocina - reiniciando estado');
+        }
+      }}
+    >
+      <CocinaContent />
+    </ErrorBoundary>
+  );
+}
+
+// Componente de contenido interno
+function CocinaContent() {
   const { orders, nuevos, enPreparacion, listos, refreshOrders } = useKitchenOrders();
   const { startPreparation, markReady } = useOrderStatusUpdate();
   const { isFullscreen, toggleFullscreen } = useKitchenFullscreen();
-  const { filter, setSearch, setSorting } = useKitchenFilters();
+  const { filter, setSearch, setSorting } = useKitchenFilters(orders);
   const { isAudioEnabled, toggleAudio } = useAudioNotifications();
   const ws = useWebSocket();
   
   const [showAudioSettings, setShowAudioSettings] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Conectar WebSocket al montar el componente
+  // Conectar WebSocket y cargar datos iniciales al montar
   useEffect(() => {
-    if (!ws.isConnected) {
-      ws.connect();
-    }
+    // TODO: Habilitar cuando WebSocket esté configurado en backend
+    // if (!ws.isConnected) {
+    //   ws.connect();
+    // }
     
     // Cargar datos iniciales
     refreshOrders();
@@ -195,7 +213,7 @@ export default function Cocina() {
     return () => {
       // No desconectar WebSocket aquí para mantener conexión entre páginas
     };
-  }, [ws, refreshOrders]);
+  }, []); // Removido refreshOrders de dependencias para evitar loops
 
   // Actualizar búsqueda con debounce
   useEffect(() => {
@@ -359,15 +377,11 @@ export default function Cocina() {
     </div>
   );
 
-  // Si está en fullscreen, mostrar contenido sin Layout
+  // Si está en fullscreen, mostrar contenido completo
   if (isFullscreen) {
     return content;
   }
 
-  // Mostrar con Layout normal
-  return (
-    <Layout title="Vista de Cocina">
-      {content}
-    </Layout>
-  );
+  // Mostrar contenido normal (el root.tsx ya provee el layout)
+  return content;
 }

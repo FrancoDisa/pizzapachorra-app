@@ -3,19 +3,21 @@ import {
   useAppStore, 
   useKitchenSettings, 
   useOrderTimers,
-  useAudioSettings 
+  useAudioSettings,
+  useKitchenOrderIds
 } from '@/stores';
 import { useWebSocket } from '@/services/websocket';
 import { pedidosApi } from '@/services/api';
-import type { EstadoPedido } from '@/types';
+import type { EstadoPedido, PedidoWithDetails } from '@/types';
 
 /**
  * Hook principal para gestión de pedidos de cocina
  * Proporciona todos los pedidos activos con información detallada
  */
 export function useKitchenOrders() {
-  const orders = useAppStore(state => state.getKitchenOrders());
+  const orderIds = useKitchenOrderIds();
   const { setLoading, setError, clearError } = useAppStore();
+  const filter = useAppStore(state => state.kitchenFilter);
 
   const refreshOrders = useCallback(async () => {
     try {
@@ -31,13 +33,70 @@ export function useKitchenOrders() {
     }
   }, [setLoading, setError, clearError]);
 
+  // Usar ref para cachear orders y evitar recalculos innecesarios
+  const ordersRef = useRef<PedidoWithDetails[]>([]);
+  const lastOrderIdsRef = useRef<string>('');
+  const lastOrderingRef = useRef<string>('');
+
+  const orders = useMemo(() => {
+    const orderIdsString = JSON.stringify(orderIds);
+    const ordering = filter.ordenamiento;
+    
+    // Solo recalcular si orderIds o ordering cambiaron
+    if (orderIdsString === lastOrderIdsRef.current && ordering === lastOrderingRef.current) {
+      return ordersRef.current;
+    }
+    
+    const store = useAppStore.getState();
+    const ordersWithDetails: PedidoWithDetails[] = [];
+    
+    for (const id of orderIds) {
+      const orderWithDetails = store.getOrderWithDetails(id);
+      if (orderWithDetails) {
+        ordersWithDetails.push(orderWithDetails);
+      }
+    }
+    
+    // Aplicar ordenamiento
+    const sortedOrders = ordersWithDetails.sort((a, b) => {
+      switch (ordering) {
+        case 'tiempo_desc':
+          return b.tiempoTranscurrido! - a.tiempoTranscurrido!;
+        case 'id_asc':
+          return a.id - b.id;
+        case 'id_desc':
+          return b.id - a.id;
+        case 'prioridad':
+          const prioridadOrder = { critico: 3, urgente: 2, normal: 1 };
+          return prioridadOrder[b.prioridad!] - prioridadOrder[a.prioridad!];
+        default: // tiempo_asc
+          return a.tiempoTranscurrido! - b.tiempoTranscurrido!;
+      }
+    });
+    
+    // Cachear resultado
+    ordersRef.current = sortedOrders;
+    lastOrderIdsRef.current = orderIdsString;
+    lastOrderingRef.current = ordering;
+    
+    return sortedOrders;
+  }, [orderIds, filter.ordenamiento]);
+
+  // Memoizar filtros por estado con referencia estable
+  const statusFilters = useMemo(() => {
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    return {
+      nuevos: safeOrders.filter(o => o.estado === 'nuevo'),
+      enPreparacion: safeOrders.filter(o => o.estado === 'en_preparacion'),
+      listos: safeOrders.filter(o => o.estado === 'listo'),
+      prioritarios: safeOrders.filter(o => o.prioridad !== 'normal')
+    };
+  }, [orders]);
+
   return {
     orders,
     refreshOrders,
-    nuevos: orders.filter(o => o.estado === 'nuevo'),
-    enPreparacion: orders.filter(o => o.estado === 'en_preparacion'),
-    listos: orders.filter(o => o.estado === 'listo'),
-    prioritarios: orders.filter(o => o.prioridad !== 'normal')
+    ...statusFilters
   };
 }
 
@@ -47,7 +106,6 @@ export function useKitchenOrders() {
  */
 export function useOrderTimer(orderId?: number) {
   const timers = useOrderTimers();
-  const settings = useKitchenSettings();
   const { addOrderTimer, updateOrderTimer, removeOrderTimer } = useAppStore();
   const ws = useWebSocket();
   
@@ -84,23 +142,48 @@ export function useOrderTimer(orderId?: number) {
   // Actualizar timers cada minuto
   useEffect(() => {
     const interval = setInterval(() => {
-      timers.forEach(timer => {
+      const store = useAppStore.getState();
+      const currentTimers = store.orderTimers;
+      const currentSettings = store.kitchenSettings;
+      
+      // Verificar si hay timers antes de procesar
+      if (!currentTimers || currentTimers.length === 0) {
+        return;
+      }
+      
+      currentTimers.forEach(timer => {
         if (timer.status === 'running') {
           const now = new Date();
           const elapsed = Math.floor((now.getTime() - timer.startTime.getTime()) / (1000 * 60));
           
-          updateOrderTimer(timer.orderId, { elapsed });
-          
-          // Verificar alertas de tiempo
-          if (elapsed === settings.tiempoAlertaUrgente || elapsed === settings.tiempoAlertaCritico) {
-            ws.playSound('alerta_tiempo');
+          // Solo actualizar si el tiempo ha cambiado y el timer aún existe
+          if (elapsed !== timer.elapsed && elapsed >= 0) {
+            // Verificar que el timer aún existe antes de actualizar
+            const stillExists = useAppStore.getState().orderTimers.find(t => t.orderId === timer.orderId);
+            if (stillExists) {
+              useAppStore.getState().updateOrderTimer(timer.orderId, { elapsed });
+              
+              // Verificar alertas de tiempo
+              if (elapsed === currentSettings.tiempoAlertaUrgente || elapsed === currentSettings.tiempoAlertaCritico) {
+                // Solo reproducir sonido si WebSocket está disponible y conectado
+                try {
+                  if (ws && ws.isConnected) {
+                    ws.playSound('alerta_tiempo');
+                  }
+                } catch (error) {
+                  console.warn('Error playing audio alert:', error);
+                }
+              }
+            }
           }
         }
       });
     }, 60000); // Cada minuto
 
-    return () => clearInterval(interval);
-  }, [timers, settings, updateOrderTimer, ws]);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []); // Sin dependencias para evitar loops
 
   return {
     timer,
@@ -165,12 +248,15 @@ export function useAudioNotifications() {
   }, [kitchenSettings.notificacionesAudio, updateKitchenSettings, ws]);
 
   const updateVolume = useCallback((volume: number) => {
-    updateKitchenSettings({ volumenAudio: Math.max(0, Math.min(100, volume)) });
+    const clampedVolume = Math.max(0, Math.min(100, volume));
+    updateKitchenSettings({ volumenAudio: clampedVolume });
   }, [updateKitchenSettings]);
 
   const toggleAudio = useCallback(() => {
-    updateKitchenSettings({ notificacionesAudio: !kitchenSettings.notificacionesAudio });
-  }, [kitchenSettings.notificacionesAudio, updateKitchenSettings]);
+    updateKitchenSettings({ 
+      notificacionesAudio: !useAppStore.getState().kitchenSettings.notificacionesAudio 
+    });
+  }, [updateKitchenSettings]);
 
   const updateNotificationSettings = useCallback((
     type: 'nuevo_pedido' | 'cambio_estado' | 'alerta_tiempo',
@@ -262,13 +348,13 @@ export function useOrderStatusUpdate() {
  * Hook para filtrado y búsqueda de pedidos
  * Proporciona funcionalidad avanzada de filtros
  */
-export function useKitchenFilters() {
+export function useKitchenFilters(orders: PedidoWithDetails[] = []) {
   const filter = useAppStore(state => state.kitchenFilter);
   const { setKitchenFilter } = useAppStore();
-  const allOrders = useAppStore(state => state.getKitchenOrders());
 
   const filteredOrders = useMemo(() => {
-    let filtered = [...allOrders];
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    let filtered = [...safeOrders];
 
     // Filtrar por estado
     if (filter.estado && filter.estado.length > 0) {
@@ -295,7 +381,7 @@ export function useKitchenFilters() {
     }
 
     return filtered;
-  }, [allOrders, filter]);
+  }, [orders, filter]);
 
   const updateFilter = useCallback((newFilter: Partial<typeof filter>) => {
     setKitchenFilter(newFilter);
@@ -320,7 +406,7 @@ export function useKitchenFilters() {
     clearFilters,
     setSearch,
     setSorting,
-    totalOrders: allOrders.length,
+    totalOrders: orders.length,
     filteredCount: filteredOrders.length
   };
 }
