@@ -344,7 +344,8 @@ export const useAppStore = create<AppStore>()(
 );
 
 // Selectores útiles
-export const useMenu = () => useAppStore((state) => state.menu);
+export const usePizzas = () => useAppStore((state) => Array.isArray(state.menu?.pizzas) ? state.menu.pizzas : []);
+export const useExtras = () => useAppStore((state) => Array.isArray(state.menu?.extras) ? state.menu.extras : []);
 export const usePedidos = () => useAppStore((state) => Array.isArray(state.pedidos) ? state.pedidos : []);
 export const useClientes = () => useAppStore((state) => state.clientes);
 export const useLoading = () => useAppStore((state) => state.loading);

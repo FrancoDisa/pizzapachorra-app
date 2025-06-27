@@ -45,11 +45,13 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 // API de Menu
 export const menuApi = {
   async getPizzas(): Promise<Pizza[]> {
-    return fetchApi<Pizza[]>('/pizzas');
+    const response = await fetchApi<{success: boolean, data: Pizza[]}>('/pizzas');
+    return response.data;
   },
 
   async getExtras(): Promise<Extra[]> {
-    return fetchApi<Extra[]>('/extras');
+    const response = await fetchApi<{success: boolean, data: Extra[]}>('/extras');
+    return response.data;
   },
 
   async updatePizza(id: number, pizza: Partial<Pizza>): Promise<Pizza> {
@@ -70,7 +72,8 @@ export const menuApi = {
 // API de Clientes
 export const clientesApi = {
   async getClientes(): Promise<Cliente[]> {
-    return fetchApi<Cliente[]>('/clientes');
+    const response = await fetchApi<{success: boolean, data: Cliente[]}>('/clientes');
+    return response.data;
   },
 
   async getClienteById(id: number): Promise<Cliente> {
@@ -106,7 +109,8 @@ export const clientesApi = {
 // API de Pedidos
 export const pedidosApi = {
   async getPedidos(): Promise<Pedido[]> {
-    return fetchApi<Pedido[]>('/pedidos');
+    const response = await fetchApi<{success: boolean, data: Pedido[]}>('/pedidos');
+    return response.data;
   },
 
   async getPedidoById(id: number): Promise<Pedido> {

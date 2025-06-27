@@ -6,9 +6,10 @@ export interface Pizza {
   id: number;
   nombre: string;
   descripcion: string;
-  precio_base: number;
-  ingredientes_incluidos: string[];
-  activo: boolean;
+  precio_base: string;
+  ingredientes: string[];
+  activa: boolean;
+  orden_menu?: number;
   created_at: string;
   updated_at: string;
 }
@@ -16,11 +17,12 @@ export interface Pizza {
 export interface Extra {
   id: number;
   nombre: string;
-  precio: number;
-  categoria: 'base' | 'premium' | 'especial';
+  precio: string;
+  categoria: string;
   activo: boolean;
+  orden_categoria?: number;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 export interface Cliente {

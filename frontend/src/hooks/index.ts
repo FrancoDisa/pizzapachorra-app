@@ -11,7 +11,8 @@ export {
 // Re-export store hooks for convenience
 export {
   useAppStore,
-  useMenu,
+  usePizzas,
+  useExtras,
   usePedidos,
   useClientes,
   useLoading,

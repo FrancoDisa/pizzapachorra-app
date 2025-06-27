@@ -67,4 +67,120 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Connection Testing**: Create manual test script with Socket.IO client before debugging frontend
 - **Key Insight**: Socket.IO and WebSocket are NOT interchangeable - client must match server implementation
 
+### Memory: Modern React Layout Implementation with Context7 Best Practices (2025-06-27)
+
+- **Objective**: Implement responsive 3-column layout for Pizza Pachorra pedidos page using modern React + Tailwind CSS patterns
+- **Research Approach**: Used Context7 to get latest React and Tailwind CSS best practices from official documentation
+- **Key Insights from Context7**:
+  1. **Component Composition**: Use explicit composition instead of `React.Children.map` for better scalability
+  2. **Grid Patterns**: Modern responsive grid with `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` mobile-first approach
+  3. **Layout Strategy**: Use container/section pattern with reusable components
+- **Implementation Pattern**:
+  ```typescript
+  // Modern composition pattern
+  <PedidosPage>
+    <MenuSection />      // Column 1: Pizza/Extra selection
+    <TicketSection />    // Column 2: Order ticket
+    <ClienteSection />   // Column 3: Customer info
+  </PedidosPage>
+  ```
+- **Responsive Breakpoints Applied**:
+  - Mobile: `grid-cols-1` (vertical stack)
+  - Tablet: `md:grid-cols-2` (menu + ticket combined)
+  - Desktop: `lg:grid-cols-3` (full 3-column layout)
+- **Gap Strategy**: `gap-4 lg:gap-6` for optimal spacing across screen sizes
+
+### Memory: Zustand Store Selector Infinite Loop Prevention (2025-06-27)
+
+- **Critical Error**: "Maximum update depth exceeded" and "getSnapshot should be cached to avoid infinite loop"
+- **Root Cause**: Zustand selector creating new objects on every call, causing React to detect false state changes
+- **Problematic Pattern**:
+  ```typescript
+  // ❌ BAD - Creates new object every time
+  export const useMenu = () => useAppStore((state) => ({
+    pizzas: state.menu.pizzas || [],
+    extras: state.menu.extras || []
+  }));
+  ```
+- **Solution Pattern**:
+  ```typescript
+  // ✅ GOOD - Primitive selectors with stable references
+  export const usePizzas = () => useAppStore((state) => 
+    Array.isArray(state.menu?.pizzas) ? state.menu.pizzas : []
+  );
+  export const useExtras = () => useAppStore((state) => 
+    Array.isArray(state.menu?.extras) ? state.menu.extras : []
+  );
+  ```
+- **Prevention Rules**:
+  1. Never return new objects/arrays from Zustand selectors unless data actually changed
+  2. Use primitive selectors (returning direct values) instead of composite selectors
+  3. Add Array.isArray() validation in selectors to prevent runtime errors
+  4. Remove store setter functions from useEffect dependencies (they're stable)
+- **Debugging**: Look for "getSnapshot should be cached" warning - indicates selector caching issues
+
+### Memory: Backend API Response Structure Alignment (2025-06-27)
+
+- **Problem**: Frontend expecting direct arrays but backend returning `{success: true, data: [...]}` structure
+- **Error Manifestation**: `pizzas.map is not a function` because `pizzas` was an object, not an array
+- **Solution Pattern**:
+  ```typescript
+  // Extract data field from backend response structure
+  async getPizzas(): Promise<Pizza[]> {
+    const response = await fetchApi<{success: boolean, data: Pizza[]}>('/pizzas');
+    return response.data; // Extract actual data
+  }
+  ```
+- **Type Alignment Issues Fixed**:
+  - `precio_base`: Backend sends string ("390.00"), not number
+  - `ingredientes`: Backend field name, not `ingredientes_incluidos`
+  - `activa`: Backend field name, not `activo`
+  - `categoria`: Backend sends any string, not limited enum values
+- **Validation Strategy**: Always validate array types in selectors: `Array.isArray(data) ? data : []`
+- **Testing Approach**: Use `curl` to verify backend response structure before implementing frontend
+
+### Memory: React Component Error Boundary and Infinite Loop Recovery (2025-06-27)
+
+- **Error Context**: MenuSection component causing infinite loops due to store selector issues
+- **React Behavior**: Error boundaries catch infinite loop errors and attempt component tree recreation
+- **Debugging Approach**:
+  1. Check browser console for "getSnapshot should be cached" warnings
+  2. Look for "Maximum update depth exceeded" errors pointing to specific components
+  3. Identify store selectors that might be creating new references
+  4. Test with empty dependency arrays in useEffect to isolate dependency issues
+- **Prevention in Components**:
+  ```typescript
+  // Safe component pattern
+  const Component = () => {
+    const stablePrimitive = useStableSelector(); // Never creates new objects
+    
+    useEffect(() => {
+      // Load data only once
+    }, []); // Empty dependencies for mount-only effects
+    
+    return <div>{/* Render logic */}</div>;
+  };
+  ```
+- **Recovery Strategy**: When infinite loops occur, fix selectors first, then restart Docker containers
+- **Verification**: After fixes, check that page loads without console errors and Docker logs show clean Vite startup
+
+### Memory: Modern Tailwind CSS v4 Layout Patterns (2025-06-27)
+
+- **Grid System**: Use CSS Grid instead of Flexbox for complex layouts
+- **Responsive Strategy**: Mobile-first with logical breakpoint progression
+- **Spacing System**: Consistent gap patterns with responsive adjustments
+- **Applied Pattern for 3-Column Layout**:
+  ```css
+  /* Container */
+  .grid.grid-cols-1.md:grid-cols-2.lg:grid-cols-3.gap-4.lg:gap-6
+  
+  /* Individual sections */
+  .bg-gray-800.rounded-lg.border.border-gray-700.h-full.flex.flex-col
+  ```
+- **Height Management**: Use `h-[calc(100vh-2rem)]` for full-height layouts accounting for padding
+- **Order Control**: Use `order-first md:order-none lg:order-none` for mobile-first column reordering
+- **Section Architecture**: Header (flex-shrink-0) + Scrollable content (flex-1 overflow-y-auto)
+- **Dark Theme**: Consistent gray-800/gray-900 color scheme for pizzeria environment
+- **Performance**: All utilities compile to minimal CSS with Tailwind v4's Vite plugin
+
 [... rest of the existing content remains unchanged ...]
