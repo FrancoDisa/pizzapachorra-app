@@ -2,7 +2,7 @@
 
 **Sistema de gestión de pedidos para pizzería** - Aplicación de escritorio offline containerizada con Docker
 
-![Badge](https://img.shields.io/badge/Status-En%20Desarrollo-yellow)
+![Badge](https://img.shields.io/badge/Status-Funcional-brightgreen)
 ![Badge](https://img.shields.io/badge/Version-1.0.0-blue)
 ![Badge](https://img.shields.io/badge/License-MIT-green)
 
@@ -108,23 +108,32 @@ curl http://localhost/health
 
 ## 🎯 Uso
 
-### Pantalla Principal - Pedidos
+### 📊 Dashboard - Vista General
+- **Estadísticas en tiempo real** de pedidos y ventas
+- **Estado de servicios** y conectividad
+- **Métricas del día** con gráficos interactivos
+- **Acceso rápido** a todas las funcionalidades
+
+### 📝 Pantalla Principal - Pedidos
 1. **Buscar cliente** por teléfono o crear uno nuevo
-2. **Seleccionar pizzas** del catálogo disponible
-3. **Añadir extras** (ingredientes adicionales)
-4. **Configurar mitad y mitad** si es necesario
-5. **Confirmar pedido** y enviarlo a cocina
+2. **Seleccionar pizzas** del catálogo con precios en tiempo real
+3. **Añadir extras** con cálculo automático de precios
+4. **Gestionar cantidades** con controles intuitivos (+/-)
+5. **Ver ticket dinámico** con totales actualizados
+6. **Confirmar pedido** y enviarlo automáticamente a cocina
 
-### Pantalla de Cocina
-- Ver pedidos pendientes en tiempo real
-- Cambiar estados: *Nuevo → En Preparación → Listo → Entregado*
-- Notificaciones automáticas de nuevos pedidos
+### 👨‍🍳 Pantalla de Cocina
+- **Vista en tiempo real** de pedidos pendientes
+- **Cambio de estados**: *Nuevo → En Preparación → Listo → Entregado*
+- **Notificaciones automáticas** de nuevos pedidos
+- **Temporizadores** para control de tiempos de preparación
+- **Conexión WebSocket** para actualizaciones instantáneas
 
-### Gestión de Clientes
-- Búsqueda rápida por teléfono
-- Historial de pedidos anteriores
-- Datos de contacto y direcciones
-- Notas especiales
+### 👥 Gestión de Clientes
+- **Búsqueda inteligente** por teléfono o nombre
+- **Creación rápida** de nuevos clientes
+- **Validación de datos** automática
+- **Integración completa** con sistema de pedidos
 
 ## 🛠️ Desarrollo
 

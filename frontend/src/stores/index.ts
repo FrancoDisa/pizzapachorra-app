@@ -11,10 +11,15 @@ import type {
   KitchenSettings,
   OrderTimerState,
   PedidoWithDetails,
-  KitchenAudioSettings
+  KitchenAudioSettings,
+  CurrentOrder,
+  CurrentOrderItem
 } from '@/types';
 
 interface AppStore extends AppState {
+  // Current order state
+  currentOrder: CurrentOrder;
+  
   // Actions para menu
   setMenu: (menu: MenuData) => void;
   updatePizza: (pizza: Pizza) => void;
@@ -35,6 +40,17 @@ interface AppStore extends AppState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+
+  // Current order actions
+  addItemToOrder: (pizza: Pizza, extras_agregados?: number[], extras_removidos?: number[], notas?: string) => void;
+  addCustomizedItemToOrder: (item: CurrentOrderItem) => void;
+  updateCustomizedItemInOrder: (item: CurrentOrderItem) => void;
+  removeItemFromOrder: (itemId: string) => void;
+  updateOrderItemQuantity: (itemId: string, cantidad: number) => void;
+  setOrderCustomer: (cliente: Cliente) => void;
+  addOrderNote: (notas: string) => void;
+  clearCurrentOrder: () => void;
+  calculateOrderTotal: () => void;
 
   // Kitchen-specific state and actions
   kitchenFilter: KitchenFilter;
@@ -98,6 +114,13 @@ export const useAppStore = create<AppStore>()(
         clientes: [],
         loading: false,
         error: null,
+        
+        // Current order state inicial
+        currentOrder: {
+          items: [],
+          subtotal: 0,
+          total: 0
+        },
 
         // Kitchen state inicial
         kitchenFilter: {
@@ -175,6 +198,167 @@ export const useAppStore = create<AppStore>()(
         setLoading: (loading) => set({ loading }),
         setError: (error) => set({ error }),
         clearError: () => set({ error: null }),
+
+        // Current order actions - Legacy method for backward compatibility
+        addItemToOrder: (pizza, extras_agregados = [], extras_removidos = [], notas) => set((state) => {
+          // Generar ID único para el item
+          const itemId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
+          // Obtener datos de extras
+          const extras_agregados_data = extras_agregados
+            .map(id => state.menu.extras.find(e => e.id === id))
+            .filter((e): e is Extra => Boolean(e));
+          
+          const extras_removidos_data = extras_removidos
+            .map(id => state.menu.extras.find(e => e.id === id))
+            .filter((e): e is Extra => Boolean(e));
+
+          // Calcular precio unitario
+          const precio_base = parseFloat(pizza.precio_base);
+          const precio_extras = extras_agregados_data.reduce((sum, extra) => sum + parseFloat(extra.precio), 0);
+          const precio_unitario = precio_base + precio_extras;
+
+          const newItem: CurrentOrderItem = {
+            id: itemId,
+            pizza_id: pizza.id,
+            cantidad: 1,
+            precio_unitario,
+            es_mitad_y_mitad: false,
+            extras_agregados,
+            extras_removidos,
+            notas,
+            pizza,
+            extras_agregados_data,
+            extras_removidos_data
+          };
+
+          const newItems = [...state.currentOrder.items, newItem];
+          const subtotal = newItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+
+          return {
+            currentOrder: {
+              ...state.currentOrder,
+              items: newItems,
+              subtotal,
+              total: subtotal
+            }
+          };
+        }),
+
+        // New method for adding fully customized items
+        addCustomizedItemToOrder: (item: CurrentOrderItem) => set((state) => {
+          const newItems = [...state.currentOrder.items, item];
+          const subtotal = newItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+
+          return {
+            currentOrder: {
+              ...state.currentOrder,
+              items: newItems,
+              subtotal,
+              total: subtotal
+            }
+          };
+        }),
+
+        // Update an existing customized item
+        updateCustomizedItemInOrder: (updatedItem: CurrentOrderItem) => set((state) => {
+          const newItems = state.currentOrder.items.map(item =>
+            item.id === updatedItem.id ? updatedItem : item
+          );
+          const subtotal = newItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+
+          return {
+            currentOrder: {
+              ...state.currentOrder,
+              items: newItems,
+              subtotal,
+              total: subtotal
+            }
+          };
+        }),
+
+        removeItemFromOrder: (itemId) => set((state) => {
+          const newItems = state.currentOrder.items.filter(item => item.id !== itemId);
+          const subtotal = newItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+
+          return {
+            currentOrder: {
+              ...state.currentOrder,
+              items: newItems,
+              subtotal,
+              total: subtotal
+            }
+          };
+        }),
+
+        updateOrderItemQuantity: (itemId, cantidad) => set((state) => {
+          if (cantidad <= 0) {
+            // Si cantidad es 0 o menor, remover el item
+            const newItems = state.currentOrder.items.filter(item => item.id !== itemId);
+            const subtotal = newItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+
+            return {
+              currentOrder: {
+                ...state.currentOrder,
+                items: newItems,
+                subtotal,
+                total: subtotal
+              }
+            };
+          }
+
+          const newItems = state.currentOrder.items.map(item =>
+            item.id === itemId ? { ...item, cantidad } : item
+          );
+          const subtotal = newItems.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+
+          return {
+            currentOrder: {
+              ...state.currentOrder,
+              items: newItems,
+              subtotal,
+              total: subtotal
+            }
+          };
+        }),
+
+        setOrderCustomer: (cliente) => set((state) => ({
+          currentOrder: {
+            ...state.currentOrder,
+            cliente_id: cliente.id || undefined,
+            cliente: cliente.id ? cliente : undefined
+          }
+        })),
+
+        addOrderNote: (notas) => set((state) => ({
+          currentOrder: {
+            ...state.currentOrder,
+            notas
+          }
+        })),
+
+        clearCurrentOrder: () => set((state) => ({
+          currentOrder: {
+            items: [],
+            subtotal: 0,
+            total: 0
+          }
+        })),
+
+        calculateOrderTotal: () => set((state) => {
+          const subtotal = state.currentOrder.items.reduce(
+            (sum, item) => sum + (item.precio_unitario * item.cantidad), 
+            0
+          );
+          
+          return {
+            currentOrder: {
+              ...state.currentOrder,
+              subtotal,
+              total: subtotal
+            }
+          };
+        }),
 
         // Kitchen actions con safeguards
         setKitchenFilter: (filter) => set(createSafeUpdater((state) => ({
@@ -357,3 +541,12 @@ export const useKitchenSettings = () => useAppStore((state) => state.kitchenSett
 export const useAudioSettings = () => useAppStore((state) => state.audioSettings);
 export const useOrderTimers = () => useAppStore((state) => state.orderTimers);
 export const useKitchenOrderIds = () => useAppStore((state) => state.getKitchenOrderIds());
+
+// Current order selectors
+export const useCurrentOrder = () => useAppStore((state) => state.currentOrder);
+export const useCurrentOrderItems = () => useAppStore((state) => state.currentOrder.items);
+export const useCurrentOrderTotal = () => useAppStore((state) => state.currentOrder.total);
+export const useCurrentOrderCustomer = () => useAppStore((state) => state.currentOrder.cliente);
+export const useCurrentOrderItemCount = () => useAppStore((state) => 
+  state.currentOrder.items.reduce((sum, item) => sum + item.cantidad, 0)
+);

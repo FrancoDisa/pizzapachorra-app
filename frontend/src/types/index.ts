@@ -164,3 +164,45 @@ export interface KitchenAudioSettings {
   alertaTiempo: AudioNotification;
   volumenGeneral: number;
 }
+
+// Tipos para la orden actual en progreso
+export interface CurrentOrderItem {
+  id: string; // ID temporal para la orden actual
+  pizza_id: number;
+  cantidad: number;
+  precio_unitario: number;
+  es_mitad_y_mitad: boolean;
+  pizza_mitad_1?: number;
+  pizza_mitad_2?: number;
+  // Extras para pizza entera (cuando NO es mitad y mitad)
+  extras_agregados: number[];
+  extras_removidos: number[];
+  // Extras específicos por mitad (cuando ES mitad y mitad)
+  mitad1_extras_agregados?: number[];
+  mitad1_extras_removidos?: number[];
+  mitad2_extras_agregados?: number[];
+  mitad2_extras_removidos?: number[];
+  // Extras que aplican a ambas mitades
+  ambas_mitades_extras_agregados?: number[];
+  ambas_mitades_extras_removidos?: number[];
+  notas?: string;
+  pizza?: Pizza; // Datos de la pizza para mostrar
+  extras_agregados_data?: Extra[]; // Datos de extras agregados
+  extras_removidos_data?: Extra[]; // Datos de extras removidos
+  // Datos de extras por mitad para mostrar
+  mitad1_extras_agregados_data?: Extra[];
+  mitad1_extras_removidos_data?: Extra[];
+  mitad2_extras_agregados_data?: Extra[];
+  mitad2_extras_removidos_data?: Extra[];
+  ambas_mitades_extras_agregados_data?: Extra[];
+  ambas_mitades_extras_removidos_data?: Extra[];
+}
+
+export interface CurrentOrder {
+  items: CurrentOrderItem[];
+  cliente_id?: number;
+  cliente?: Cliente;
+  subtotal: number;
+  total: number;
+  notas?: string;
+}

@@ -27,12 +27,22 @@ export default function Root() {
               <Link 
                 to="/pedidos"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  location.pathname.startsWith('/pedidos') 
+                  location.pathname === '/pedidos' 
                     ? 'bg-orange-600 text-white' 
                     : 'text-amber-50 hover:text-orange-400'
                 }`}
               >
                 Pedidos
+              </Link>
+              <Link 
+                to="/pedidos-new"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  location.pathname === '/pedidos-new' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-amber-50 hover:text-blue-400'
+                }`}
+              >
+                🚀 Nuevos Modelos
               </Link>
               <Link 
                 to="/cocina"

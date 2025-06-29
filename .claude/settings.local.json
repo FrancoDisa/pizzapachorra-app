@@ -45,7 +45,11 @@
       "Bash(docker-compose build:*)",
       "Bash(docker-compose restart:*)",
       "Bash(npm outdated)",
-      "Bash(docker-compose logs:*)"
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker restart:*)",
+      "Bash(docker exec:*)"
     ],
     "deny": []
   }

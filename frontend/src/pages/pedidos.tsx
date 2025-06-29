@@ -5,8 +5,53 @@ import MenuSection from '@/components/pedidos/MenuSection';
 import TicketSection from '@/components/pedidos/TicketSection';
 import ClienteSection from '@/components/pedidos/ClienteSection';
 
+// Agregar shortcuts de teclado para navegación rápida
+const useKeyboardShortcuts = () => {
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Solo activar shortcuts si no estamos en un input
+      if ((event.target as HTMLElement).tagName === 'INPUT' || (event.target as HTMLElement).tagName === 'TEXTAREA') {
+        return;
+      }
+
+      switch (event.key.toLowerCase()) {
+        case 'f':
+          // Focus en búsqueda de menú
+          event.preventDefault();
+          const menuSearch = document.querySelector('input[placeholder*="Buscar pizzas"]') as HTMLInputElement;
+          if (menuSearch) menuSearch.focus();
+          break;
+        case 'c':
+          // Focus en búsqueda de cliente
+          event.preventDefault();
+          const clientSearch = document.querySelector('input[placeholder*="Buscar cliente"]') as HTMLInputElement;
+          if (clientSearch) clientSearch.focus();
+          break;
+        case 'w':
+          // Activar cliente walk-in
+          event.preventDefault();
+          const walkInButton = document.querySelector('button[title*="walk-in"]') as HTMLButtonElement;
+          if (walkInButton) walkInButton.click();
+          break;
+        case 'escape':
+          // Limpiar búsquedas y focus
+          event.preventDefault();
+          const inputs = document.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+          inputs.forEach(input => input.blur());
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, []);
+};
+
 export default function PedidosPage() {
   const { setMenu, setClientes, setPedidos, setLoading, setError } = useAppStore();
+  
+  // Activar shortcuts de teclado
+  useKeyboardShortcuts();
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -36,22 +81,35 @@ export default function PedidosPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 p-4">
-      {/* Layout Grid Responsivo - Mobile First */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 h-[calc(100vh-2rem)]">
+      {/* Ayuda de shortcuts de teclado */}
+      <div className="mb-2 text-xs text-gray-500 text-center">
+        Shortcuts: <kbd className="px-1 py-0.5 bg-gray-800 rounded">F</kbd> = Buscar menú • 
+        <kbd className="px-1 py-0.5 bg-gray-800 rounded mx-1">C</kbd> = Buscar cliente • 
+        <kbd className="px-1 py-0.5 bg-gray-800 rounded">W</kbd> = Walk-in • 
+        <kbd className="px-1 py-0.5 bg-gray-800 rounded mx-1">Esc</kbd> = Limpiar focus
+      </div>
+      
+      {/* Layout Desktop Optimizado - 2 Paneles */}
+      <div className="flex gap-6 h-[calc(100vh-4rem)]">
         
-        {/* Columna 1: Menú de Pizzas y Extras */}
-        <div className="md:col-span-2 lg:col-span-1">
+        {/* Panel Izquierdo: Menú Unificado (60% ancho) */}
+        <div className="flex-1 w-[60%]">
           <MenuSection />
         </div>
 
-        {/* Columna 2: Ticket del Pedido Actual */}
-        <div className="order-first md:order-none lg:order-none">
-          <TicketSection />
-        </div>
+        {/* Panel Derecho: Ticket + Cliente (40% ancho) */}
+        <div className="w-[40%] flex flex-col gap-4">
+          
+          {/* Ticket del Pedido Actual (60% altura) */}
+          <div className="flex-1 h-[60%]">
+            <TicketSection />
+          </div>
 
-        {/* Columna 3: Información del Cliente */}
-        <div className="md:col-start-1 lg:col-start-3">
-          <ClienteSection />
+          {/* Información del Cliente (40% altura) */}
+          <div className="h-[40%]">
+            <ClienteSection />
+          </div>
+
         </div>
 
       </div>
