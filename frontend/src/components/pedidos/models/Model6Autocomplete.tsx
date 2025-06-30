@@ -31,7 +31,7 @@ export default function Model6Autocomplete() {
   // Comandos especiales
   const commands = [
     { command: '/limpiar', description: 'Limpiar pedido actual', action: () => clearCurrentOrder() },
-    { command: '/total', description: 'Mostrar total actual', action: () => alert(`Total: $${currentOrder.total.toFixed(2)}`) },
+    { command: '/total', description: 'Mostrar total actual', action: () => alert(`Total: $${currentOrder.total.toFixed(0)}`) },
     { command: '/cliente', description: 'Buscar solo clientes', action: () => setSearchTerm('cliente:') },
     { command: '/pizza', description: 'Buscar solo pizzas', action: () => setSearchTerm('pizza:') },
     { command: '/extra', description: 'Buscar solo extras', action: () => setSearchTerm('extra:') },
@@ -556,7 +556,7 @@ export default function Model6Autocomplete() {
                           <div className="text-xs text-gray-400">Cantidad: {item.cantidad}</div>
                         </div>
                         <div className="text-green-400 font-bold">
-                          ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                          ${(item.precio_unitario * item.cantidad).toFixed(0)}
                         </div>
                       </div>
                     </div>
@@ -566,7 +566,7 @@ export default function Model6Autocomplete() {
                 <div className="border-t border-gray-600 pt-4">
                   <div className="flex justify-between text-xl font-bold text-white mb-4">
                     <span>Total:</span>
-                    <span>${currentOrder.total.toFixed(2)}</span>
+                    <span>${currentOrder.total.toFixed(0)}</span>
                   </div>
                   
                   <button

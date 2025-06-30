@@ -155,6 +155,16 @@ export default function PizzaCustomizationModal({
   const handleConfirm = () => {
     const precioUnitario = calcularPrecio();
     
+    // DEBUG: Verificar datos de extras
+    if (!esMitadYMitad && (extrasAgregados.length > 0 || extrasRemovidos.length > 0)) {
+      console.log('🐛 DEBUG - Extras para pizza entera:', {
+        extrasAgregados,
+        extrasRemovidos,
+        extras_agregados_data: extrasAgregados.map(id => extras.find(e => e.id === id)).filter(Boolean),
+        extras_removidos_data: extrasRemovidos.map(id => extras.find(e => e.id === id)).filter(Boolean)
+      });
+    }
+    
     const item: CurrentOrderItem = {
       id: editingItem?.id || `temp_${Date.now()}`,
       pizza_id: esMitadYMitad ? 0 : pizza.id, // 0 para mitad y mitad
@@ -175,15 +185,15 @@ export default function PizzaCustomizationModal({
       ambas_mitades_extras_removidos: esMitadYMitad ? ambasMitadesExtrasRemovidos : undefined,
       notas: notas.trim() || undefined,
       pizza: esMitadYMitad ? undefined : pizza,
-      // Datos de extras para mostrar
-      extras_agregados_data: esMitadYMitad ? [] : extrasAgregados.map(id => extras.find(e => e.id === id)!).filter(Boolean),
-      extras_removidos_data: esMitadYMitad ? [] : extrasRemovidos.map(id => extras.find(e => e.id === id)!).filter(Boolean),
-      mitad1_extras_agregados_data: esMitadYMitad ? mitad1ExtrasAgregados.map(id => extras.find(e => e.id === id)!).filter(Boolean) : undefined,
-      mitad1_extras_removidos_data: esMitadYMitad ? mitad1ExtrasRemovidos.map(id => extras.find(e => e.id === id)!).filter(Boolean) : undefined,
-      mitad2_extras_agregados_data: esMitadYMitad ? mitad2ExtrasAgregados.map(id => extras.find(e => e.id === id)!).filter(Boolean) : undefined,
-      mitad2_extras_removidos_data: esMitadYMitad ? mitad2ExtrasRemovidos.map(id => extras.find(e => e.id === id)!).filter(Boolean) : undefined,
-      ambas_mitades_extras_agregados_data: esMitadYMitad ? ambasMitadesExtrasAgregados.map(id => extras.find(e => e.id === id)!).filter(Boolean) : undefined,
-      ambas_mitades_extras_removidos_data: esMitadYMitad ? ambasMitadesExtrasRemovidos.map(id => extras.find(e => e.id === id)!).filter(Boolean) : undefined
+      // Datos de extras para mostrar - MEJORADO con validación
+      extras_agregados_data: esMitadYMitad ? [] : extrasAgregados.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)),
+      extras_removidos_data: esMitadYMitad ? [] : extrasRemovidos.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)),
+      mitad1_extras_agregados_data: esMitadYMitad ? mitad1ExtrasAgregados.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)) : undefined,
+      mitad1_extras_removidos_data: esMitadYMitad ? mitad1ExtrasRemovidos.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)) : undefined,
+      mitad2_extras_agregados_data: esMitadYMitad ? mitad2ExtrasAgregados.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)) : undefined,
+      mitad2_extras_removidos_data: esMitadYMitad ? mitad2ExtrasRemovidos.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)) : undefined,
+      ambas_mitades_extras_agregados_data: esMitadYMitad ? ambasMitadesExtrasAgregados.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)) : undefined,
+      ambas_mitades_extras_removidos_data: esMitadYMitad ? ambasMitadesExtrasRemovidos.map(id => extras.find(e => e.id === id)).filter((e): e is Extra => Boolean(e)) : undefined
     };
     
     onConfirm(item);
@@ -290,7 +300,7 @@ export default function PizzaCustomizationModal({
         <div className="flex justify-between items-center p-4 border-b border-gray-700">
           <div>
             <h2 className="text-xl font-bold text-white">Personalizar Pizza</h2>
-            <p className="text-gray-400">{pizza.nombre} - Base: ${pizza.precio_base}</p>
+            <p className="text-gray-400">{pizza.nombre} - Base: ${Math.round(parseFloat(pizza.precio_base))}</p>
           </div>
           <button
             onClick={onClose}
@@ -386,7 +396,7 @@ export default function PizzaCustomizationModal({
                       : 'text-gray-300 hover:text-white'
                   }`}
                 >
-                  🍕 Pizza Entera
+                  🍕 Personalizar
                 </button>
               ) : (
                 <>
@@ -427,7 +437,7 @@ export default function PizzaCustomizationModal({
             {/* Información de la pestaña activa - simplificada */}
             <div className="mb-3 text-center">
               {activeTab === 'entera' && (
-                <span className="text-sm text-gray-400">🍕 Pizza Entera</span>
+                <span className="text-sm text-gray-400">🍕 {pizza.nombre}</span>
               )}
               {activeTab === 'mitad1' && (
                 <span className="text-sm text-gray-400">🟦 {pizzas.find(p => p.id === pizzaMitad1)?.nombre}</span>
@@ -515,7 +525,7 @@ export default function PizzaCustomizationModal({
                       }`}
                     >
                       <div className="font-medium">{extra.nombre}</div>
-                      <div className="text-sm font-bold">+${extra.precio}</div>
+                      <div className="text-sm font-bold">+${Math.round(parseFloat(extra.precio))}</div>
                     </button>
                   );
                 })}
@@ -546,61 +556,159 @@ export default function PizzaCustomizationModal({
               </span>
               <span className="text-white font-bold">
                 ${esMitadYMitad 
-                  ? ((parseFloat(pizzas.find(p => p.id === pizzaMitad1)?.precio_base || '0') + 
-                      parseFloat(pizzas.find(p => p.id === pizzaMitad2)?.precio_base || '0')) / 2).toFixed(2)
-                  : pizza?.precio_base}
+                  ? Math.round((parseFloat(pizzas.find(p => p.id === pizzaMitad1)?.precio_base || '0') + 
+                      parseFloat(pizzas.find(p => p.id === pizzaMitad2)?.precio_base || '0')) / 2)
+                  : Math.round(parseFloat(pizza?.precio_base || '0'))}
               </span>
             </div>
             
-            {/* Mostrar extras agregados */}
+            {/* Mostrar extras agregados con nombres específicos */}
             {(() => {
-              let totalExtras = 0;
-              let totalDescuentos = 0;
-              
               if (esMitadYMitad) {
-                totalExtras += mitad1ExtrasAgregados.reduce((sum, id) => {
-                  const extra = extras.find(e => e.id === id);
-                  return sum + (extra ? parseFloat(extra.precio) : 0);
-                }, 0);
-                totalExtras += mitad2ExtrasAgregados.reduce((sum, id) => {
-                  const extra = extras.find(e => e.id === id);
-                  return sum + (extra ? parseFloat(extra.precio) : 0);
-                }, 0);
-                totalExtras += ambasMitadesExtrasAgregados.reduce((sum, id) => {
-                  const extra = extras.find(e => e.id === id);
-                  return sum + (extra ? parseFloat(extra.precio) : 0);
-                }, 0);
-                totalDescuentos = (mitad1ExtrasRemovidos.length + mitad2ExtrasRemovidos.length + ambasMitadesExtrasRemovidos.length) * 50;
+                // Para pizzas mitad y mitad
+                return (
+                  <div className="space-y-2">
+                    {/* Mitad 1 - Extras agregados */}
+                    {mitad1ExtrasAgregados.length > 0 && (
+                      <div className="bg-blue-900/20 rounded p-2">
+                        <div className="text-blue-300 text-sm font-medium mb-1">🟦 Mitad 1 - Extras:</div>
+                        {mitad1ExtrasAgregados.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-green-300">+ {extra.nombre}</span>
+                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Mitad 1 - Ingredientes removidos */}
+                    {mitad1ExtrasRemovidos.length > 0 && (
+                      <div className="bg-blue-900/20 rounded p-2">
+                        <div className="text-blue-300 text-sm font-medium mb-1">🟦 Mitad 1 - Sin:</div>
+                        {mitad1ExtrasRemovidos.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-red-300">- {extra.nombre}</span>
+                              <span className="text-red-400 font-bold">-$50</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Mitad 2 - Extras agregados */}
+                    {mitad2ExtrasAgregados.length > 0 && (
+                      <div className="bg-orange-900/20 rounded p-2">
+                        <div className="text-orange-300 text-sm font-medium mb-1">🟧 Mitad 2 - Extras:</div>
+                        {mitad2ExtrasAgregados.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-green-300">+ {extra.nombre}</span>
+                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Mitad 2 - Ingredientes removidos */}
+                    {mitad2ExtrasRemovidos.length > 0 && (
+                      <div className="bg-orange-900/20 rounded p-2">
+                        <div className="text-orange-300 text-sm font-medium mb-1">🟧 Mitad 2 - Sin:</div>
+                        {mitad2ExtrasRemovidos.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-red-300">- {extra.nombre}</span>
+                              <span className="text-red-400 font-bold">-$50</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Ambas mitades - Extras agregados */}
+                    {ambasMitadesExtrasAgregados.length > 0 && (
+                      <div className="bg-purple-900/20 rounded p-2">
+                        <div className="text-purple-300 text-sm font-medium mb-1">🔮 Ambas - Extras:</div>
+                        {ambasMitadesExtrasAgregados.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-green-300">+ {extra.nombre}</span>
+                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Ambas mitades - Ingredientes removidos */}
+                    {ambasMitadesExtrasRemovidos.length > 0 && (
+                      <div className="bg-purple-900/20 rounded p-2">
+                        <div className="text-purple-300 text-sm font-medium mb-1">🔮 Ambas - Sin:</div>
+                        {ambasMitadesExtrasRemovidos.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-red-300">- {extra.nombre}</span>
+                              <span className="text-red-400 font-bold">-$50</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
               } else {
-                totalExtras = extrasAgregados.reduce((sum, id) => {
-                  const extra = extras.find(e => e.id === id);
-                  return sum + (extra ? parseFloat(extra.precio) : 0);
-                }, 0);
-                totalDescuentos = extrasRemovidos.length * 50;
+                // Para pizza entera
+                return (
+                  <div className="space-y-2">
+                    {/* Extras agregados */}
+                    {extrasAgregados.length > 0 && (
+                      <div className="bg-gray-600/30 rounded p-2">
+                        <div className="text-gray-300 text-sm font-medium mb-1">➕ Extras agregados:</div>
+                        {extrasAgregados.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-green-300">+ {extra.nombre}</span>
+                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* Ingredientes removidos */}
+                    {extrasRemovidos.length > 0 && (
+                      <div className="bg-gray-600/30 rounded p-2">
+                        <div className="text-gray-300 text-sm font-medium mb-1">➖ Ingredientes removidos:</div>
+                        {extrasRemovidos.map(id => {
+                          const extra = extras.find(e => e.id === id);
+                          return extra ? (
+                            <div key={id} className="flex justify-between items-center text-xs">
+                              <span className="text-red-300">- {extra.nombre}</span>
+                              <span className="text-red-400 font-bold">-$50</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
               }
-              
-              return (
-                <>
-                  {totalExtras > 0 && (
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-green-300">+ Extras:</span>
-                      <span className="text-green-400 font-bold">+${totalExtras.toFixed(2)}</span>
-                    </div>
-                  )}
-                  {totalDescuentos > 0 && (
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-red-300">- Sin ingredientes:</span>
-                      <span className="text-red-400 font-bold">-${totalDescuentos.toFixed(2)}</span>
-                    </div>
-                  )}
-                </>
-              );
             })()}
             
             <div className="border-t border-gray-600 pt-2 mt-2">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-300">Precio unitario:</span>
-                <span className="text-white font-bold">${calcularPrecio().toFixed(2)}</span>
+                <span className="text-white font-bold">${Math.round(calcularPrecio())}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-300">Cantidad:</span>
@@ -609,7 +717,7 @@ export default function PizzaCustomizationModal({
               <div className="border-t border-gray-600 pt-2">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold text-white">Total:</span>
-                  <span className="text-xl font-bold text-green-400">${precioTotal.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-green-400">${Math.round(precioTotal)}</span>
                 </div>
               </div>
             </div>

@@ -344,7 +344,7 @@ export default function Model4CompactList() {
                     </div>
                     <div className="w-24">
                       {item.type !== 'cliente' && (
-                        <span className="text-green-400 font-bold">${item.price.toFixed(2)}</span>
+                        <span className="text-green-400 font-bold">${item.price.toFixed(0)}</span>
                       )}
                     </div>
                     <div className="w-32 flex gap-1">
@@ -424,7 +424,7 @@ export default function Model4CompactList() {
                         <div className="text-xs text-gray-400">x{item.cantidad}</div>
                       </div>
                       <div className="text-green-400 font-bold">
-                        ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                        ${(item.precio_unitario * item.cantidad).toFixed(0)}
                       </div>
                     </div>
                     
@@ -465,7 +465,7 @@ export default function Model4CompactList() {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-lg font-bold text-white border-t border-gray-600 pt-3">
                 <span>Total:</span>
-                <span>${currentOrder.total.toFixed(2)}</span>
+                <span>${currentOrder.total.toFixed(0)}</span>
               </div>
               
               <div className="space-y-2">

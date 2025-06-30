@@ -350,7 +350,7 @@ export default function Model2SplitScreen() {
                         )}
                       </div>
                       <div className="text-green-400 font-bold ml-2">
-                        ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                        ${(item.precio_unitario * item.cantidad).toFixed(0)}
                       </div>
                     </div>
                     
@@ -392,7 +392,7 @@ export default function Model2SplitScreen() {
               <div className="border-t border-gray-700 pt-4">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-xl font-bold text-white">Total:</span>
-                  <span className="text-2xl font-bold text-green-400">${currentOrder.total.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-green-400">${currentOrder.total.toFixed(0)}</span>
                 </div>
                 
                 <div className="space-y-2">

@@ -488,7 +488,7 @@ export default function Model10Timeline() {
                         <div className="text-gray-400 text-xs">x{item.cantidad}</div>
                       </div>
                       <div className="text-green-400 font-bold">
-                        ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                        ${(item.precio_unitario * item.cantidad).toFixed(0)}
                       </div>
                     </div>
                   ))}
@@ -512,7 +512,7 @@ export default function Model10Timeline() {
             <div className="bg-gray-700 rounded-lg p-6">
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-bold text-white">Total:</span>
-                <span className="text-3xl font-bold text-green-400">${currentOrder.total.toFixed(2)}</span>
+                <span className="text-3xl font-bold text-green-400">${currentOrder.total.toFixed(0)}</span>
               </div>
             </div>
           </div>
@@ -537,7 +537,7 @@ export default function Model10Timeline() {
                 </div>
                 <div className="flex justify-between text-xl font-bold border-t border-gray-600 pt-4">
                   <span className="text-white">Total:</span>
-                  <span className="text-green-400">${currentOrder.total.toFixed(2)}</span>
+                  <span className="text-green-400">${currentOrder.total.toFixed(0)}</span>
                 </div>
               </div>
             </div>
@@ -683,7 +683,7 @@ export default function Model10Timeline() {
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className="text-white truncate">{item.pizza?.nombre}</span>
                   <span className="text-green-400 font-medium">
-                    x{item.cantidad} ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                    x{item.cantidad} ${(item.precio_unitario * item.cantidad).toFixed(0)}
                   </span>
                 </div>
               ))}
@@ -692,7 +692,7 @@ export default function Model10Timeline() {
             <div className="border-t border-gray-600 pt-2">
               <div className="flex justify-between font-bold">
                 <span className="text-white">Total:</span>
-                <span className="text-green-400">${currentOrder.total.toFixed(2)}</span>
+                <span className="text-green-400">${currentOrder.total.toFixed(0)}</span>
               </div>
             </div>
             

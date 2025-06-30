@@ -176,7 +176,7 @@ export default function TicketSection() {
                     </div>
                     
                     <p className="text-lg font-bold text-green-400">
-                      ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                      ${Math.round(item.precio_unitario * item.cantidad)}
                     </p>
                   </div>
                 </div>
@@ -192,13 +192,13 @@ export default function TicketSection() {
               {/* Subtotal */}
               <div className="flex justify-between text-gray-300">
                 <span>Subtotal:</span>
-                <span>${currentOrder.subtotal.toFixed(2)}</span>
+                <span>${Math.round(currentOrder.subtotal)}</span>
               </div>
 
               {/* Total final */}
               <div className="flex justify-between text-lg font-bold text-white border-t border-gray-600 pt-2">
                 <span>Total:</span>
-                <span>${currentOrder.total.toFixed(2)}</span>
+                <span>${Math.round(currentOrder.total)}</span>
               </div>
 
               {/* Botones de acción grandes */}

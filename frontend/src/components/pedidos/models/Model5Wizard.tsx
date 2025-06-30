@@ -516,7 +516,7 @@ export default function Model5Wizard() {
                         ${(
                           selectedPizzas.reduce((sum, pizza) => sum + parseFloat(pizza.precio_base), 0) +
                           selectedExtras.reduce((sum, extra) => sum + parseFloat(extra.precio), 0)
-                        ).toFixed(2)}
+                        ).toFixed(0)}
                       </span>
                     </div>
                   </div>

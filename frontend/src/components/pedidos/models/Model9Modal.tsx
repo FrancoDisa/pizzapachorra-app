@@ -498,7 +498,7 @@ export default function Model9Modal() {
                       </div>
                       <div className="text-right">
                         <div className="text-green-400 font-bold">
-                          ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                          ${(item.precio_unitario * item.cantidad).toFixed(0)}
                         </div>
                         <div className="flex gap-1 mt-2">
                           <button
@@ -531,7 +531,7 @@ export default function Model9Modal() {
             <div className="bg-gray-700 rounded-lg p-4">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xl font-bold text-white">Total:</span>
-                <span className="text-2xl font-bold text-green-400">${currentOrder.total.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-green-400">${currentOrder.total.toFixed(0)}</span>
               </div>
               
               <div className="flex gap-3">
@@ -706,7 +706,7 @@ export default function Model9Modal() {
                           <div className="text-xs text-gray-400">x{item.cantidad}</div>
                         </div>
                         <div className="text-green-400 font-bold">
-                          ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                          ${(item.precio_unitario * item.cantidad).toFixed(0)}
                         </div>
                       </div>
                     </div>
@@ -716,7 +716,7 @@ export default function Model9Modal() {
                 <div className="border-t border-gray-600 pt-3">
                   <div className="flex justify-between text-xl font-bold text-white mb-3">
                     <span>Total:</span>
-                    <span>${currentOrder.total.toFixed(2)}</span>
+                    <span>${currentOrder.total.toFixed(0)}</span>
                   </div>
                   
                   <button

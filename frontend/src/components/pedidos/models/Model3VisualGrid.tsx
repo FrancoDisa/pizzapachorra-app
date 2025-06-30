@@ -388,7 +388,7 @@ export default function Model3VisualGrid() {
                             <div className="text-xs text-gray-400">Cantidad: {item.cantidad}</div>
                           </div>
                           <div className="text-green-400 font-bold">
-                            ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                            ${(item.precio_unitario * item.cantidad).toFixed(0)}
                           </div>
                         </div>
                         
@@ -426,7 +426,7 @@ export default function Model3VisualGrid() {
                   <div className="border-t border-gray-600 pt-4">
                     <div className="flex justify-between text-xl font-bold text-white mb-4">
                       <span>Total:</span>
-                      <span>${currentOrder.total.toFixed(2)}</span>
+                      <span>${currentOrder.total.toFixed(0)}</span>
                     </div>
                     
                     <div className="space-y-2">

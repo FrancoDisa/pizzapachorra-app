@@ -176,7 +176,7 @@ export default function Model7Calculator() {
     for (let i = 0; i < quantity; i++) {
       addItemToOrder(pizza);
     }
-    setDisplay(`✓ ${quantity}x ${pizza.nombre} - $${(parseFloat(pizza.precio_base) * quantity).toFixed(2)}`);
+    setDisplay(`✓ ${quantity}x ${pizza.nombre} - $${(parseFloat(pizza.precio_base) * quantity).toFixed(0)}`);
     setCurrentInput(`${quantity}x ${pizza.nombre}`);
     
     // Auto-resetear cantidad a 1 después de agregar
@@ -185,7 +185,7 @@ export default function Model7Calculator() {
 
   const handleAddExtra = (extra: Extra) => {
     console.log('Agregando extra:', extra);
-    setDisplay(`✓ ${quantity}x ${extra.nombre} - +$${(parseFloat(extra.precio) * quantity).toFixed(2)}`);
+    setDisplay(`✓ ${quantity}x ${extra.nombre} - +$${(parseFloat(extra.precio) * quantity).toFixed(0)}`);
     setCurrentInput(`${quantity}x ${extra.nombre}`);
   };
 
@@ -221,7 +221,7 @@ export default function Model7Calculator() {
       return;
     }
     
-    setDisplay(`✅ Pedido confirmado - Total: $${currentOrder.total.toFixed(2)}`);
+    setDisplay(`✅ Pedido confirmado - Total: $${currentOrder.total.toFixed(0)}`);
   };
 
   const toggleQuantity = () => {
@@ -278,7 +278,7 @@ export default function Model7Calculator() {
                     {currentInput || display}
                   </div>
                   <div className="text-right text-sm opacity-70">
-                    {items.length > 0 && `Total: $${currentOrder.total.toFixed(2)}`}
+                    {items.length > 0 && `Total: $${currentOrder.total.toFixed(0)}`}
                   </div>
                 </div>
               </div>
@@ -415,7 +415,7 @@ export default function Model7Calculator() {
                           <div className="text-xs text-gray-400">x{item.cantidad}</div>
                         </div>
                         <div className="text-green-400 font-bold">
-                          ${(item.precio_unitario * item.cantidad).toFixed(2)}
+                          ${(item.precio_unitario * item.cantidad).toFixed(0)}
                         </div>
                       </div>
                       
@@ -454,7 +454,7 @@ export default function Model7Calculator() {
                 <div className="border-t border-gray-600 pt-3">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-400 mb-2">
-                      ${currentOrder.total.toFixed(2)}
+                      ${currentOrder.total.toFixed(0)}
                     </div>
                     <button
                       disabled={!currentOrder.cliente_id}
