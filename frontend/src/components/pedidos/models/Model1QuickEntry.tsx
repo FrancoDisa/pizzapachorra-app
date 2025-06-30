@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { usePizzas, useExtras, useCurrentOrder, useCurrentOrderItems, useAppStore } from '@/stores';
 import type { Pizza, Extra, Cliente, CurrentOrderItem } from '@/types';
 import PizzaCustomizationModal from '../PizzaCustomizationModal';
@@ -109,62 +108,7 @@ export default function Model1QuickEntry() {
   }, []);
 
 
-  // Hotkeys con react-hotkeys-hook para mejor compatibilidad
-  
-  // F1-F5 para pizzas principales (siempre abren personalización)
-  useHotkeys('f1', () => popularPizzas[0] && handleQuickAdd(popularPizzas[0]), { preventDefault: true });
-  useHotkeys('f2', () => popularPizzas[1] && handleQuickAdd(popularPizzas[1]), { preventDefault: true });
-  useHotkeys('f3', () => popularPizzas[2] && handleQuickAdd(popularPizzas[2]), { preventDefault: true });
-  useHotkeys('f4', () => popularPizzas[3] && handleQuickAdd(popularPizzas[3]), { preventDefault: true });
-  useHotkeys('f5', () => popularPizzas[4] && handleQuickAdd(popularPizzas[4]), { preventDefault: true });
-  
-  // Navegación rápida
-  useHotkeys('c', () => {
-    customerInputRef.current?.focus();
-    setCurrentFocusSection(0);
-  }, { preventDefault: true });
-  
-  useHotkeys('escape', () => {
-    customerInputRef.current?.blur();
-    setCurrentFocusSection(-1);
-  }, { preventDefault: true });
-
-  // Navegación con Tab entre secciones
-  useHotkeys('tab', () => {
-    const nextSection = (currentFocusSection + 1) % 2;
-    setCurrentFocusSection(nextSection);
-    
-    switch (nextSection) {
-      case 0:
-        customerInputRef.current?.focus();
-        break;
-      case 1:
-        firstPizzaButtonRef.current?.focus();
-        break;
-    }
-  }, { preventDefault: true });
-
-  // Enter para confirmar acciones rápidas
-  useHotkeys('enter', () => {
-    if (currentFocusSection === 1 && popularPizzas[0]) {
-      handleQuickAdd(popularPizzas[0]);
-    }
-  }, { preventDefault: true });
-  
-  // Control de cantidades
-  useHotkeys('plus', () => setQuickQuantity(prev => Math.min(prev + 1, 99)), { preventDefault: true });
-  useHotkeys('minus', () => setQuickQuantity(prev => Math.max(prev - 1, 1)), { preventDefault: true });
-  
-  // Números 1-9 para cantidad rápida
-  useHotkeys('1', () => setQuickQuantity(1), { preventDefault: true });
-  useHotkeys('2', () => setQuickQuantity(2), { preventDefault: true });
-  useHotkeys('3', () => setQuickQuantity(3), { preventDefault: true });
-  useHotkeys('4', () => setQuickQuantity(4), { preventDefault: true });
-  useHotkeys('5', () => setQuickQuantity(5), { preventDefault: true });
-  useHotkeys('6', () => setQuickQuantity(6), { preventDefault: true });
-  useHotkeys('7', () => setQuickQuantity(7), { preventDefault: true });
-  useHotkeys('8', () => setQuickQuantity(8), { preventDefault: true });
-  useHotkeys('9', () => setQuickQuantity(9), { preventDefault: true });
+  // Atajos de teclado deshabilitados para demo visual
 
   const handleQuickAdd = useCallback((item: Pizza | Extra) => {
     if ('precio_base' in item) {

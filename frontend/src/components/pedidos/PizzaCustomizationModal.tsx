@@ -358,7 +358,7 @@ export default function PizzaCustomizationModal({
                   >
                     {pizzas.map(p => (
                       <option key={p.id} value={p.id}>
-                        {p.nombre} (${p.precio_base})
+                        {p.nombre} (${Math.round(parseFloat(p.precio_base))})
                       </option>
                     ))}
                   </select>
@@ -372,7 +372,7 @@ export default function PizzaCustomizationModal({
                   >
                     {pizzas.map(p => (
                       <option key={p.id} value={p.id}>
-                        {p.nombre} (${p.precio_base})
+                        {p.nombre} (${Math.round(parseFloat(p.precio_base))})
                       </option>
                     ))}
                   </select>

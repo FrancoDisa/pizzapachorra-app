@@ -24,101 +24,21 @@ export default function ModelSelector({ currentModel, onModelChange }: ModelSele
       id: 'model1',
       name: 'Quick Entry Dashboard',
       description: 'Interfaz rápida con shortcuts de teclado para usuarios expertos',
-      features: ['Shortcuts F1-F12', 'Búsqueda instantánea', 'Cantidad rápida', 'Cliente express'],
-      optimal_for: ['Personal experimentado', 'Alta velocidad', 'Pedidos telefónicos'],
+      features: ['Shortcuts F1-F5', 'Búsqueda instantánea', 'Cantidad rápida', 'Cliente express', 'Personalización completa'],
+      optimal_for: ['Personal experimentado', 'Alta velocidad', 'Pedidos telefónicos', 'Operación profesional'],
       difficulty: 'Avanzado',
       speed_rating: 5,
       icon: '⚡'
     },
     {
-      id: 'model2', 
-      name: 'Split-Screen Command Center',
-      description: 'Dos paneles optimizados: menú categorizado y ticket en tiempo real',
-      features: ['Panel dual', 'Categorías inteligentes', 'Autocompletado cliente', 'Vista previa'],
-      optimal_for: ['Multitarea', 'Visibilidad completa', 'Flujo balanceado'],
-      difficulty: 'Medio',
-      speed_rating: 4,
-      icon: '📱'
-    },
-    {
-      id: 'model3',
-      name: 'Grid de Pizzas Visuales', 
-      description: 'Interfaz visual con tarjetas grandes y ticket deslizable',
-      features: ['Cards visuales', 'Panel deslizable', 'Categorías por color', 'Botones grandes'],
-      optimal_for: ['Usuarios nuevos', 'Interfaz intuitiva', 'Ambiente visual'],
-      difficulty: 'Fácil',
-      speed_rating: 3,
-      icon: '🎨'
-    },
-    {
-      id: 'model4',
-      name: 'Lista Compacta Alta Densidad',
-      description: 'Tabla completa con toda la información visible y selección múltiple',
-      features: ['Vista tabla', 'Selección múltiple', 'Filtros avanzados', 'Info completa'],
-      optimal_for: ['Gestión eficiente', 'Comparación rápida', 'Usuarios técnicos'],
-      difficulty: 'Avanzado',
-      speed_rating: 5,
-      icon: '📊'
-    },
-    {
       id: 'model5',
       name: 'Wizard de 3 Pasos',
       description: 'Flujo guiado paso a paso con validaciones y progreso visual',
-      features: ['Pasos guiados', 'Validaciones', 'Progreso visual', 'Sin errores'],
-      optimal_for: ['Usuarios nuevos', 'Pedidos complejos', 'Reducir errores'],
+      features: ['Pasos guiados', 'Validaciones automáticas', 'Progreso visual', 'Sin errores', 'Navegación intuitiva'],
+      optimal_for: ['Usuarios nuevos', 'Pedidos complejos', 'Reducir errores', 'Entrenamiento'],
       difficulty: 'Fácil',
-      speed_rating: 2,
+      speed_rating: 3,
       icon: '🧙‍♂️'
-    },
-    {
-      id: 'model6',
-      name: 'Autocompletado Inteligente',
-      description: 'Búsqueda universal con scoring inteligente y comandos especiales',
-      features: ['Búsqueda universal', 'AI scoring', 'Comandos especiales', 'Predicciones'],
-      optimal_for: ['Búsqueda avanzada', 'Flexibilidad máxima', 'Usuarios power'],
-      difficulty: 'Avanzado',
-      speed_rating: 4,
-      icon: '🔍'
-    },
-    {
-      id: 'model7',
-      name: 'Layout Tipo Calculadora',
-      description: 'Interfaz familiar tipo calculadora con botones numerados',
-      features: ['Botones numerados', 'Display LCD', 'Memoria de productos', 'Familiar'],
-      optimal_for: ['Usuarios de caja', 'Interfaz familiar', 'Velocidad con práctica'],
-      difficulty: 'Medio',
-      speed_rating: 4,
-      icon: '🧮'
-    },
-    {
-      id: 'model8',
-      name: 'Dashboard de Favoritos',
-      description: 'Favoritos personalizables con combos y acceso ultra-rápido',
-      features: ['Favoritos F1-F12', 'Combos personalizados', 'Modo edición', 'Ultra velocidad'],
-      optimal_for: ['Productos frecuentes', 'Personalización', 'Máxima velocidad'],
-      difficulty: 'Medio',
-      speed_rating: 5,
-      icon: '⭐'
-    },
-    {
-      id: 'model9',
-      name: 'Interfaz Modal/Popup',
-      description: 'Flujo basado en ventanas modales para proceso paso a paso',
-      features: ['Ventanas modales', 'Proceso guiado', 'Focus único', 'Sin distracciones'],
-      optimal_for: ['Concentración', 'Proceso estructurado', 'Pantallas pequeñas'],
-      difficulty: 'Fácil',
-      speed_rating: 3,
-      icon: '🪟'
-    },
-    {
-      id: 'model10',
-      name: 'Timeline Horizontal',
-      description: 'Progreso horizontal visual con pasos claramente definidos',
-      features: ['Timeline visual', 'Pasos claros', 'Navegación libre', 'Progreso visual'],
-      optimal_for: ['Proceso claro', 'Control total', 'Usuarios metodicos'],
-      difficulty: 'Medio',
-      speed_rating: 3,
-      icon: '📈'
     }
   ];
 
@@ -172,28 +92,31 @@ export default function ModelSelector({ currentModel, onModelChange }: ModelSele
       </div>
 
       {/* Lista de modelos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {models.map((model) => (
           <button
             key={model.id}
             onClick={() => onModelChange(model.id)}
-            className={`p-3 rounded-lg transition-all text-left ${
+            className={`p-4 rounded-lg transition-all text-left ${
               currentModel === model.id
                 ? 'bg-blue-600 border-2 border-blue-400'
                 : 'bg-gray-700 hover:bg-gray-600 border-2 border-transparent'
             }`}
           >
-            <div className="text-center mb-2">
-              <div className="text-2xl mb-1">{model.icon}</div>
-              <div className="text-white font-medium text-sm">{model.name}</div>
+            <div className="text-center mb-3">
+              <div className="text-4xl mb-2">{model.icon}</div>
+              <div className="text-white font-bold text-lg">{model.name}</div>
+              <div className="text-gray-300 text-sm mt-1">{model.description}</div>
             </div>
             
-            <div className="space-y-1 text-xs">
+            <div className="space-y-2 text-sm">
               <div className="text-center">
+                <span className="text-gray-400">Dificultad: </span>
                 <span className={getDifficultyColor(model.difficulty)}>{model.difficulty}</span>
               </div>
               <div className="text-center">
-                {getSpeedStars(model.speed_rating)}
+                <span className="text-gray-400">Velocidad: </span>
+                <span>{getSpeedStars(model.speed_rating)}</span>
               </div>
             </div>
           </button>

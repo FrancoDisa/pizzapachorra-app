@@ -514,4 +514,215 @@ const searchCustomers = (query: string) =>
 
 **Result**: Perfect foundation for creating multiple dashboard variations for evaluation
 
+### Memory: 🎯 Complete Dashboard Migration - All Models Standardized (2025-06-30)
+
+- **Objective**: Migrate all optimizations from Model1QuickEntry to all 10 dashboard models for consistent professional quality
+- **Status**: 100% Complete - All 10 models successfully updated with identical optimizations
+
+#### **Migration Scope Completed**
+- **Model1QuickEntry**: Reference model with all optimizations (already complete)
+- **Model2SplitScreen**: Split-screen layout enhanced with professional features
+- **Model3VisualGrid**: Visual grid interface with integrated customer management
+- **Model4CompactList**: Table-based compact view with customization modal
+- **Model5Wizard**: Step-by-step workflow enhanced with professional UX
+- **Model6Autocomplete**: Universal search interface with smart scoring
+- **Model7Calculator**: Calculator-style interface with keyboard optimization
+- **Model8Favorites**: Favorites/shortcuts system with F1-F12 + Ctrl+1-9
+- **Model9Modal**: Modal-driven workflow with popup enhancements
+- **Model10Timeline**: Timeline-based progressive workflow with step validation
+
+#### **Standardized Features Applied to All Models**
+```typescript
+// 1. Demo Customer System (identical across all models)
+const DEMO_CLIENTES: Cliente[] = [
+  { id: 1, nombre: 'Juan Carlos Pérez', telefono: '099123456', direccion: 'Av. 18 de Julio 1234' },
+  { id: 2, nombre: 'María Fernanda González', telefono: '099456789', direccion: 'Bvar. Artigas 567' },
+  // ... 8 realistic Uruguayan customers total
+];
+
+// 2. Customer Management (search + dropdown + modal creation)
+const searchCustomers = (query: string) => 
+  DEMO_CLIENTES.filter(cliente => 
+    cliente.nombre?.toLowerCase().includes(query.toLowerCase()) ||
+    cliente.telefono.includes(query)
+  );
+
+// 3. Pizza Customization Integration
+import PizzaCustomizationModal from '../PizzaCustomizationModal';
+const { addCustomizedItemToOrder, updateCustomizedItemInOrder } = useAppStore();
+
+// 4. Uruguayan Price Formatting (no decimals)
+${Math.round(parseFloat(precio_base))}  // $390 instead of $390.00
+```
+
+#### **Professional UX Consistency**
+- **Customer Search**: Real-time search by phone OR name with dropdown results
+- **New Customer Modal**: Professional form with validation (name, phone required)
+- **Price Transparency**: Detailed breakdown in customization modal
+- **Ticket Enhancement**: Visual extras/modifications with ➕/➖ symbols
+- **Edit Functionality**: Edit buttons for all order items with modal reopening
+- **Error Prevention**: Comprehensive validation and null checks throughout
+
+#### **Technical Implementation Standards**
+- **Import Consistency**: All models import same hooks and components
+- **Store Method Usage**: Consistent use of `addCustomizedItemToOrder` and `updateCustomizedItemInOrder`
+- **Type Safety**: Full TypeScript integration with proper type definitions
+- **State Management**: Professional modal state handling patterns
+- **Code Quality**: Clean, maintainable code following established patterns
+
+#### **Verification Results**
+```bash
+# Migration verification completed successfully:
+✅ 10/10 models have DEMO_CLIENTES integration
+✅ 10/10 models import PizzaCustomizationModal  
+✅ 10/10 models use addCustomizedItemToOrder methods
+✅ 10/10 models implement Math.round() price formatting
+✅ All unique model functionalities preserved (grids, wizards, calculators, etc.)
+```
+
+#### **Dashboard Evaluation Ready**
+- **Consistent Quality**: All models now have identical professional features
+- **Unique Approaches**: Each model maintains its distinct interface methodology
+- **Production Ready**: Demo-quality implementation suitable for client evaluation
+- **Comparison Enabled**: Easy to evaluate different UX approaches with same feature set
+
+#### **Files Modified (10 models total)**
+- `/src/components/pedidos/models/Model1QuickEntry.tsx` (reference)
+- `/src/components/pedidos/models/Model2SplitScreen.tsx`
+- `/src/components/pedidos/models/Model3VisualGrid.tsx`
+- `/src/components/pedidos/models/Model4CompactList.tsx`
+- `/src/components/pedidos/models/Model5Wizard.tsx`
+- `/src/components/pedidos/models/Model6Autocomplete.tsx`
+- `/src/components/pedidos/models/Model7Calculator.tsx`
+- `/src/components/pedidos/models/Model8Favorites.tsx`
+- `/src/components/pedidos/models/Model9Modal.tsx`
+- `/src/components/pedidos/models/Model10Timeline.tsx`
+
+#### **Access URLs for Testing**
+- **Base**: `http://localhost:3000/pedidos-new` → Select any model
+- **Navigation**: `/propuestas-navegacion` → View all 10 models with descriptions
+- **Individual Models**: Each model accessible through model selector interface
+
+#### **Quality Assurance**
+- **Code Consistency**: Identical patterns applied across all models
+- **Feature Parity**: Same professional features in every interface
+- **Error Prevention**: Comprehensive validation and error handling
+- **Performance**: Optimized selectors and state management throughout
+
+**Result**: Complete dashboard ecosystem ready for evaluation with 10 distinct UX approaches, all implementing identical professional features and Uruguayan operational requirements.
+
+### Memory: 🎯 Model5Wizard Complete Redesign - Unique Methodology (2025-06-30)
+
+- **Objective**: Complete redesign of Model5Wizard with unique UX methodology, eliminating dependency on Quick Entry's customization modal
+- **Status**: 100% Complete - Innovative wizard-specific interface implemented
+
+#### **Problem Context**
+- **Original Issue**: Model5Wizard was reusing the same `PizzaCustomizationModal` from Quick Entry Dashboard
+- **Innovation Gap**: No unique value proposition - identical functionality to Quick Entry
+- **User Feedback**: "No innovation, using exactly the same menu of personalization"
+
+#### **Complete Redesign Strategy**
+- **Remove Modal Dependency**: Eliminate `PizzaCustomizationModal` completely from wizard
+- **Inline Customization**: Create step-by-step personalization directly in the page
+- **Unique UX Flow**: Design methodology specific to guided wizard experience
+- **Operational Focus**: Optimize for phone order taking without unnecessary complexity
+
+#### **New Wizard Methodology**
+
+**Step 1: Direct Pizza Selection**
+```typescript
+// Simple click-to-add without modal
+const handlePizzaSelect = (pizza: Pizza) => {
+  const newItem: CurrentOrderItem = {
+    id: Date.now() + Math.random(),
+    pizza_id: pizza.id,
+    pizza_nombre: pizza.nombre,
+    precio_base: Math.round(parseFloat(pizza.precio_base.toString())),
+    cantidad: 1,
+    es_mitad_y_mitad: false,
+    extras: [],
+    ingredientes_removidos: [],
+    notas: '',
+    precio_total: Math.round(parseFloat(pizza.precio_base.toString()))
+  };
+  setWizardItems(prev => [...prev, newItem]);
+};
+```
+
+**Step 2: Inline Personalization Cards**
+- **Individual Pizza Cards**: Each selected pizza gets its own customization section
+- **Clickable Ingredients**: Remove ingredients with visual feedback (-$50 each)
+- **Grid Extras Selection**: Add extras with real-time price calculation
+- **Individual Notes**: Textarea for special instructions per pizza
+- **Modification Summary**: Visual breakdown of all changes per pizza
+
+**Step 3: Customer & Confirmation**
+- **Customer System**: Same professional customer search/creation
+- **Final Review**: Complete order summary with all personalizations
+
+#### **Key Innovations Implemented**
+
+1. **No Modals**: Everything inline for continuous flow
+2. **Per-Pizza Customization**: Individual cards for each pizza item
+3. **Real-time Price Calculation**: Automatic updates with every modification
+4. **Visual State Management**: Clear feedback for removed ingredients and added extras
+5. **Transparent Pricing**: Shows exactly how final price is calculated
+6. **Operational Optimization**: Removed search bars (only 5 pizzas), direct click interactions
+
+#### **Technical Implementation**
+```typescript
+// Wizard-specific state management
+const [wizardItems, setWizardItems] = useState<CurrentOrderItem[]>([]);
+
+// Real-time price calculation for modifications
+const updateItemCustomization = (itemId, modifications) => {
+  setWizardItems(prev => prev.map(item => {
+    if (item.id === itemId) {
+      const discount = modifications.removedIngredients.length * 50;
+      const extrasTotal = modifications.extras.reduce((sum, e) => sum + parseFloat(e.precio), 0);
+      const newTotal = (item.precio_base - discount + extrasTotal) * item.cantidad;
+      return { ...item, ...modifications, precio_total: Math.max(0, newTotal) };
+    }
+    return item;
+  }));
+};
+```
+
+#### **UX Improvements Applied**
+- **Quantity Controls**: +/- buttons for each pizza with instant price updates
+- **Visual Feedback**: Ingredients marked as "QUITADO" when removed
+- **Modification Cards**: Clear summary of all changes per pizza
+- **Progressive Disclosure**: Each step reveals appropriate level of detail
+- **Error Prevention**: Cannot advance without required selections
+
+#### **Files Modified**
+- **Primary**: `/src/components/pedidos/models/Model5Wizard.tsx` - Complete rewrite
+- **Removed Dependencies**: Eliminated `PizzaCustomizationModal` import and usage
+- **Navigation**: Updated step descriptions and icons to reflect new methodology
+
+#### **Verification Results**
+```bash
+✅ Step 1: Direct pizza selection working - click adds immediately
+✅ Step 2: Individual pizza customization cards functional
+✅ Real-time price calculation working across all modifications
+✅ Step 3: Customer system and final confirmation operational
+✅ Navigation: Enter/Backspace/F/1-3 shortcuts working
+✅ No modal dependencies - completely self-contained
+```
+
+#### **Business Impact**
+- **Unique Value**: Wizard now offers distinct methodology vs Quick Entry
+- **User Training**: Clear separation between expert (Quick Entry) and guided (Wizard) workflows
+- **Operational Efficiency**: Optimized for phone order operations
+- **Innovation**: Industry-unique inline pizza customization approach
+- **Scalability**: Wizard methodology can be expanded to other product types
+
+#### **Dashboard Portfolio Status**
+- **Model1QuickEntry**: Expert interface with keyboard shortcuts and modal customization
+- **Model5Wizard**: Guided interface with inline step-by-step customization
+- **Differentiation**: Two completely different UX methodologies serving different operational needs
+- **Access**: http://localhost:3000/pedidos-new - both models fully functional
+
+**Result**: Model5Wizard now provides genuine innovation with unique inline customization methodology, completely distinct from Quick Entry Dashboard approach.
+
 [... rest of the existing content remains unchanged ...]

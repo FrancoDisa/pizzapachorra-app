@@ -3,17 +3,9 @@ import { useAppStore } from '@/stores';
 import { menuApi, clientesApi, pedidosApi } from '@/services/api';
 import ModelSelector from '@/components/pedidos/ModelSelector';
 
-// Lazy loading de los modelos para optimizar la carga inicial
+// Lazy loading de los modelos seleccionados
 const Model1QuickEntry = lazy(() => import('@/components/pedidos/models/Model1QuickEntry'));
-const Model2SplitScreen = lazy(() => import('@/components/pedidos/models/Model2SplitScreen'));
-const Model3VisualGrid = lazy(() => import('@/components/pedidos/models/Model3VisualGrid'));
-const Model4CompactList = lazy(() => import('@/components/pedidos/models/Model4CompactList'));
 const Model5Wizard = lazy(() => import('@/components/pedidos/models/Model5Wizard'));
-const Model6Autocomplete = lazy(() => import('@/components/pedidos/models/Model6Autocomplete'));
-const Model7Calculator = lazy(() => import('@/components/pedidos/models/Model7Calculator'));
-const Model8Favorites = lazy(() => import('@/components/pedidos/models/Model8Favorites'));
-const Model9Modal = lazy(() => import('@/components/pedidos/models/Model9Modal'));
-const Model10Timeline = lazy(() => import('@/components/pedidos/models/Model10Timeline'));
 
 export default function PedidosPage() {
   const { setMenu, setClientes, setPedidos, setLoading, setError } = useAppStore();
@@ -65,13 +57,10 @@ export default function PedidosPage() {
   // Shortcuts globales para cambiar de modelo
   useEffect(() => {
     const handleGlobalKeyPress = (e: KeyboardEvent) => {
-      // Solo si estamos presionando Ctrl + número
-      if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+      // Solo si estamos presionando Ctrl + número (1 o 5)
+      if (e.ctrlKey && (e.key === '1' || e.key === '5')) {
         e.preventDefault();
-        const modelNumber = parseInt(e.key);
-        if (modelNumber <= 10) {
-          setSelectedModel(`model${modelNumber}`);
-        }
+        setSelectedModel(`model${e.key}`);
       }
       
       // Ctrl + M para mostrar/ocultar selector
@@ -98,15 +87,7 @@ export default function PedidosPage() {
   const renderSelectedModel = () => {
     const modelComponents = {
       model1: Model1QuickEntry,
-      model2: Model2SplitScreen,
-      model3: Model3VisualGrid,
-      model4: Model4CompactList,
       model5: Model5Wizard,
-      model6: Model6Autocomplete,
-      model7: Model7Calculator,
-      model8: Model8Favorites,
-      model9: Model9Modal,
-      model10: Model10Timeline,
     };
 
     const SelectedComponent = modelComponents[selectedModel as keyof typeof modelComponents];
@@ -184,9 +165,8 @@ export default function PedidosPage() {
       {/* Shortcuts de ayuda flotante */}
       <div className="fixed bottom-4 left-4 z-40 bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 text-xs text-gray-300">
         <div className="font-medium text-white mb-1">Shortcuts Globales:</div>
-        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+1-9</kbd> = Cambiar modelo</div>
-        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+M</kbd> = Toggle selector</div>
-        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+R</kbd> = Reset a modelo 1</div>
+        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+1</kbd> = Quick Entry • <kbd className="bg-gray-700 px-1 rounded">Ctrl+5</kbd> = Wizard</div>
+        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+M</kbd> = Toggle selector • <kbd className="bg-gray-700 px-1 rounded">Ctrl+R</kbd> = Reset</div>
       </div>
 
       {/* Renderizar el modelo seleccionado */}

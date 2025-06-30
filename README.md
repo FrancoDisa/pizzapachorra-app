@@ -122,6 +122,40 @@ curl http://localhost/health
 5. **Ver ticket dinámico** con totales actualizados
 6. **Confirmar pedido** y enviarlo automáticamente a cocina
 
+### 🎯 Sistema de Dashboards con Metodologías Únicas - **NUEVO**
+
+**2 Interfaces de Pedidos Profesionales** con metodologías técnicas completamente diferentes:
+
+#### **⚡ Model 1 - Quick Entry Dashboard** (Operadores Expertos)
+- **Shortcuts F1-F5**: Selección directa de pizzas principales
+- **Modal de Personalización**: Customización completa con PizzaCustomizationModal
+- **Alta Velocidad**: Optimizado para toma de pedidos telefónicos rápidos
+- **Usuarios objetivo**: Personal experimentado, operación de alta velocidad
+
+#### **🧙‍♂️ Model 5 - Wizard de 3 Pasos** (Usuarios Nuevos/Entrenamiento)
+- **Personalización Inline**: Cards individuales por pizza sin modals
+- **Flujo Guiado**: Paso 1 (Seleccionar) → Paso 2 (Personalizar) → Paso 3 (Cliente)
+- **Cálculo Transparente**: Precios en tiempo real con breakdown detallado
+- **Usuarios objetivo**: Personal nuevo, entrenamiento, pedidos complejos
+
+**Diferenciación Técnica:**
+- **Metodologías Únicas**: Sin reutilización de componentes entre interfaces
+- **UX Específico**: Cada interfaz optimizada para su caso de uso
+- **Innovación**: Algoritmos de personalización y precio específicos por modelo
+**Selección de Interface:**
+- **Ctrl+1**: Cambiar a Quick Entry Dashboard
+- **Ctrl+5**: Cambiar a Wizard de 3 Pasos  
+- **Ctrl+M**: Mostrar/ocultar selector de interfaces
+
+**Características Profesionales en Ambas Interfaces:**
+- ✅ **Sistema de clientes uruguayos** con búsqueda inteligente
+- ✅ **Precios sin decimales** (formato Uruguay: $390)
+- ✅ **Personalización completa** de pizzas (extras, ingredientes removidos)
+- ✅ **Cálculo automático** de precios con modificaciones
+- ✅ **UX optimizada** para operaciones reales de pizzería
+
+**Acceso:** `http://localhost:3000/pedidos-new` → Selecciona tu interface preferida
+
 ### 👨‍🍳 Pantalla de Cocina
 - **Vista en tiempo real** de pedidos pendientes
 - **Cambio de estados**: *Nuevo → En Preparación → Listo → Entregado*

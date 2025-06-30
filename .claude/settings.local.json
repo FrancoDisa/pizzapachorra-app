@@ -49,7 +49,8 @@
       "Bash(docker-compose up:*)",
       "Bash(docker-compose:*)",
       "Bash(docker restart:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(sudo service:*)"
     ],
     "deny": []
   }
