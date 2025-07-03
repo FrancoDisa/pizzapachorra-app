@@ -206,14 +206,14 @@ export default function TicketSection() {
                 <button 
                   className="px-6 py-4 bg-gray-600 hover:bg-gray-500 text-white rounded-lg transition-colors font-medium text-lg disabled:bg-gray-700 disabled:cursor-not-allowed"
                   disabled={!currentOrder.cliente_id}
-                  onClick={() => console.log('Guardando pedido...', currentOrder)}
+                  onClick={() => {/* TODO: Implementar guardado */}}
                 >
                   💾 Guardar
                 </button>
                 <button 
                   className="px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-bold text-lg disabled:bg-gray-700 disabled:cursor-not-allowed"
                   disabled={!currentOrder.cliente_id}
-                  onClick={() => console.log('Confirmando pedido...', currentOrder)}
+                  onClick={() => {/* TODO: Implementar confirmación */}}
                 >
                   ✓ Confirmar
                 </button>

@@ -122,39 +122,45 @@ curl http://localhost/health
 5. **Ver ticket dinámico** con totales actualizados
 6. **Confirmar pedido** y enviarlo automáticamente a cocina
 
-### 🎯 Sistema de Dashboards con Metodologías Únicas - **NUEVO**
+### 🎯 Sistema de Dashboards Profesionales - **OPTIMIZADO**
 
-**2 Interfaces de Pedidos Profesionales** con metodologías técnicas completamente diferentes:
+**3 Interfaces de Pedidos Completamente Optimizadas** para diferentes casos de uso operacionales:
 
-#### **⚡ Model 1 - Quick Entry Dashboard** (Operadores Expertos)
+#### **⚡ Model1 Quick Entry** (Operadores Expertos)
 - **Shortcuts F1-F5**: Selección directa de pizzas principales
-- **Modal de Personalización**: Customización completa con PizzaCustomizationModal
-- **Alta Velocidad**: Optimizado para toma de pedidos telefónicos rápidos
-- **Usuarios objetivo**: Personal experimentado, operación de alta velocidad
+- **Ingredientes Completos**: Lista completa visible en cada pizza
+- **Header Optimizado**: Información esencial únicamente  
+- **Ticket Refinado**: Diseño profesional con jerarquía visual mejorada
+- **Usuarios objetivo**: Personal experimentado, alta velocidad, pedidos telefónicos
 
-#### **🧙‍♂️ Model 5 - Wizard de 3 Pasos** (Usuarios Nuevos/Entrenamiento)
-- **Personalización Inline**: Cards individuales por pizza sin modals
-- **Flujo Guiado**: Paso 1 (Seleccionar) → Paso 2 (Personalizar) → Paso 3 (Cliente)
-- **Cálculo Transparente**: Precios en tiempo real con breakdown detallado
-- **Usuarios objetivo**: Personal nuevo, entrenamiento, pedidos complejos
+#### **🧙‍♂️ Model5 Wizard** (Usuarios Nuevos/Entrenamiento)  
+- **Progress Indicator Compacto**: Navegación eficiente en 3 pasos
+- **Personalización Inline**: Cards individuales sin modals complejos
+- **Flujo Guiado**: Seleccionar → Personalizar → Cliente → Confirmar
+- **Navegación Optimizada**: Controles claros con feedback visual
+- **Usuarios objetivo**: Personal nuevo, entrenamiento, reducción de errores
 
-**Diferenciación Técnica:**
-- **Metodologías Únicas**: Sin reutilización de componentes entre interfaces
-- **UX Específico**: Cada interfaz optimizada para su caso de uso
-- **Innovación**: Algoritmos de personalización y precio específicos por modelo
-**Selección de Interface:**
-- **Ctrl+1**: Cambiar a Quick Entry Dashboard
-- **Ctrl+5**: Cambiar a Wizard de 3 Pasos  
-- **Ctrl+M**: Mostrar/ocultar selector de interfaces
+#### **🍕 Model15 Pachorra Tradicional** (Identidad de Marca)
+- **100% Español**: Completamente traducido, sin rastros de italiano
+- **Identidad Correcta**: "Pizza Pachorra" tradicional (no italiana)
+- **Header Compacto**: Eficiente pero manteniendo elegancia 
+- **Desktop Optimizado**: Sin restricciones mobile, aprovecha pantallas grandes
+- **Usuarios objetivo**: Presentación al cliente, identidad de marca
 
-**Características Profesionales en Ambas Interfaces:**
-- ✅ **Sistema de clientes uruguayos** con búsqueda inteligente
-- ✅ **Precios sin decimales** (formato Uruguay: $390)
-- ✅ **Personalización completa** de pizzas (extras, ingredientes removidos)
-- ✅ **Cálculo automático** de precios con modificaciones
-- ✅ **UX optimizada** para operaciones reales de pizzería
+**Características Profesionales Unificadas:**
+- ✅ **Sistema de clientes demo** con datos uruguayos realistas
+- ✅ **Precios sin decimales** (formato $390, no $390.00)
+- ✅ **Ingredientes completos** visibles en todas las pizzas
+- ✅ **Modal responsive** con tema apropiado por interfaz
+- ✅ **Design System global** con componentes consistentes
+- ✅ **UX optimizada** para evaluación de interfaces
 
-**Acceso:** `http://localhost:3000/pedidos-new` → Selecciona tu interface preferida
+**Acceso:** `http://localhost:3000/pedidos-new` → Selector permite cambiar entre los 3 modelos
+**Navegación Rápida:**
+- **Ctrl+1**: Quick Entry Dashboard
+- **Ctrl+5**: Wizard de 3 Pasos
+- **Ctrl+Shift+5**: Pachorra Tradicional
+- **Ctrl+M**: Toggle selector de modelos
 
 ### 👨‍🍳 Pantalla de Cocina
 - **Vista en tiempo real** de pedidos pendientes

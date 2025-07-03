@@ -39,6 +39,16 @@ export default function ModelSelector({ currentModel, onModelChange }: ModelSele
       difficulty: 'Fácil',
       speed_rating: 3,
       icon: '🧙‍♂️'
+    },
+    {
+      id: 'model15',
+      name: 'Pachorra Tradicional',
+      description: 'Diseño inspirado en el logo de la pizzería con colores y estética italiana auténtica',
+      features: ['Colores tradicionales', 'Rojo/Negro/Blanco', 'Tipografía italiana', 'Chef con bigote', 'Auténtico'],
+      optimal_for: ['Identidad de marca', 'Ambiente tradicional', 'Pizzería clásica', 'Experiencia italiana'],
+      difficulty: 'Fácil',
+      speed_rating: 4,
+      icon: '🍕'
     }
   ];
 
@@ -92,7 +102,7 @@ export default function ModelSelector({ currentModel, onModelChange }: ModelSele
       </div>
 
       {/* Lista de modelos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {models.map((model) => (
           <button
             key={model.id}

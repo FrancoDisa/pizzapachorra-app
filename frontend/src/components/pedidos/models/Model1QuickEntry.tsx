@@ -37,6 +37,19 @@ export default function Model1QuickEntry() {
     pizza?: Pizza;
     editingItem?: CurrentOrderItem;
   }>({ isOpen: false });
+  
+  // Estados de loading y feedback visual
+  const [loadingStates, setLoadingStates] = useState<{
+    addingPizza: number | null;
+    creatingCustomer: boolean;
+    confirmingOrder: boolean;
+  }>({
+    addingPizza: null,
+    creatingCustomer: false,
+    confirmingOrder: false,
+  });
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
   const customerInputRef = useRef<HTMLInputElement>(null);
   const firstPizzaButtonRef = useRef<HTMLButtonElement>(null);
   const [currentFocusSection, setCurrentFocusSection] = useState(0); // 0: customer, 1: pizzas
@@ -82,9 +95,14 @@ export default function Model1QuickEntry() {
     setShowCustomerDropdown(false);
   }, [customerSearch]);
 
-  // Confirmar creación de nuevo cliente desde modal
-  const handleConfirmNewCustomer = useCallback(() => {
+  // Confirmar creación de nuevo cliente desde modal con loading
+  const handleConfirmNewCustomer = useCallback(async () => {
     if (newCustomerForm.nombre.trim() && newCustomerForm.telefono.trim()) {
+      setLoadingStates(prev => ({ ...prev, creatingCustomer: true }));
+      
+      // Simular delay de API
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       const newCustomer: Cliente = {
         id: Date.now(), // ID temporal único
         nombre: newCustomerForm.nombre.trim(),
@@ -93,11 +111,17 @@ export default function Model1QuickEntry() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
+      
       setSelectedCustomer(newCustomer);
       setOrderCustomer(newCustomer);
       setCustomerSearch('');
       setShowNewCustomerModal(false);
       setNewCustomerForm({ nombre: '', telefono: '', direccion: '' });
+      setLoadingStates(prev => ({ ...prev, creatingCustomer: false }));
+      
+      // Mostrar mensaje de éxito
+      setSuccessMessage('✅ Cliente creado exitosamente');
+      setTimeout(() => setSuccessMessage(null), 3000);
     }
   }, [newCustomerForm, setOrderCustomer]);
 
@@ -110,27 +134,39 @@ export default function Model1QuickEntry() {
 
   // Atajos de teclado deshabilitados para demo visual
 
-  const handleQuickAdd = useCallback((item: Pizza | Extra) => {
+  const handleQuickAdd = useCallback(async (item: Pizza | Extra) => {
     if ('precio_base' in item) {
-      // Es una pizza - abre personalización inmediatamente
+      // Es una pizza - mostrar loading y luego abrir personalización
+      setLoadingStates(prev => ({ ...prev, addingPizza: item.id }));
+      
+      // Simular delay de carga
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       setCustomizationModal({
         isOpen: true,
         pizza: item
       });
+      
+      setLoadingStates(prev => ({ ...prev, addingPizza: null }));
     }
   }, []);
 
-  // Handlers para el modal de personalización
+  // Handlers para el modal de personalización con feedback
   const handleCustomizationConfirm = useCallback((item: CurrentOrderItem) => {
     if (customizationModal.editingItem) {
       updateCustomizedItemInOrder(item);
+      setSuccessMessage('✅ Pizza actualizada');
     } else {
       addCustomizedItemToOrder(item);
+      setSuccessMessage('✅ Pizza agregada al ticket');
     }
     setCustomizationModal({ isOpen: false });
     
     // Resetear cantidad
     setQuickQuantity(1);
+    
+    // Ocultar mensaje después de 2 segundos
+    setTimeout(() => setSuccessMessage(null), 2000);
   }, [customizationModal.editingItem, addCustomizedItemToOrder, updateCustomizedItemInOrder]);
 
   const handleEditItem = useCallback((item: CurrentOrderItem) => {
@@ -148,27 +184,51 @@ export default function Model1QuickEntry() {
 
 
   return (
-    <div className="min-h-screen bg-gray-900 p-4">
-      {/* Header compacto */}
-      <div className="mb-4 bg-gray-800 rounded-lg p-3 border border-gray-700">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-lg font-bold text-white">⚡ Quick Entry</h1>
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1">
-              🍕 <kbd className="bg-blue-600 px-1 rounded text-white">F1-F5</kbd>
+    <>
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(55, 65, 81, 0.3);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(75, 85, 99, 0.8);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(107, 114, 128, 1);
+        }
+      `}</style>
+      <div className="min-h-screen bg-gray-900 p-4">
+      {/* Header optimizado */}
+      <div className="mb-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-blue-400">⚡</span> Quick Entry Dashboard
+          </h1>
+          <div className="flex items-center gap-6">
+            <div className="text-sm text-gray-300">
+              <span className="text-blue-400 font-medium">🍕 F1-F5</span> Pizzas Rápidas
             </div>
-            <div className="flex items-center gap-1">
-              👤 <kbd className="bg-purple-600 px-1 rounded text-white">C</kbd>
-            </div>
-            <div className="flex items-center gap-1">
-              🔢 <kbd className="bg-orange-600 px-1 rounded text-white">1-9</kbd>
-            </div>
-            <div className="bg-yellow-600/20 px-2 py-1 rounded text-yellow-300">
-              Qty: <span className="font-bold">{quickQuantity}</span>
+            <div className="bg-blue-600/20 px-3 py-2 rounded-lg border border-blue-600/30">
+              <span className="text-blue-300 text-sm font-medium">Cantidad:</span>
+              <span className="text-white text-lg font-bold ml-2">{quickQuantity}</span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Mensaje de éxito */}
+      {successMessage && (
+        <div className="mb-4 animate-fade-in">
+          <div className="bg-success/10 border border-success/30 text-success rounded-lg px-4 py-3 text-sm font-medium flex items-center gap-2">
+            <span className="animate-pulse-success">🎉</span>
+            {successMessage}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
@@ -177,27 +237,41 @@ export default function Model1QuickEntry() {
           
 
           {/* Pizzas Principales (F1-F5) */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-white mb-3">🍕 Pizzas Principales (F1-F5)</h3>
-            <div className="space-y-2">
+          <div className="bg-gray-800 rounded-lg p-5 border border-gray-700">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <span className="text-orange-400">🍕</span> Pizzas Principales
+            </h3>
+            <div className="space-y-3">
               {popularPizzas.map((pizza, index) => (
                 <button
                   key={pizza.id}
                   ref={index === 0 ? firstPizzaButtonRef : null}
                   onClick={() => handleQuickAdd(pizza)}
                   onFocus={() => setCurrentFocusSection(1)}
-                  className="w-full p-3 rounded-lg transition-all text-left border-2 bg-gray-700 hover:bg-gray-600 border-transparent hover:border-blue-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
+                  disabled={loadingStates.addingPizza === pizza.id}
+                  className={`w-full p-4 rounded-lg transition-all duration-200 text-left border-2 group relative ${
+                    loadingStates.addingPizza === pizza.id 
+                      ? 'bg-blue-600/20 border-blue-500 cursor-wait' 
+                      : 'bg-gray-700/80 hover:bg-gray-600/90 border-gray-600 hover:border-blue-500 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50'
+                  }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="text-xs text-blue-400 font-bold bg-blue-900/30 px-2 py-1 rounded min-w-[2rem] text-center">F{index + 1}</div>
-                      <div className="text-white font-medium">{pizza.nombre}</div>
+                  {loadingStates.addingPizza === pizza.id && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-700/90 rounded-lg">
+                      <div className="loading-spinner text-blue-400"></div>
+                      <span className="ml-2 text-blue-300 font-medium">Agregando...</span>
                     </div>
-                    <div className="text-green-400 font-bold text-lg">${Math.round(parseFloat(pizza.precio_base))}</div>
+                  )}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm text-blue-300 font-bold bg-blue-600/20 px-3 py-1 rounded-full border border-blue-600/30 min-w-[3rem] text-center group-hover:bg-blue-600/30 transition-colors">
+                        F{index + 1}
+                      </div>
+                      <div className="text-white font-semibold text-lg group-hover:text-blue-100 transition-colors">{pizza.nombre}</div>
+                    </div>
+                    <div className="text-green-400 font-bold text-xl">${Math.round(parseFloat(pizza.precio_base))}</div>
                   </div>
-                  <div className="text-gray-400 text-xs">
-                    {pizza.ingredientes.slice(0, 4).join(', ')}
-                    {pizza.ingredientes.length > 4 && '...'}
+                  <div className="text-gray-400 text-sm leading-relaxed pl-12">
+                    <span className="text-gray-500 font-medium">Ingredientes:</span> {pizza.ingredientes.join(', ')}
                   </div>
                 </button>
               ))}
@@ -209,17 +283,21 @@ export default function Model1QuickEntry() {
         {/* Panel Derecho: Cliente y Ticket */}
         <div className="space-y-3 flex flex-col h-full">
           
-          {/* Cliente - MEJORADO */}
-          <div className="bg-gray-800 rounded-lg p-3 relative">
-            <h3 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
-              👤 Cliente <kbd className="bg-gray-600 px-1 rounded text-xs">C</kbd>
+          {/* Cliente - OPTIMIZADO */}
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 relative">
+            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+              <span className="text-purple-400">👤</span> Cliente
             </h3>
             {currentOrder.cliente ? (
-              <div className="bg-green-900/30 rounded p-2">
-                <div className="text-green-400 font-medium text-sm">{currentOrder.cliente.nombre}</div>
-                <div className="text-green-300 text-xs">{currentOrder.cliente.telefono}</div>
+              <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-green-400 text-sm">✓</span>
+                  <span className="text-green-400 font-medium text-sm">Cliente Seleccionado</span>
+                </div>
+                <div className="text-green-100 font-semibold">{currentOrder.cliente.nombre}</div>
+                <div className="text-green-200 text-sm">{currentOrder.cliente.telefono}</div>
                 {currentOrder.cliente.direccion && (
-                  <div className="text-green-200 text-xs">📍 {currentOrder.cliente.direccion}</div>
+                  <div className="text-green-300 text-sm">📍 {currentOrder.cliente.direccion}</div>
                 )}
                 <button
                   onClick={() => {
@@ -227,9 +305,9 @@ export default function Model1QuickEntry() {
                     setSelectedCustomer(null);
                     setCustomerSearch('');
                   }}
-                  className="mt-1 text-xs text-gray-400 hover:text-white"
+                  className="mt-2 text-sm text-gray-400 hover:text-white underline transition-colors"
                 >
-                  Cambiar
+                  Cambiar Cliente
                 </button>
               </div>
             ) : (
@@ -308,10 +386,14 @@ export default function Model1QuickEntry() {
           </div>
 
           {/* Ticket */}
-          <div className="bg-gray-800 rounded-lg p-3 flex-1">
-            <h3 className="text-sm font-medium text-white mb-2 flex items-center justify-between">
-              <span>🧾 Ticket</span>
-              <span className="text-xs bg-blue-900/30 px-2 py-1 rounded">{items.length} items</span>
+          <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex-1">
+            <h3 className="text-lg font-semibold text-white mb-3 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <span className="text-yellow-400">🧾</span> Ticket de Venta
+              </span>
+              <span className="text-sm bg-blue-600/20 px-3 py-1 rounded-full border border-blue-600/30 text-blue-300">
+                {items.length} {items.length === 1 ? 'item' : 'items'}
+              </span>
             </h3>
             
             {items.length === 0 ? (
@@ -411,18 +493,18 @@ export default function Model1QuickEntry() {
                             )}
                           </div>
                         ) : (
-                          // Mostrar customizaciones para pizza entera - MEJORADO
+                          // Mostrar customizaciones para pizza entera - OPTIMIZADO
                           (item.extras_agregados_data && item.extras_agregados_data.length > 0) || 
                           (item.extras_removidos_data && item.extras_removidos_data.length > 0) ? (
-                            <div className="text-xs mt-2 bg-gray-700/50 rounded p-2 space-y-1">
+                            <div className="text-sm mt-2 bg-gray-600/40 rounded-lg p-2 space-y-1">
                               {item.extras_agregados_data && item.extras_agregados_data.length > 0 && (
-                                <div className="text-green-400 font-medium">
-                                  ➕ {item.extras_agregados_data.map(e => e.nombre).join(', ')}
+                                <div className="text-green-300 font-medium">
+                                  <span className="text-green-400">➕</span> {item.extras_agregados_data.map(e => e.nombre).join(', ')}
                                 </div>
                               )}
                               {item.extras_removidos_data && item.extras_removidos_data.length > 0 && (
-                                <div className="text-red-400 font-medium">
-                                  ➖ {item.extras_removidos_data.map(e => e.nombre).join(', ')}
+                                <div className="text-red-300 font-medium">
+                                  <span className="text-red-400">➖</span> {item.extras_removidos_data.map(e => e.nombre).join(', ')}
                                 </div>
                               )}
                             </div>
@@ -431,8 +513,8 @@ export default function Model1QuickEntry() {
                         
                         {/* Mostrar notas */}
                         {item.notas && (
-                          <div className="text-xs text-yellow-300 mt-1 italic">
-                            📝 {item.notas}
+                          <div className="text-sm text-yellow-300 mt-2 p-2 bg-yellow-600/10 border border-yellow-600/20 rounded italic">
+                            <span className="text-yellow-400">📝</span> {item.notas}
                           </div>
                         )}
                       </div>
@@ -444,7 +526,7 @@ export default function Model1QuickEntry() {
                     <div className="flex gap-1 mt-2">
                       <button
                         onClick={() => updateOrderItemQuantity(item.id, item.cantidad + 1)}
-                        className="px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded"
+                        className="btn-success px-2 py-1 text-xs rounded hover:scale-105 transition-transform"
                         title="Agregar cantidad"
                       >
                         +
@@ -457,21 +539,21 @@ export default function Model1QuickEntry() {
                             removeItemFromOrder(item.id);
                           }
                         }}
-                        className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
+                        className="btn-danger px-2 py-1 text-xs rounded hover:scale-105 transition-transform"
                         title="Reducir cantidad"
                       >
                         -
                       </button>
                       <button
                         onClick={() => handleEditItem(item)}
-                        className="px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded"
+                        className="px-2 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs rounded hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400/50"
                         title="Editar"
                       >
                         ✏️
                       </button>
                       <button
                         onClick={() => removeItemFromOrder(item.id)}
-                        className="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-white text-xs rounded"
+                        className="btn-secondary px-2 py-1 text-xs rounded hover:scale-105 transition-transform"
                         title="Eliminar"
                       >
                         🗑️
@@ -595,10 +677,17 @@ export default function Model1QuickEntry() {
               </button>
               <button
                 onClick={handleConfirmNewCustomer}
-                disabled={!newCustomerForm.nombre.trim() || !newCustomerForm.telefono.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded transition-colors"
+                disabled={!newCustomerForm.nombre.trim() || !newCustomerForm.telefono.trim() || loadingStates.creatingCustomer}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded transition-colors flex items-center justify-center gap-2"
               >
-                Crear Cliente
+                {loadingStates.creatingCustomer ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    Creando...
+                  </>
+                ) : (
+                  'Crear Cliente'
+                )}
               </button>
             </div>
           </div>
@@ -616,6 +705,7 @@ export default function Model1QuickEntry() {
           initialQuantity={customizationModal.editingItem ? undefined : quickQuantity}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

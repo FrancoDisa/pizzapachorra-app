@@ -16,7 +16,6 @@ export default function MenuSection() {
 
   const handleAddExtra = (extra: import('@/types').Extra) => {
     // TODO: Implementar lógica para agregar extra a pizza actual o última pizza en el ticket
-    console.log('Agregando extra:', extra);
   };
 
   // Filtrar pizzas y extras según el término de búsqueda

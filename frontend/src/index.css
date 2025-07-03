@@ -1,52 +1,171 @@
 @import "tailwindcss";
 
-/* Estilos base personalizados */
+/* =================================== */
+/* PIZZA PACHORRA - DESIGN SYSTEM */
+/* =================================== */
+
+/* Base Styles */
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 *, *::before, *::after {
   box-sizing: inherit;
 }
 
-/* Estilos para componentes personalizados */
-.pizza-card {
-  background-color: #1e293b;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  border: 1px solid #334155;
-  transition: border-color 0.15s ease-in-out;
-  cursor: pointer;
+/* Custom Scrollbars for All Models */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(75, 85, 99, 0.8) rgba(55, 65, 81, 0.3);
 }
 
-.pizza-card:hover {
-  border-color: #f97316;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.8);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 1);
+}
+
+/* Typography Scale Consistency */
+.text-hierarchy-h1 { @apply text-2xl font-bold; }
+.text-hierarchy-h2 { @apply text-xl font-semibold; }
+.text-hierarchy-h3 { @apply text-lg font-medium; }
+.text-hierarchy-body { @apply text-base font-normal; }
+.text-hierarchy-small { @apply text-sm font-normal; }
+.text-hierarchy-xs { @apply text-xs font-normal; }
+
+/* =================================== */
+/* BUTTON SYSTEM - UNIFIED DESIGN */
+/* =================================== */
+
+/* Primary Buttons - Brand Orange */
 .btn-primary {
-  background-color: #ea580c;
-  color: white;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: background-color 0.15s ease-in-out;
+  @apply px-4 py-2 bg-brand-orange-600 hover:bg-brand-orange-700 text-white font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-brand-orange-500/50 shadow-sm;
 }
 
-.btn-primary:hover {
-  background-color: #c2410c;
-}
-
+/* Secondary Buttons - Dashboard Theme */
 .btn-secondary {
-  background-color: #475569;
-  color: white;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: background-color 0.15s ease-in-out;
+  @apply px-4 py-2 bg-dashboard-border hover:bg-slate-600 text-dashboard-text font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-dashboard-accent/50;
 }
 
-.btn-secondary:hover {
-  background-color: #334155;
-} 
+/* Success Actions */
+.btn-success {
+  @apply px-4 py-2 bg-success hover:bg-emerald-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-success/50 shadow-sm;
+}
+
+/* Danger/Cancel Actions */
+.btn-danger {
+  @apply px-4 py-2 bg-error hover:bg-red-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-error/50 shadow-sm;
+}
+
+/* Traditional Theme Buttons */
+.btn-traditional {
+  @apply px-4 py-2 bg-traditional-card hover:bg-brand-red-600 text-traditional-text font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-traditional-accent/50 shadow-traditional;
+}
+
+/* =================================== */
+/* PIZZA CARD SYSTEM - THEME AWARE */
+/* =================================== */
+
+/* Dashboard Theme Cards */
+.pizza-card {
+  @apply bg-dashboard-card/80 border-2 border-dashboard-border rounded-lg p-4 transition-all duration-200 hover:bg-dashboard-card hover:border-dashboard-accent focus-within:border-dashboard-accent focus-within:ring-2 focus-within:ring-dashboard-accent/50 hover:shadow-pizza;
+}
+
+/* Traditional Theme Cards */
+.pizza-card-traditional {
+  @apply bg-gradient-to-r from-brand-amber-50 to-brand-orange-100 border-2 border-traditional-border rounded-lg p-4 transition-all duration-300 hover:from-brand-amber-100 hover:to-brand-orange-200 shadow-md hover:shadow-traditional;
+}
+
+/* Card Content Styles */
+.pizza-card-title {
+  @apply text-hierarchy-h3 text-dashboard-text font-semibold mb-2;
+}
+
+.pizza-card-title-traditional {
+  @apply text-hierarchy-h3 text-traditional-bg font-bold mb-2;
+}
+
+.pizza-card-price {
+  @apply text-hierarchy-h2 font-bold text-brand-orange-600;
+}
+
+.pizza-card-price-traditional {
+  @apply text-hierarchy-h2 font-bold text-traditional-card;
+}
+
+/* =================================== */
+/* STATUS INDICATORS - UNIFIED SYSTEM */
+/* =================================== */
+
+.status-success {
+  @apply bg-success/10 border border-success/30 text-success rounded-lg px-3 py-2 text-sm font-medium;
+}
+
+.status-warning {
+  @apply bg-warning/10 border border-warning/30 text-warning rounded-lg px-3 py-2 text-sm font-medium;
+}
+
+.status-error {
+  @apply bg-error/10 border border-error/30 text-error rounded-lg px-3 py-2 text-sm font-medium;
+}
+
+.status-info {
+  @apply bg-info/10 border border-info/30 text-info rounded-lg px-3 py-2 text-sm font-medium;
+}
+
+/* Loading States */
+.loading-spinner {
+  @apply animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full;
+}
+
+.loading-dots {
+  @apply animate-pulse;
+}
+
+/* Focus States for Accessibility */
+.focus-visible {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900;
+}
+
+/* Hover Animations */
+.hover-lift {
+  @apply transition-transform duration-200 hover:scale-[1.02];
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.modal-content {
+  @apply bg-gray-800 rounded-lg border border-gray-700 shadow-xl;
+}
+
+/* Animation Utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Legacy CSS cleaned - duplicated styles removed and unified with Tailwind classes above */ 

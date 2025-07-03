@@ -5,6 +5,9 @@ import type { Pizza, Extra, CurrentOrderItem } from '@/types';
 // Enum para las pestañas del modal
 type TabType = 'mitad1' | 'mitad2' | 'ambas' | 'entera';
 
+// Temas disponibles para el modal
+type ModalTheme = 'default' | 'traditional';
+
 interface PizzaCustomizationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -12,7 +15,8 @@ interface PizzaCustomizationModalProps {
   pizza: Pizza;
   editingItem?: CurrentOrderItem; // Para editar item existente
   initialQuantity?: number; // Cantidad inicial para usar desde el dashboard
-}
+  theme?: ModalTheme; // Tema del modal para adaptarse al dashboard
+
 
 export default function PizzaCustomizationModal({ 
   isOpen, 
@@ -20,7 +24,8 @@ export default function PizzaCustomizationModal({
   onConfirm, 
   pizza,
   editingItem,
-  initialQuantity = 1
+  initialQuantity = 1,
+  theme = 'default'
 }: PizzaCustomizationModalProps) {
   const pizzas = usePizzas();
   const extras = useExtras();
@@ -155,15 +160,6 @@ export default function PizzaCustomizationModal({
   const handleConfirm = () => {
     const precioUnitario = calcularPrecio();
     
-    // DEBUG: Verificar datos de extras
-    if (!esMitadYMitad && (extrasAgregados.length > 0 || extrasRemovidos.length > 0)) {
-      console.log('🐛 DEBUG - Extras para pizza entera:', {
-        extrasAgregados,
-        extrasRemovidos,
-        extras_agregados_data: extrasAgregados.map(id => extras.find(e => e.id === id)).filter(Boolean),
-        extras_removidos_data: extrasRemovidos.map(id => extras.find(e => e.id === id)).filter(Boolean)
-      });
-    }
     
     const item: CurrentOrderItem = {
       id: editingItem?.id || `temp_${Date.now()}`,
@@ -292,69 +288,150 @@ export default function PizzaCustomizationModal({
 
   const precioTotal = calcularPrecio() * cantidad;
 
+  // Obtener estilos según el tema del dashboard
+  const getThemeStyles = () => {
+    switch (theme) {
+      case 'traditional':
+        return {
+          backdrop: 'fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-4',
+          container: 'bg-white/95 backdrop-blur-sm rounded-3xl max-w-5xl w-full max-h-[95vh] md:max-h-[90vh] overflow-y-auto border-4 border-orange-300 shadow-2xl mx-2 md:mx-0',
+          header: 'bg-gradient-to-r from-red-700 via-red-600 to-orange-600 text-white p-6 relative overflow-hidden',
+          title: 'text-3xl font-black text-white tracking-wide',
+          body: 'p-8',
+          button: 'px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105',
+          cancelButton: 'px-8 py-4 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300',
+          tabActive: 'px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl shadow-lg font-bold',
+          tabInactive: 'px-6 py-3 text-red-700 hover:text-red-800 border-2 border-orange-300 bg-orange-50 hover:bg-orange-100 rounded-2xl font-bold transition-all',
+          input: 'w-full px-4 py-3 border-2 border-orange-300 rounded-2xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-orange-200 focus:border-red-500 bg-orange-50/50 font-medium',
+          extraButton: 'p-4 border-2 border-orange-200 bg-orange-50 rounded-2xl text-gray-900 hover:border-red-500 hover:bg-orange-100 transition-all font-medium',
+          extraButtonActive: 'p-4 border-2 border-red-500 bg-red-50 text-red-800 rounded-2xl font-bold shadow-lg'
+        };
+      default:
+        return {
+          backdrop: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4',
+          container: 'bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto',
+          header: 'bg-gray-700 p-6 border-b border-gray-600',
+          title: 'text-2xl font-bold text-white',
+          body: 'p-6',
+          button: 'px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors',
+          cancelButton: 'px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors',
+          tabActive: 'px-4 py-2 bg-blue-600 text-white rounded',
+          tabInactive: 'px-4 py-2 text-gray-300 hover:text-white rounded',
+          input: 'w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500',
+          extraButton: 'p-3 border border-gray-600 bg-gray-700 rounded text-gray-300 hover:border-blue-500 transition-colors',
+          extraButtonActive: 'p-3 border-2 border-blue-500 bg-blue-900/30 text-blue-300 rounded'
+        };
+    }
+  };
+
+  const styles = getThemeStyles();
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className={styles.backdrop}>
+      <div className={styles.container}>
         
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b border-gray-700">
-          <div>
-            <h2 className="text-xl font-bold text-white">Personalizar Pizza</h2>
-            <p className="text-gray-400">{pizza.nombre} - Base: ${Math.round(parseFloat(pizza.precio_base))}</p>
+        <div className={styles.header}>
+          {theme === 'traditional' && (
+            <>
+              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="absolute top-4 left-8 text-6xl text-orange-300/20">🍕</div>
+              <div className="absolute bottom-4 right-8 text-4xl text-yellow-300/20">🧀</div>
+            </>
+          )}
+          <div className="relative flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              {theme === 'traditional' && (
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">
+                  🎨
+                </div>
+              )}
+              <div>
+                <h2 className={styles.title}>Personalizar Pizza</h2>
+                <p className={theme === 'traditional' ? 'text-orange-100 font-medium' : 'text-gray-400'}>
+                  {pizza.nombre} - Base: ${Math.round(parseFloat(pizza.precio_base))}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className={theme === 'traditional' 
+                ? "w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition-colors text-xl"
+                : "text-gray-400 hover:text-white text-xl"
+              }
+            >
+              ✕
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl"
-          >
-            ✕
-          </button>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className={`${styles.body} space-y-6`}>
           
-          {/* Cantidad */}
-          <div className="flex items-center gap-4">
-            <label className="text-white font-medium">Cantidad:</label>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCantidad(Math.max(1, cantidad - 1))}
-                className="w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded"
-              >
-                -
-              </button>
-              <span className="text-white font-bold text-lg w-8 text-center">{cantidad}</span>
-              <button
-                onClick={() => setCantidad(cantidad + 1)}
-                className="w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded"
-              >
-                +
-              </button>
+          {/* Cantidad con mejor diseño */}
+          <div className={`${theme === 'traditional' ? 'bg-orange-50 border-2 border-orange-200' : 'bg-gray-700'} rounded-2xl p-4`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 ${theme === 'traditional' ? 'bg-orange-500' : 'bg-blue-600'} rounded-full flex items-center justify-center text-white font-bold`}>
+                  📊
+                </div>
+                <label className={`${theme === 'traditional' ? 'text-gray-800' : 'text-white'} font-bold text-lg`}>Cantidad</label>
+              </div>
+              <div className="flex items-center gap-3 bg-white rounded-xl overflow-hidden shadow-lg">
+                <button
+                  onClick={() => setCantidad(Math.max(1, cantidad - 1))}
+                  className="w-10 h-10 bg-red-500 hover:bg-red-600 text-white font-bold transition-colors flex items-center justify-center"
+                >
+                  -
+                </button>
+                <span className="px-4 py-2 font-black text-xl text-gray-900 min-w-[3rem] text-center">
+                  {cantidad}
+                </span>
+                <button
+                  onClick={() => setCantidad(cantidad + 1)}
+                  className="w-10 h-10 bg-green-500 hover:bg-green-600 text-white font-bold transition-colors flex items-center justify-center"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Opción Mitad y Mitad */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="mitad-y-mitad"
-                checked={esMitadYMitad}
-                onChange={(e) => setEsMitadYMitad(e.target.checked)}
-                className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-              />
-              <label htmlFor="mitad-y-mitad" className="text-white font-medium">
-                Pizza Mitad y Mitad
-              </label>
+          {/* Opción Mitad y Mitad con mejor diseño */}
+          <div className={`${theme === 'traditional' ? 'bg-purple-50 border-2 border-purple-200' : 'bg-gray-700'} rounded-2xl p-4 space-y-4`}>
+            <div className="flex items-center gap-4">
+              <div className={`w-10 h-10 ${theme === 'traditional' ? 'bg-purple-500' : 'bg-purple-600'} rounded-full flex items-center justify-center text-white font-bold`}>
+                🍕
+              </div>
+              <div className="flex items-center gap-3 flex-1">
+                <input
+                  type="checkbox"
+                  id="mitad-y-mitad"
+                  checked={esMitadYMitad}
+                  onChange={(e) => setEsMitadYMitad(e.target.checked)}
+                  className="w-5 h-5 text-purple-600 bg-white border-2 border-purple-300 rounded focus:ring-purple-500 focus:ring-2"
+                />
+                <label htmlFor="mitad-y-mitad" className={`${theme === 'traditional' ? 'text-gray-800' : 'text-white'} font-bold text-lg cursor-pointer`}>
+                  Pizza Mitad y Mitad
+                </label>
+              </div>
+              {esMitadYMitad && (
+                <div className="px-3 py-1 bg-purple-600 text-white text-sm font-bold rounded-full">
+                  ¡Activado!
+                </div>
+              )}
             </div>
 
             {esMitadYMitad && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-7">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Mitad 1:</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t-2 border-purple-200">
+                <div className="space-y-2">
+                  <label className={`flex items-center gap-2 ${theme === 'traditional' ? 'text-gray-700' : 'text-gray-300'} font-bold text-sm`}>
+                    <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</span>
+                    Primera Mitad
+                  </label>
                   <select
                     value={pizzaMitad1}
                     onChange={(e) => setPizzaMitad1(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={styles.input}
                   >
                     {pizzas.map(p => (
                       <option key={p.id} value={p.id}>
@@ -363,12 +440,15 @@ export default function PizzaCustomizationModal({
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Mitad 2:</label>
+                <div className="space-y-2">
+                  <label className={`flex items-center gap-2 ${theme === 'traditional' ? 'text-gray-700' : 'text-gray-300'} font-bold text-sm`}>
+                    <span className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">2</span>
+                    Segunda Mitad
+                  </label>
                   <select
                     value={pizzaMitad2}
                     onChange={(e) => setPizzaMitad2(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={styles.input}
                   >
                     {pizzas.map(p => (
                       <option key={p.id} value={p.id}>
@@ -381,79 +461,135 @@ export default function PizzaCustomizationModal({
             )}
           </div>
 
-          {/* Sistema de Pestañas para Customización */}
-          <div>
-            <h3 className="text-lg font-bold text-white mb-3">Customización por Sección</h3>
+          {/* Sistema de Personalización Rediseñado */}
+          <div className={`${theme === 'traditional' ? 'bg-green-50 border-2 border-green-200' : 'bg-gray-800'} rounded-2xl p-6 space-y-6`}>
+            {/* Header de customización */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 ${theme === 'traditional' ? 'bg-green-600' : 'bg-green-500'} rounded-full flex items-center justify-center text-white font-bold text-xl`}>
+                🎨
+              </div>
+              <div>
+                <h3 className={`text-xl font-black ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                  Personalización
+                </h3>
+                <p className={`text-sm ${theme === 'traditional' ? 'text-gray-600' : 'text-gray-400'} font-medium`}>
+                  Agrega o quita ingredientes
+                </p>
+              </div>
+            </div>
             
-            {/* Pestañas */}
-            <div className="flex mb-4 bg-gray-700 rounded-lg p-1">
+            {/* Pestañas mejoradas */}
+            <div className={`grid ${!esMitadYMitad ? 'grid-cols-1' : 'grid-cols-3'} gap-2 p-2 ${theme === 'traditional' ? 'bg-white border-2 border-green-300' : 'bg-gray-700'} rounded-2xl`}>
               {!esMitadYMitad ? (
                 <button
                   onClick={() => setActiveTab('entera')}
-                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`px-4 py-3 rounded-xl font-bold transition-all ${
                     activeTab === 'entera'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-300 hover:text-white'
+                      ? styles.tabActive + ' shadow-lg'
+                      : styles.tabInactive
                   }`}
                 >
-                  🍕 Personalizar
+                  <div className="flex items-center gap-2 justify-center">
+                    <span className="text-lg">🍕</span>
+                    <span>Pizza Completa</span>
+                  </div>
                 </button>
               ) : (
                 <>
                   <button
                     onClick={() => setActiveTab('mitad1')}
-                    className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                    className={`px-3 py-3 rounded-xl font-bold transition-all ${
                       activeTab === 'mitad1'
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-300 hover:text-white'
+                        ? styles.tabActive + ' shadow-lg'
+                        : styles.tabInactive
                     }`}
                   >
-                    🟦 Mitad 1
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</span>
+                      <span className="text-xs">Mitad 1</span>
+                    </div>
                   </button>
                   <button
                     onClick={() => setActiveTab('mitad2')}
-                    className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                    className={`px-3 py-3 rounded-xl font-bold transition-all ${
                       activeTab === 'mitad2'
-                        ? 'bg-orange-600 text-white'
-                        : 'text-gray-300 hover:text-white'
+                        ? styles.tabActive + ' shadow-lg'
+                        : styles.tabInactive
                     }`}
                   >
-                    🟧 Mitad 2
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">2</span>
+                      <span className="text-xs">Mitad 2</span>
+                    </div>
                   </button>
                   <button
                     onClick={() => setActiveTab('ambas')}
-                    className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                    className={`px-3 py-3 rounded-xl font-bold transition-all ${
                       activeTab === 'ambas'
-                        ? 'bg-purple-600 text-white'
-                        : 'text-gray-300 hover:text-white'
+                        ? styles.tabActive + ' shadow-lg'
+                        : styles.tabInactive
                     }`}
                   >
-                    🔮 Ambas Mitades
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">⚡</span>
+                      <span className="text-xs">Ambas</span>
+                    </div>
                   </button>
                 </>
               )}
             </div>
 
-            {/* Información de la pestaña activa - simplificada */}
-            <div className="mb-3 text-center">
+            {/* Información de la pestaña activa */}
+            <div className={`text-center p-3 ${theme === 'traditional' ? 'bg-white border border-green-300' : 'bg-gray-700'} rounded-xl`}>
               {activeTab === 'entera' && (
-                <span className="text-sm text-gray-400">🍕 {pizza.nombre}</span>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-2xl">🍕</span>
+                  <span className={`font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                    {pizza.nombre}
+                  </span>
+                </div>
               )}
               {activeTab === 'mitad1' && (
-                <span className="text-sm text-gray-400">🟦 {pizzas.find(p => p.id === pizzaMitad1)?.nombre}</span>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</span>
+                  <span className={`font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                    {pizzas.find(p => p.id === pizzaMitad1)?.nombre}
+                  </span>
+                </div>
               )}
               {activeTab === 'mitad2' && (
-                <span className="text-sm text-gray-400">🟧 {pizzas.find(p => p.id === pizzaMitad2)?.nombre}</span>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">2</span>
+                  <span className={`font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                    {pizzas.find(p => p.id === pizzaMitad2)?.nombre}
+                  </span>
+                </div>
               )}
               {activeTab === 'ambas' && (
-                <span className="text-sm text-gray-400">🔮 Ambas Mitades</span>
+                <div className="flex items-center justify-center gap-2">
+                  <span className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">⚡</span>
+                  <span className={`font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                    Ambas Mitades
+                  </span>
+                </div>
               )}
             </div>
 
-            {/* Ingredientes incluidos según la pestaña */}
-            <div className="mb-6">
-              <h4 className="text-md font-medium text-white mb-3">Ingredientes Incluidos</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            {/* Ingredientes incluidos rediseñados */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 ${theme === 'traditional' ? 'bg-red-500' : 'bg-red-600'} rounded-full flex items-center justify-center text-white font-bold text-sm`}>
+                  ➖
+                </div>
+                <h4 className={`text-lg font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                  Ingredientes Base
+                </h4>
+                <div className={`px-3 py-1 ${theme === 'traditional' ? 'bg-red-100 text-red-700' : 'bg-red-900/30 text-red-300'} rounded-full text-xs font-bold`}>
+                  Toca para quitar (-$50)
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {(() => {
                   let ingredientesBase: string[] = [];
                   
@@ -466,7 +602,6 @@ export default function PizzaCustomizationModal({
                     const pizzaMitad2Data = pizzas.find(p => p.id === pizzaMitad2);
                     ingredientesBase = pizzaMitad2Data?.ingredientes || [];
                   } else if (activeTab === 'ambas') {
-                    // Para ambas mitades, mostrar ingredientes comunes
                     const pizza1 = pizzas.find(p => p.id === pizzaMitad1);
                     const pizza2 = pizzas.find(p => p.id === pizzaMitad2);
                     const ingredientes1 = new Set(pizza1?.ingredientes || []);
@@ -492,13 +627,18 @@ export default function PizzaCustomizationModal({
                             toggleExtraRemovido(extraCorrespondiente.id);
                           }
                         }}
-                        className={`p-2 rounded text-sm transition-colors ${
+                        className={`p-2 rounded-lg font-medium transition-all duration-200 ${
                           estaRemovido
-                            ? 'bg-red-600 text-white'
-                            : 'bg-gray-600 hover:bg-gray-500 text-gray-300'
+                            ? 'bg-red-500 text-white shadow-lg transform scale-95 border-2 border-red-600'
+                            : theme === 'traditional' 
+                              ? 'bg-white border-2 border-gray-300 text-gray-800 hover:border-red-400 hover:bg-red-50'
+                              : 'bg-gray-600 hover:bg-gray-500 text-gray-200 border-2 border-gray-500'
                         }`}
                       >
-                        {ingrediente} {estaRemovido && '❌'}
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-xs font-bold">{ingrediente}</span>
+                          {estaRemovido && <span className="text-xs">❌</span>}
+                        </div>
                       </button>
                     );
                   });
@@ -506,10 +646,21 @@ export default function PizzaCustomizationModal({
               </div>
             </div>
 
-            {/* Extras disponibles según la pestaña */}
-            <div>
-              <h4 className="text-md font-medium text-white mb-3">Extras Disponibles</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* Extras disponibles rediseñados */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 ${theme === 'traditional' ? 'bg-green-500' : 'bg-green-600'} rounded-full flex items-center justify-center text-white font-bold text-sm`}>
+                  ➕
+                </div>
+                <h4 className={`text-lg font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                  Extras Disponibles
+                </h4>
+                <div className={`px-3 py-1 ${theme === 'traditional' ? 'bg-green-100 text-green-700' : 'bg-green-900/30 text-green-300'} rounded-full text-xs font-bold`}>
+                  Toca para agregar
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
                 {extras.map(extra => {
                   const extrasActivosAgregados = getActiveExtrasAgregados();
                   const estaAgregado = extrasActivosAgregados.includes(extra.id);
@@ -518,14 +669,29 @@ export default function PizzaCustomizationModal({
                     <button
                       key={`${activeTab}-extra-${extra.id}`}
                       onClick={() => toggleExtraAgregado(extra.id)}
-                      className={`p-3 rounded-lg text-left transition-all ${
+                      className={`p-2 rounded-lg text-center transition-all duration-200 ${
                         estaAgregado
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-600 hover:bg-gray-500 text-gray-300'
+                          ? 'bg-green-500 text-white shadow-lg transform scale-105 border-2 border-green-600'
+                          : theme === 'traditional'
+                            ? 'bg-white border-2 border-gray-300 text-gray-800 hover:border-green-400 hover:bg-green-50'
+                            : 'bg-gray-600 hover:bg-gray-500 text-gray-200 border-2 border-gray-500'
                       }`}
                     >
-                      <div className="font-medium">{extra.nombre}</div>
-                      <div className="text-sm font-bold">+${Math.round(parseFloat(extra.precio))}</div>
+                      <div className="space-y-1">
+                        <div className="font-bold text-xs">{extra.nombre}</div>
+                        <div className={`text-sm font-black ${
+                          estaAgregado 
+                            ? 'text-white' 
+                            : theme === 'traditional' 
+                              ? 'text-green-600' 
+                              : 'text-green-400'
+                        }`}>
+                          +${Math.round(parseFloat(extra.precio))}
+                        </div>
+                        {estaAgregado && (
+                          <div className="text-xs text-white/90 font-medium">✅</div>
+                        )}
+                      </div>
                     </button>
                   );
                 })}
@@ -533,203 +699,93 @@ export default function PizzaCustomizationModal({
             </div>
           </div>
 
-          {/* Notas especiales */}
-          <div>
-            <label className="block text-white font-medium mb-2">Notas especiales:</label>
+          {/* Notas especiales rediseñadas */}
+          <div className={`${theme === 'traditional' ? 'bg-yellow-50 border-2 border-yellow-200' : 'bg-gray-700'} rounded-2xl p-4 space-y-3`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 ${theme === 'traditional' ? 'bg-yellow-500' : 'bg-yellow-600'} rounded-full flex items-center justify-center text-white font-bold text-sm`}>
+                📝
+              </div>
+              <label className={`text-lg font-bold ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                Notas Especiales
+              </label>
+            </div>
             <textarea
               value={notas}
               onChange={(e) => setNotas(e.target.value)}
-              placeholder="Instrucciones especiales para la pizza..."
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Ej: Poco cocida, sin cebolla morada, extra queso..."
+              className={`w-full px-4 py-3 ${theme === 'traditional' 
+                ? 'bg-white border-2 border-yellow-300 text-gray-900 focus:border-yellow-500 focus:ring-yellow-200' 
+                : 'bg-gray-600 border-2 border-gray-500 text-white focus:border-yellow-500 focus:ring-yellow-200'
+              } rounded-xl focus:outline-none focus:ring-4 resize-none font-medium placeholder-gray-500`}
               rows={3}
             />
           </div>
 
-          {/* Resumen de Precio con desglose */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <h4 className="text-white font-medium mb-3">💰 Resumen de Precio</h4>
-            
-            {/* Precio Base */}
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-300">
-                {esMitadYMitad ? 'Base (promedio):' : 'Precio base:'}
-              </span>
-              <span className="text-white font-bold">
-                ${esMitadYMitad 
-                  ? Math.round((parseFloat(pizzas.find(p => p.id === pizzaMitad1)?.precio_base || '0') + 
-                      parseFloat(pizzas.find(p => p.id === pizzaMitad2)?.precio_base || '0')) / 2)
-                  : Math.round(parseFloat(pizza?.precio_base || '0'))}
-              </span>
+          {/* Resumen de Precio completamente rediseñado */}
+          <div className={`${theme === 'traditional' ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300' : 'bg-gray-700'} rounded-2xl p-6 space-y-4`}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-10 h-10 ${theme === 'traditional' ? 'bg-blue-600' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white font-bold text-lg`}>
+                💰
+              </div>
+              <h4 className={`text-xl font-black ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                Resumen de Precio
+              </h4>
             </div>
             
-            {/* Mostrar extras agregados con nombres específicos */}
-            {(() => {
-              if (esMitadYMitad) {
-                // Para pizzas mitad y mitad
-                return (
-                  <div className="space-y-2">
-                    {/* Mitad 1 - Extras agregados */}
-                    {mitad1ExtrasAgregados.length > 0 && (
-                      <div className="bg-blue-900/20 rounded p-2">
-                        <div className="text-blue-300 text-sm font-medium mb-1">🟦 Mitad 1 - Extras:</div>
-                        {mitad1ExtrasAgregados.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-green-300">+ {extra.nombre}</span>
-                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                    
-                    {/* Mitad 1 - Ingredientes removidos */}
-                    {mitad1ExtrasRemovidos.length > 0 && (
-                      <div className="bg-blue-900/20 rounded p-2">
-                        <div className="text-blue-300 text-sm font-medium mb-1">🟦 Mitad 1 - Sin:</div>
-                        {mitad1ExtrasRemovidos.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-red-300">- {extra.nombre}</span>
-                              <span className="text-red-400 font-bold">-$50</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                    
-                    {/* Mitad 2 - Extras agregados */}
-                    {mitad2ExtrasAgregados.length > 0 && (
-                      <div className="bg-orange-900/20 rounded p-2">
-                        <div className="text-orange-300 text-sm font-medium mb-1">🟧 Mitad 2 - Extras:</div>
-                        {mitad2ExtrasAgregados.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-green-300">+ {extra.nombre}</span>
-                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                    
-                    {/* Mitad 2 - Ingredientes removidos */}
-                    {mitad2ExtrasRemovidos.length > 0 && (
-                      <div className="bg-orange-900/20 rounded p-2">
-                        <div className="text-orange-300 text-sm font-medium mb-1">🟧 Mitad 2 - Sin:</div>
-                        {mitad2ExtrasRemovidos.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-red-300">- {extra.nombre}</span>
-                              <span className="text-red-400 font-bold">-$50</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                    
-                    {/* Ambas mitades - Extras agregados */}
-                    {ambasMitadesExtrasAgregados.length > 0 && (
-                      <div className="bg-purple-900/20 rounded p-2">
-                        <div className="text-purple-300 text-sm font-medium mb-1">🔮 Ambas - Extras:</div>
-                        {ambasMitadesExtrasAgregados.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-green-300">+ {extra.nombre}</span>
-                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                    
-                    {/* Ambas mitades - Ingredientes removidos */}
-                    {ambasMitadesExtrasRemovidos.length > 0 && (
-                      <div className="bg-purple-900/20 rounded p-2">
-                        <div className="text-purple-300 text-sm font-medium mb-1">🔮 Ambas - Sin:</div>
-                        {ambasMitadesExtrasRemovidos.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-red-300">- {extra.nombre}</span>
-                              <span className="text-red-400 font-bold">-$50</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              } else {
-                // Para pizza entera
-                return (
-                  <div className="space-y-2">
-                    {/* Extras agregados */}
-                    {extrasAgregados.length > 0 && (
-                      <div className="bg-gray-600/30 rounded p-2">
-                        <div className="text-gray-300 text-sm font-medium mb-1">➕ Extras agregados:</div>
-                        {extrasAgregados.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-green-300">+ {extra.nombre}</span>
-                              <span className="text-green-400 font-bold">+${Math.round(parseFloat(extra.precio))}</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                    
-                    {/* Ingredientes removidos */}
-                    {extrasRemovidos.length > 0 && (
-                      <div className="bg-gray-600/30 rounded p-2">
-                        <div className="text-gray-300 text-sm font-medium mb-1">➖ Ingredientes removidos:</div>
-                        {extrasRemovidos.map(id => {
-                          const extra = extras.find(e => e.id === id);
-                          return extra ? (
-                            <div key={id} className="flex justify-between items-center text-xs">
-                              <span className="text-red-300">- {extra.nombre}</span>
-                              <span className="text-red-400 font-bold">-$50</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-            })()}
-            
-            <div className="border-t border-gray-600 pt-2 mt-2">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-300">Precio unitario:</span>
-                <span className="text-white font-bold">${Math.round(calcularPrecio())}</span>
+            {/* Precio Base Simplificado */}
+            <div className={`${theme === 'traditional' ? 'bg-white border border-blue-200' : 'bg-gray-600'} rounded-xl p-4 space-y-3`}>
+              <div className="flex justify-between items-center">
+                <span className={`font-medium ${theme === 'traditional' ? 'text-gray-700' : 'text-gray-300'}`}>
+                  {esMitadYMitad ? 'Precio Base (Promedio)' : 'Precio Base'}
+                </span>
+                <span className={`font-black text-xl ${theme === 'traditional' ? 'text-blue-600' : 'text-white'}`}>
+                  ${esMitadYMitad 
+                    ? Math.round((parseFloat(pizzas.find(p => p.id === pizzaMitad1)?.precio_base || '0') + 
+                        parseFloat(pizzas.find(p => p.id === pizzaMitad2)?.precio_base || '0')) / 2)
+                    : Math.round(parseFloat(pizza?.precio_base || '0'))}
+                </span>
               </div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-300">Cantidad:</span>
-                <span className="text-white font-bold">x{cantidad}</span>
+              
+              <div className="flex justify-between items-center">
+                <span className={`font-medium ${theme === 'traditional' ? 'text-gray-700' : 'text-gray-300'}`}>
+                  Cantidad
+                </span>
+                <span className={`font-bold text-lg ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                  x{cantidad}
+                </span>
               </div>
-              <div className="border-t border-gray-600 pt-2">
+              
+              <div className="border-t-2 border-gray-200 pt-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-white">Total:</span>
-                  <span className="text-xl font-bold text-green-400">${Math.round(precioTotal)}</span>
+                  <span className={`font-bold text-lg ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                    Precio Unitario
+                  </span>
+                  <span className={`font-black text-2xl ${theme === 'traditional' ? 'text-blue-600' : 'text-green-400'}`}>
+                    ${Math.round(calcularPrecio())}
+                  </span>
+                </div>
+              </div>
+              
+              <div className={`border-t-2 ${theme === 'traditional' ? 'border-blue-200' : 'border-gray-500'} pt-3`}>
+                <div className="flex justify-between items-center">
+                  <span className={`font-black text-xl ${theme === 'traditional' ? 'text-gray-800' : 'text-white'}`}>
+                    TOTAL FINAL
+                  </span>
+                  <span className={`font-black text-3xl ${theme === 'traditional' ? 'text-green-600' : 'text-green-400'}`}>
+                    ${Math.round(precioTotal)}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Botones de Acción */}
-          <div className="flex gap-3">
+          {/* Botones de Acción Rediseñados */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
             <button
               onClick={onClose}
-              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
+              className={styles.cancelButton}
             >
-              Cancelar
+              ❌ Cancelar
             </button>
             
             {!editingItem && !esMitadYMitad && 
@@ -739,7 +795,6 @@ export default function PizzaCustomizationModal({
              ambasMitadesExtrasAgregados.length === 0 && ambasMitadesExtrasRemovidos.length === 0 && (
               <button
                 onClick={() => {
-                  // Agregar pizza estándar rápida (sin personalizaciones)
                   const standardItem: CurrentOrderItem = {
                     id: `temp_${Date.now()}`,
                     pizza_id: pizza.id,
@@ -754,17 +809,23 @@ export default function PizzaCustomizationModal({
                   };
                   onConfirm(standardItem);
                 }}
-                className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors"
+                className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
-                ⚡ Agregar Estándar
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-xl">⚡</span>
+                  <span>Agregar Estándar</span>
+                </div>
               </button>
             )}
             
             <button
               onClick={handleConfirm}
-              className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors"
+              className={styles.button}
             >
-              🎨 {editingItem ? 'Actualizar' : 'Agregar'} Personalizada
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xl">🎨</span>
+                <span>{editingItem ? 'Actualizar' : 'Agregar'} Personalizada</span>
+              </div>
             </button>
           </div>
         </div>

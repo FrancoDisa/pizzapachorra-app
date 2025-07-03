@@ -6,6 +6,7 @@ import ModelSelector from '@/components/pedidos/ModelSelector';
 // Lazy loading de los modelos seleccionados
 const Model1QuickEntry = lazy(() => import('@/components/pedidos/models/Model1QuickEntry'));
 const Model5Wizard = lazy(() => import('@/components/pedidos/models/Model5Wizard'));
+const Model15PachorraTradicional = lazy(() => import('@/components/pedidos/models/Model15PachorraTradicional'));
 
 export default function PedidosPage() {
   const { setMenu, setClientes, setPedidos, setLoading, setError } = useAppStore();
@@ -57,10 +58,16 @@ export default function PedidosPage() {
   // Shortcuts globales para cambiar de modelo
   useEffect(() => {
     const handleGlobalKeyPress = (e: KeyboardEvent) => {
-      // Solo si estamos presionando Ctrl + número (1 o 5)
-      if (e.ctrlKey && (e.key === '1' || e.key === '5')) {
+      // Ctrl + número para modelos principales
+      if (e.ctrlKey && ['1', '5'].includes(e.key)) {
         e.preventDefault();
         setSelectedModel(`model${e.key}`);
+      }
+      
+      // Ctrl + Shift + 5 para modelo 15
+      if (e.ctrlKey && e.shiftKey && e.key === '5') {
+        e.preventDefault();
+        setSelectedModel('model15');
       }
       
       // Ctrl + M para mostrar/ocultar selector
@@ -88,6 +95,7 @@ export default function PedidosPage() {
     const modelComponents = {
       model1: Model1QuickEntry,
       model5: Model5Wizard,
+      model15: Model15PachorraTradicional,
     };
 
     const SelectedComponent = modelComponents[selectedModel as keyof typeof modelComponents];
@@ -162,12 +170,6 @@ export default function PedidosPage() {
         </button>
       )}
       
-      {/* Shortcuts de ayuda flotante */}
-      <div className="fixed bottom-4 left-4 z-40 bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 text-xs text-gray-300">
-        <div className="font-medium text-white mb-1">Shortcuts Globales:</div>
-        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+1</kbd> = Quick Entry • <kbd className="bg-gray-700 px-1 rounded">Ctrl+5</kbd> = Wizard</div>
-        <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+M</kbd> = Toggle selector • <kbd className="bg-gray-700 px-1 rounded">Ctrl+R</kbd> = Reset</div>
-      </div>
 
       {/* Renderizar el modelo seleccionado */}
       {renderSelectedModel()}

@@ -50,7 +50,10 @@
       "Bash(docker-compose:*)",
       "Bash(docker restart:*)",
       "Bash(docker exec:*)",
-      "Bash(sudo service:*)"
+      "Bash(sudo service:*)",
+      "Bash(timeout 10 npm run dev)",
+      "Bash(timeout 10 npm run dev --prefix frontend)",
+      "Bash(git rm:*)"
     ],
     "deny": []
   }

@@ -224,55 +224,64 @@ export default function Model5Wizard() {
   return (
     <div className="min-h-screen bg-gray-900 p-6">
       
-      {/* Header del Wizard */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Wizard de Pedidos - 3 Pasos</h1>
-        <div className="text-sm text-gray-400 mb-6">
-          Navegación: <kbd className="bg-gray-700 px-1 rounded">Enter</kbd>=Siguiente •
-          <kbd className="bg-gray-700 px-1 rounded mx-1">Backspace</kbd>=Anterior •
-          <kbd className="bg-gray-700 px-1 rounded">F</kbd>=Cliente •
-          <kbd className="bg-gray-700 px-1 rounded mx-1">1-3</kbd>=Ir a paso
+      {/* Header del Wizard - OPTIMIZADO */}
+      <div className="mb-6">
+        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <span className="text-purple-400">🧙‍♂️</span> Wizard de Pedidos
+            </h1>
+            <div className="text-sm text-gray-300">
+              <kbd className="bg-gray-700 px-2 py-1 rounded mr-1">Enter</kbd> Siguiente •
+              <kbd className="bg-gray-700 px-2 py-1 rounded mx-1">Backspace</kbd> Anterior •
+              <kbd className="bg-gray-700 px-2 py-1 rounded mx-1">1-3</kbd> Saltar
+            </div>
+          </div>
         </div>
         
-        {/* Indicador de progreso */}
-        <div className="flex items-center justify-between mb-6">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              {/* Círculo del paso */}
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all ${
-                currentStep === step.id 
-                  ? 'bg-blue-600 border-blue-600 text-white' 
-                  : currentStep > step.id
-                    ? 'bg-green-600 border-green-600 text-white'
-                    : 'border-gray-600 text-gray-400'
-              }`}>
-                {currentStep > step.id ? '✓' : step.icon}
-              </div>
-              
-              {/* Información del paso */}
-              <div className="ml-4">
-                <div className={`font-medium ${
-                  currentStep === step.id ? 'text-blue-400' : 
-                  currentStep > step.id ? 'text-green-400' : 'text-gray-400'
+        {/* Indicador de progreso - COMPACTO */}
+        <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center flex-1">
+                {/* Círculo del paso - MÁS PEQUEÑO */}
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 transition-all text-sm font-bold ${
+                  currentStep === step.id 
+                    ? 'bg-blue-600 border-blue-600 text-white' 
+                    : currentStep > step.id
+                      ? 'bg-green-600 border-green-600 text-white'
+                      : 'border-gray-600 text-gray-400'
                 }`}>
-                  {step.title}
+                  {currentStep > step.id ? '✓' : step.id}
                 </div>
-                <div className="text-sm text-gray-500">{step.description}</div>
+                
+                {/* Información del paso - COMPACTA */}
+                <div className="ml-3 flex-1">
+                  <div className={`font-medium text-sm ${
+                    currentStep === step.id ? 'text-blue-400' : 
+                    currentStep > step.id ? 'text-green-400' : 'text-gray-400'
+                  }`}>
+                    {step.title}
+                  </div>
+                  {currentStep === step.id && (
+                    <div className="text-xs text-gray-500">{step.description}</div>
+                  )}
+                </div>
+                
+                {/* Línea conectora */}
+                {index < steps.length - 1 && (
+                  <div className={`w-12 h-0.5 mx-2 ${
+                    currentStep > step.id ? 'bg-green-600' : 'bg-gray-600'
+                  }`} />
+                )}
               </div>
-              
-              {/* Línea conectora */}
-              {index < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-8 ${
-                  currentStep > step.id ? 'bg-green-600' : 'bg-gray-600'
-                }`} />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Contenido del paso actual */}
-      <div className="bg-gray-800 rounded-lg p-6 mb-6">
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
         
         {/* Paso 1: Seleccionar Pizzas */}
         {currentStep === 1 && (
@@ -340,40 +349,55 @@ export default function Model5Wizard() {
               </div>
             )}
             
-            {/* Grid de pizzas - Todas las pizzas disponibles */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {pizzas.map(pizza => (
-                <div
-                  key={pizza.id}
-                  onClick={() => handlePizzaSelect(pizza)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedPizzas.find(p => p.id === pizza.id)
-                      ? 'border-green-500 bg-green-900/30'
-                      : 'border-gray-600 bg-gray-700 hover:border-blue-500 hover:bg-gray-600'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-white">{pizza.nombre}</h3>
-                    <span className="text-green-400 font-bold">${Math.round(parseFloat(pizza.precio_base.toString()))}</span>
-                  </div>
-                  <p className="text-gray-400 text-sm mb-3 line-clamp-2">{pizza.descripcion}</p>
-                  
-                  {pizza.ingredientes.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {pizza.ingredientes.slice(0, 3).map((ingrediente, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-600 rounded text-xs text-gray-300">
-                          {ingrediente}
-                        </span>
-                      ))}
-                      {pizza.ingredientes.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-600 rounded text-xs text-gray-300">
-                          +{pizza.ingredientes.length - 3}
-                        </span>
-                      )}
+            {/* Menú de Pizzas - DISEÑO OPTIMIZADO */}
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
+                <span>📋</span> Menú de Pizzas Disponibles
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {pizzas.slice(0, 6).map(pizza => (
+                  <button
+                    key={pizza.id}
+                    onClick={() => handlePizzaSelect(pizza)}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 text-left hover:scale-[1.02] ${
+                      selectedPizzas.find(p => p.id === pizza.id)
+                        ? 'border-green-500 bg-green-900/30 hover:bg-green-900/40'
+                        : 'border-gray-600 bg-gray-700/70 hover:border-blue-500 hover:bg-gray-600/90'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-semibold text-white text-lg">{pizza.nombre}</h3>
+                      <span className="text-green-400 font-bold text-xl">${Math.round(parseFloat(pizza.precio_base.toString()))}</span>
                     </div>
-                  )}
-                </div>
-              ))}
+                    <p className="text-gray-400 text-sm mb-3 leading-relaxed">{pizza.descripcion}</p>
+                    
+                    {pizza.ingredientes.length > 0 && (
+                      <div className="mb-3">
+                        <div className="text-gray-500 text-sm mb-2">
+                          <span className="font-medium">Ingredientes:</span>
+                        </div>
+                        <div className="text-gray-400 text-sm">
+                          {pizza.ingredientes.join(', ')}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mt-3 pt-3 border-t border-gray-600">
+                      <div className="text-center">
+                        {selectedPizzas.find(p => p.id === pizza.id) ? (
+                          <span className="text-green-400 font-medium flex items-center justify-center gap-1">
+                            <span>✓</span> Agregada al Pedido
+                          </span>
+                        ) : (
+                          <span className="text-blue-400 font-medium hover:text-blue-300">
+                            + Agregar al Pedido
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -721,33 +745,50 @@ export default function Model5Wizard() {
         )}
       </div>
 
-      {/* Controles de navegación */}
-      <div className="flex justify-between items-center">
-        <button
-          onClick={handlePrevious}
-          disabled={currentStep === 1}
-          className="px-6 py-3 bg-gray-600 hover:bg-gray-500 disabled:bg-gray-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-        >
-          ← Anterior (Backspace)
-        </button>
-        
-        <div className="text-center text-gray-400">
-          Paso {currentStep} de {steps.length}
+      {/* Controles de navegación - OPTIMIZADOS */}
+      <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+        <div className="flex justify-between items-center">
+          <button
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+            className="px-6 py-3 bg-gray-600 hover:bg-gray-500 disabled:bg-gray-800 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 disabled:opacity-50 flex items-center gap-2"
+          >
+            <span>←</span> Anterior
+            <kbd className="bg-gray-700 px-2 py-1 rounded text-xs">Backspace</kbd>
+          </button>
+          
+          <div className="text-center">
+            <div className="text-white font-medium text-lg">Paso {currentStep} de {steps.length}</div>
+            <div className="text-gray-400 text-sm">{steps[currentStep - 1]?.title}</div>
+          </div>
+          
+          <button
+            onClick={handleNext}
+            disabled={!canAdvance}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 font-semibold disabled:opacity-50 flex items-center gap-2"
+          >
+            {currentStep === 3 ? (
+              <>
+                <span>✓</span> Finalizar Pedido
+              </>
+            ) : (
+              <>
+                Siguiente <span>→</span>
+              </>
+            )}
+            <kbd className="bg-blue-700 px-2 py-1 rounded text-xs">Enter</kbd>
+          </button>
         </div>
         
-        <button
-          onClick={handleNext}
-          disabled={!canAdvance}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
-        >
-          {currentStep === 3 ? 'Finalizar Pedido' : 'Siguiente →'} (Enter)
-        </button>
-      </div>
-      
-      {/* Ayuda contextual */}
-      <div className="mt-4 text-center text-sm text-gray-500">
-        {currentStep === 1 && !canAdvance && "Selecciona al menos una pizza para continuar"}
-        {currentStep === 3 && !canAdvance && "Selecciona o crea un cliente para finalizar"}
+        {/* Ayuda contextual */}
+        {(!canAdvance) && (
+          <div className="mt-3 p-3 bg-yellow-600/20 border border-yellow-600/30 rounded-lg">
+            <div className="text-center text-sm text-yellow-300 font-medium">
+              {currentStep === 1 && "⚠️ Selecciona al menos una pizza para continuar"}
+              {currentStep === 3 && "⚠️ Selecciona o crea un cliente para finalizar"}
+            </div>
+          </div>
+        )}
       </div>
 
 
