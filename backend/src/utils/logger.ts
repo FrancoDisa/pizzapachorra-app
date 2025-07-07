@@ -68,7 +68,7 @@ if (process.env.NODE_ENV === 'production') {
       format: fileFormat,
       maxsize: 5242880, // 5MB
       maxFiles: 5,
-    })
+    }) as any
   );
 
   // Log de errores
@@ -79,7 +79,7 @@ if (process.env.NODE_ENV === 'production') {
       format: fileFormat,
       maxsize: 5242880, // 5MB
       maxFiles: 5,
-    })
+    }) as any
   );
 }
 
@@ -94,7 +94,7 @@ const logger = winston.createLogger({
 });
 
 // Stream para Morgan
-logger.stream = {
+(logger as any).stream = {
   write: (message: string) => {
     logger.http(message.trim());
   },

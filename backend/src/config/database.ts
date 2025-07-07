@@ -20,19 +20,19 @@ const dbConfig = {
 const pool = new Pool(dbConfig);
 
 // Eventos del pool
-pool.on('connect', (client) => {
+pool.on('connect', (_client) => {
   logger.debug('Nueva conexión a PostgreSQL establecida');
 });
 
-pool.on('acquire', (client) => {
+pool.on('acquire', (_client) => {
   logger.debug('Cliente adquirido del pool');
 });
 
-pool.on('error', (err, client) => {
+pool.on('error', (err, _client) => {
   logger.error('Error inesperado en cliente de PostgreSQL:', err);
 });
 
-pool.on('remove', (client) => {
+pool.on('remove', (_client) => {
   logger.debug('Cliente removido del pool');
 });
 
@@ -159,7 +159,7 @@ class DatabaseConfig {
   async healthCheck(): Promise<{ status: string; details: any }> {
     try {
       const start = Date.now();
-      const result = await this.pool.query('SELECT 1 as health_check');
+      await this.pool.query('SELECT 1 as health_check');
       const responseTime = Date.now() - start;
       
       const stats = this.getPoolStats();

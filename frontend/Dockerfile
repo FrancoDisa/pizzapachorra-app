@@ -35,9 +35,8 @@ FROM base AS deps
 # Copiar archivos de configuración de paquetes
 COPY --chown=nextjs:nodejs package*.json ./
 
-# Instalar dependencias con cache optimizado
-RUN --mount=type=cache,target=/home/nextjs/.npm \
-    npm ci --only=production && \
+# Instalar dependencias de producción
+RUN npm install --only=production && \
     npm cache clean --force
 
 # ========================================
@@ -50,11 +49,10 @@ COPY --chown=nextjs:nodejs package*.json ./
 COPY --chown=nextjs:nodejs vite.config.ts ./
 COPY --chown=nextjs:nodejs tsconfig*.json ./
 COPY --chown=nextjs:nodejs tailwind.config.js ./
-COPY --chown=nextjs:nodejs postcss.config.js ./
+# PostCSS no necesario con Tailwind CSS v4 + Vite plugin
 
 # Instalar todas las dependencias (incluidas las de desarrollo)
-RUN --mount=type=cache,target=/home/nextjs/.npm \
-    npm ci
+RUN npm install
 
 # Copiar código fuente
 COPY --chown=nextjs:nodejs . .

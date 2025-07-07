@@ -2,7 +2,7 @@
 
 **Sistema de gestión de pedidos para pizzería** - Aplicación de escritorio offline containerizada con Docker
 
-![Badge](https://img.shields.io/badge/Status-En%20Desarrollo-yellow)
+![Badge](https://img.shields.io/badge/Status-Funcional-brightgreen)
 ![Badge](https://img.shields.io/badge/Version-1.0.0-blue)
 ![Badge](https://img.shields.io/badge/License-MIT-green)
 
@@ -108,23 +108,72 @@ curl http://localhost/health
 
 ## 🎯 Uso
 
-### Pantalla Principal - Pedidos
+### 📊 Dashboard - Vista General
+- **Estadísticas en tiempo real** de pedidos y ventas
+- **Estado de servicios** y conectividad
+- **Métricas del día** con gráficos interactivos
+- **Acceso rápido** a todas las funcionalidades
+
+### 📝 Pantalla Principal - Pedidos
 1. **Buscar cliente** por teléfono o crear uno nuevo
-2. **Seleccionar pizzas** del catálogo disponible
-3. **Añadir extras** (ingredientes adicionales)
-4. **Configurar mitad y mitad** si es necesario
-5. **Confirmar pedido** y enviarlo a cocina
+2. **Seleccionar pizzas** del catálogo con precios en tiempo real
+3. **Añadir extras** con cálculo automático de precios
+4. **Gestionar cantidades** con controles intuitivos (+/-)
+5. **Ver ticket dinámico** con totales actualizados
+6. **Confirmar pedido** y enviarlo automáticamente a cocina
 
-### Pantalla de Cocina
-- Ver pedidos pendientes en tiempo real
-- Cambiar estados: *Nuevo → En Preparación → Listo → Entregado*
-- Notificaciones automáticas de nuevos pedidos
+### 🎯 Sistema de Dashboards Profesionales - **OPTIMIZADO**
 
-### Gestión de Clientes
-- Búsqueda rápida por teléfono
-- Historial de pedidos anteriores
-- Datos de contacto y direcciones
-- Notas especiales
+**3 Interfaces de Pedidos Completamente Optimizadas** para diferentes casos de uso operacionales:
+
+#### **⚡ Model1 Quick Entry** (Operadores Expertos)
+- **Shortcuts F1-F5**: Selección directa de pizzas principales
+- **Ingredientes Completos**: Lista completa visible en cada pizza
+- **Header Optimizado**: Información esencial únicamente  
+- **Ticket Refinado**: Diseño profesional con jerarquía visual mejorada
+- **Usuarios objetivo**: Personal experimentado, alta velocidad, pedidos telefónicos
+
+#### **🧙‍♂️ Model5 Wizard** (Usuarios Nuevos/Entrenamiento)  
+- **Progress Indicator Compacto**: Navegación eficiente en 3 pasos
+- **Personalización Inline**: Cards individuales sin modals complejos
+- **Flujo Guiado**: Seleccionar → Personalizar → Cliente → Confirmar
+- **Navegación Optimizada**: Controles claros con feedback visual
+- **Usuarios objetivo**: Personal nuevo, entrenamiento, reducción de errores
+
+#### **🍕 Model15 Pachorra Tradicional** (Identidad de Marca)
+- **100% Español**: Completamente traducido, sin rastros de italiano
+- **Identidad Correcta**: "Pizza Pachorra" tradicional (no italiana)
+- **Header Compacto**: Eficiente pero manteniendo elegancia 
+- **Desktop Optimizado**: Sin restricciones mobile, aprovecha pantallas grandes
+- **Usuarios objetivo**: Presentación al cliente, identidad de marca
+
+**Características Profesionales Unificadas:**
+- ✅ **Sistema de clientes demo** con datos uruguayos realistas
+- ✅ **Precios sin decimales** (formato $390, no $390.00)
+- ✅ **Ingredientes completos** visibles en todas las pizzas
+- ✅ **Modal responsive** con tema apropiado por interfaz
+- ✅ **Design System global** con componentes consistentes
+- ✅ **UX optimizada** para evaluación de interfaces
+
+**Acceso:** `http://localhost:3000/pedidos-new` → Selector permite cambiar entre los 3 modelos
+**Navegación Rápida:**
+- **Ctrl+1**: Quick Entry Dashboard
+- **Ctrl+5**: Wizard de 3 Pasos
+- **Ctrl+Shift+5**: Pachorra Tradicional
+- **Ctrl+M**: Toggle selector de modelos
+
+### 👨‍🍳 Pantalla de Cocina
+- **Vista en tiempo real** de pedidos pendientes
+- **Cambio de estados**: *Nuevo → En Preparación → Listo → Entregado*
+- **Notificaciones automáticas** de nuevos pedidos
+- **Temporizadores** para control de tiempos de preparación
+- **Conexión WebSocket** para actualizaciones instantáneas
+
+### 👥 Gestión de Clientes
+- **Búsqueda inteligente** por teléfono o nombre
+- **Creación rápida** de nuevos clientes
+- **Validación de datos** automática
+- **Integración completa** con sistema de pedidos
 
 ## 🛠️ Desarrollo
 
