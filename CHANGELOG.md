@@ -5,6 +5,39 @@ Todas las mejoras y cambios importantes de este proyecto están documentados en 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-07
+
+### 🧹 OPTIMIZACIÓN TÉCNICA PROFUNDA
+- **BREAKING**: Arquitectura simplificada, eliminando componentes innecesarios
+
+### ✂️ Removed - Código Limpiado
+- **Header decorativo del Wizard**: Eliminado "🧙‍♂️ Wizard de Pedidos" y shortcuts de teclado (~80px espacio liberado)
+- **Nginx en desarrollo**: Servicio proxy eliminado para simplificar configuración
+- **Dependencias de autenticación**: bcryptjs, jsonwebtoken y tipos asociados
+- **Console statements**: Logs de desarrollo y debug removidos
+- **Código comentado**: Limpieza completa en main.tsx y stores/index.ts
+- **Health checks excesivos**: Solo mantenidos los esenciales
+- **Configuración de red compleja**: Subnet personalizada eliminada
+
+### 🚀 Improved - Performance Optimizado
+- **Bundle size**: 365.94 kB JS (115.38 kB gzipped) con lazy loading
+- **Build time**: Optimizado a 1.43s para desarrollo
+- **Docker startup**: Más rápido sin servicios innecesarios
+- **Memory usage**: Reducido overhead de logs y procesos
+- **Space utilization**: Wizard más espacioso sin elementos decorativos
+
+### 📊 Added - Monitoring Implementado
+- **Performance metrics**: Sistema básico de monitoreo de rendimiento
+- **Load time tracking**: Medición automática de tiempos de carga
+- **API response monitoring**: Tracking de latencia de endpoints
+- **Memory usage reporting**: Monitoreo de uso de memoria JS
+
+### 🔧 Technical Debt Eliminated
+- **Routes simplificadas**: Solo 3 rutas core (dashboard, pedidos, cocina)
+- **Dependencies verified**: Todas las dependencias están en uso activo
+- **Error boundaries enhanced**: Mejor protección del estado de la aplicación
+- **Docker compose optimized**: Configuración más simple y mantenible
+
 ## [1.1.0] - 2025-06-27
 
 ### 🎉 SISTEMA COMPLETAMENTE FUNCIONAL

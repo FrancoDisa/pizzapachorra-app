@@ -26,7 +26,6 @@ docker-compose up -d
 ### Accessing Services
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:3001/api
-- **Database Admin**: http://localhost:8080 (pgAdmin)
 - **Backend Health**: http://localhost:3001/api/health
 
 ### Key URLs
@@ -152,6 +151,7 @@ export const useMenu = () => useAppStore((state) => ({
 - **Streamlined navigation**: Eliminated redundant menu options and floating selectors
 - **Clean interface**: No F1-F5 badges, quantity counters moved to ticket section
 - **Professional appearance**: Focus on operational efficiency over branding elements
+- **Wizard header removed**: Eliminated "🧙‍♂️ Wizard de Pedidos" header and keyboard shortcuts for maximum space utilization
 
 ### Database Schema
 - **pizzas**: Base pizza products with ingredients and pricing
@@ -184,6 +184,27 @@ export const useMenu = () => useAppStore((state) => ({
   - `/pedidos` - Main order interface (Quick Entry by default)
   - `/cocina` - Kitchen view
 - **Configuration**: Settings accessible via ⚙️ icon in header navigation
+
+## Recent Technical Optimizations (2025)
+
+### Code Cleanup & Performance
+- **Commented code removed**: Cleaned main.tsx and stores/index.ts
+- **Console statements optimized**: Removed development logs, kept error logging
+- **Dependencies verified**: All packages actively used, no dead code
+- **Docker simplified**: Removed Nginx service, health checks, and complex networking
+- **Bundle optimized**: 365.94 kB JS (115.38 kB gzipped) with lazy loading
+- **Performance monitoring**: Basic metrics system implemented
+
+### Interface Optimizations
+- **Wizard header eliminated**: Removed decorative "🧙‍♂️ Wizard de Pedidos" header (~80px space saved)
+- **Keyboard shortcuts removed**: Cleaned unnecessary Enter/Backspace/1-3 shortcuts display
+- **Space maximization**: Focus on functional content over visual decoration
+
+### Architecture Improvements
+- **Authentication removed**: Cleaned JWT dependencies and middleware
+- **Routes simplified**: Only 3 core routes (dashboard, pedidos, cocina)
+- **Error boundaries enhanced**: Better state management protection
+- **Build time**: Optimized to 1.43s for development builds
 
 ## Testing and Verification
 

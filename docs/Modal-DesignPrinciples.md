@@ -11,6 +11,7 @@ This document establishes design principles and best practices for modal compone
 - **Horizontal layouts**: Use side-by-side arrangements when possible
 - **Compact headers**: Essential info only, 3 lines maximum
 - **Dense content**: More information in less space
+- **Remove decorative elements**: Headers like "🧙‍♂️ Wizard de Pedidos" eliminated for maximum space utilization
 
 ### **2. No-Scroll Philosophy**
 ```typescript

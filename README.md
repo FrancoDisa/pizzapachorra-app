@@ -17,7 +17,7 @@ Pizza Pachorra es una aplicación completa de gestión de pedidos diseñada espe
 - 🍕 **Catálogo personalizable** - Pizzas, extras y precios
 - 🔄 **Tiempo real** - Comunicación instantánea con la cocina
 - 🌙 **Tema oscuro** - Interfaz moderna y amigable
-- 📱 **Responsive** - Funciona en desktop, tablet y móvil
+- 📱 **Responsive** - Funciona solo en desktop con Windows
 - 🔒 **Offline First** - Funciona sin conexión a internet
 - 🐳 **Containerizado** - Instalación con un solo comando
 
@@ -25,17 +25,13 @@ Pizza Pachorra es una aplicación completa de gestión de pedidos diseñada espe
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│    Frontend     │────│     Nginx       │────│    Backend      │
-│   React + TS    │    │  Proxy Reverso  │    │  Express + TS   │
-│                 │    │                 │    │                 │
+│    Frontend     │────│     Backend     │────│   PostgreSQL    │
+│   React + TS    │    │  Express + TS   │    │   Base de Datos │
+│   Port 3000     │    │   Port 3001     │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                                                        │
-                                                        │
-                                              ┌─────────────────┐
-                                              │   PostgreSQL    │
-                                              │   Base de Datos │
-                                              └─────────────────┘
 ```
+
+**Arquitectura simplificada (2025)**: Eliminado Nginx, configuración directa frontend-backend con Socket.IO para tiempo real.
 
 ## 🚀 Stack Tecnológico
 
@@ -58,8 +54,8 @@ Pizza Pachorra es una aplicación completa de gestión de pedidos diseñada espe
 
 ### Infraestructura
 - **Docker & Docker Compose**
-- **Nginx** como proxy reverso
 - **Volúmenes Docker** para persistencia
+- **Socket.IO** para comunicación tiempo real
 
 ## 📦 Instalación
 
@@ -89,8 +85,9 @@ Pizza Pachorra es una aplicación completa de gestión de pedidos diseñada espe
    ```
 
 4. **Accede a la aplicación**
-   - **Aplicación principal**: http://localhost
-   - **Panel de administración**: http://localhost/admin
+   - **Aplicación principal**: http://localhost:3000
+   - **Interfaz de pedidos**: http://localhost:3000/pedidos
+   - **Vista de cocina**: http://localhost:3000/cocina
    - **API Backend**: http://localhost:3001/api
 
 ### Verificar Instalación
@@ -102,8 +99,11 @@ docker-compose ps
 # Ver logs en tiempo real
 docker-compose logs -f
 
-# Verificar salud de los servicios
-curl http://localhost/health
+# Verificar salud del backend
+curl http://localhost:3001/api/health
+
+# Verificar Socket.IO
+curl "http://localhost:3001/socket.io/?EIO=4&transport=polling"
 ```
 
 ## 🎯 Uso
@@ -122,52 +122,54 @@ curl http://localhost/health
 5. **Ver ticket dinámico** con totales actualizados
 6. **Confirmar pedido** y enviarlo automáticamente a cocina
 
-### 🎯 Sistema de Dashboards Profesionales - **OPTIMIZADO**
+### 🎯 Sistema de Interfaces Optimizado
 
-**3 Interfaces de Pedidos Completamente Optimizadas** para diferentes casos de uso operacionales:
+**2 Interfaces de Pedidos Especializadas** para diferentes casos de uso operacionales:
 
-#### **⚡ Model1 Quick Entry** (Operadores Expertos)
-- **Shortcuts F1-F5**: Selección directa de pizzas principales
-- **Ingredientes Completos**: Lista completa visible en cada pizza
-- **Header Optimizado**: Información esencial únicamente  
-- **Ticket Refinado**: Diseño profesional con jerarquía visual mejorada
-- **Usuarios objetivo**: Personal experimentado, alta velocidad, pedidos telefónicos
+#### **⚡ Quick Entry (Predeterminado)** - Operadores Expertos
+- **Interfaz optimizada**: Máxima eficiencia para personal experimentado
+- **Personalización ultra-compacta**: PizzaCustomizationModal sin scroll
+- **Cálculo de precios en tiempo real**: Desglose completo transparente
+- **Ingredientes/extras visibles**: Grids 4×6 y 3×4 sin desplazamiento
+- **Usuarios objetivo**: Personal experimentado, operaciones de alta velocidad
 
-#### **🧙‍♂️ Model5 Wizard** (Usuarios Nuevos/Entrenamiento)  
-- **Progress Indicator Compacto**: Navegación eficiente en 3 pasos
-- **Personalización Inline**: Cards individuales sin modals complejos
-- **Flujo Guiado**: Seleccionar → Personalizar → Cliente → Confirmar
-- **Navegación Optimizada**: Controles claros con feedback visual
-- **Usuarios objetivo**: Personal nuevo, entrenamiento, reducción de errores
-
-#### **🍕 Model15 Pachorra Tradicional** (Identidad de Marca)
-- **100% Español**: Completamente traducido, sin rastros de italiano
-- **Identidad Correcta**: "Pizza Pachorra" tradicional (no italiana)
-- **Header Compacto**: Eficiente pero manteniendo elegancia 
-- **Desktop Optimizado**: Sin restricciones mobile, aprovecha pantallas grandes
-- **Usuarios objetivo**: Presentación al cliente, identidad de marca
+#### **🧙‍♂️ Wizard Mode** - Usuarios Nuevos/Entrenamiento  
+- **Flujo guiado paso a paso**: Validaciones y prevención de errores
+- **Interfaz amigable**: Ideal para entrenamiento y usuarios nuevos
+- **Navegación clara**: Controles intuitivos con feedback visual
+- **Reducción de errores**: Sistema de validación integrado
+- **Usuarios objetivo**: Personal nuevo, entrenamiento, pedidos complejos
 
 **Características Profesionales Unificadas:**
+- ✅ **Sistema de configuración**: Acceso via ⚙️ en header de navegación
+- ✅ **Cambio de interfaz en vivo**: Aplicación inmediata con recarga
 - ✅ **Sistema de clientes demo** con datos uruguayos realistas
 - ✅ **Precios sin decimales** (formato $390, no $390.00)
-- ✅ **Ingredientes completos** visibles en todas las pizzas
-- ✅ **Modal responsive** con tema apropiado por interfaz
-- ✅ **Design System global** con componentes consistentes
-- ✅ **UX optimizada** para evaluación de interfaces
+- ✅ **Modal ultra-optimizado**: 70% menos espacio vertical
+- ✅ **Socket.IO tiempo real**: Actualizaciones instantáneas cocina
 
-**Acceso:** `http://localhost:3000/pedidos-new` → Selector permite cambiar entre los 3 modelos
-**Navegación Rápida:**
-- **Ctrl+1**: Quick Entry Dashboard
-- **Ctrl+5**: Wizard de 3 Pasos
-- **Ctrl+Shift+5**: Pachorra Tradicional
-- **Ctrl+M**: Toggle selector de modelos
+**Acceso Principal:** `http://localhost:3000/pedidos`
+**Sistema de Configuración:** ⚙️ → Selección de interfaz con persistencia automática
 
 ### 👨‍🍳 Pantalla de Cocina
-- **Vista en tiempo real** de pedidos pendientes
+- **Vista en tiempo real** de pedidos pendientes via Socket.IO
 - **Cambio de estados**: *Nuevo → En Preparación → Listo → Entregado*
 - **Notificaciones automáticas** de nuevos pedidos
 - **Temporizadores** para control de tiempos de preparación
-- **Conexión WebSocket** para actualizaciones instantáneas
+- **Actualizaciones instantáneas** sin recargar página
+
+### ⚙️ Sistema de Configuración
+- **Acceso via header**: Ícono ⚙️ en navegación principal
+- **Cambio de interfaz**: Quick Entry ↔️ Wizard Mode
+- **Persistencia automática**: Preferencias guardadas en localStorage
+- **Aplicación inmediata**: Cambios aplicados con recarga de página
+
+### 🍕 PizzaCustomizationModal Ultra-Optimizado
+- **70% menos espacio vertical**: Header compacto, controles en línea
+- **Sin scroll requerido**: Grids 4×6 (ingredientes) y 3×4 (extras)
+- **Cálculo transparente**: Desglose completo precio base + extras - remociones
+- **Contador en tiempo real**: +X extras: +$Y, -X ingredientes: -$Y
+- **Interfaz profesional**: Optimizada para operaciones de alta velocidad
 
 ### 👥 Gestión de Clientes
 - **Búsqueda inteligente** por teléfono o nombre
@@ -180,7 +182,7 @@ curl http://localhost/health
 ### Estructura del Proyecto
 
 ```
-pizzapachorra-app/
+pizzapachorra/
 ├── backend/                 # API Express + TypeScript
 │   ├── src/
 │   │   ├── controllers/     # Controladores de rutas
@@ -189,12 +191,19 @@ pizzapachorra-app/
 │   │   ├── services/       # Lógica de negocio
 │   │   └── utils/          # Utilidades y helpers
 │   └── package.json
-├── frontend/               # React + TypeScript
-│   └── src/
+├── frontend/               # React + TypeScript + Vite
+│   ├── src/
+│   │   ├── components/     # Componentes reutilizables
+│   │   ├── pages/          # Componentes de ruta
+│   │   ├── store/          # Zustand state management
+│   │   ├── types/          # Definiciones TypeScript
+│   │   └── services/       # API calls y servicios
+│   └── package.json
 ├── database/               # Scripts SQL y migraciones
 │   ├── init.sql           # Schema inicial
 │   └── migrations/        # Migraciones versionadas
-├── nginx/                  # Configuración del proxy
+├── docs/                   # Documentación técnica
+├── CLAUDE.md               # Guías de desarrollo
 └── docker-compose.yml     # Orquestación de servicios
 ```
 
@@ -227,8 +236,8 @@ POSTGRES_PASSWORD=tu_password_seguro
 POSTGRES_DB=pizzapachorra
 
 # Backend
-JWT_SECRET=tu_jwt_secret_seguro
 NODE_ENV=development
+PORT=3001
 
 # Frontend
 VITE_API_URL=http://localhost:3001/api
@@ -267,12 +276,12 @@ Edita el archivo `database/init.sql` para modificar:
 - Extras e ingredientes
 - Precios base
 
-### Configurar Nginx
+### Configurar Docker
 
-Modifica `nginx/nginx.conf` para:
+Modifica `docker-compose.yml` para:
 - Cambiar puertos de acceso
-- Configurar SSL/HTTPS
-- Añadir autenticación básica
+- Añadir variables de entorno
+- Configurar volúmenes personalizados
 
 ## 🐛 Troubleshooting
 
@@ -282,7 +291,8 @@ Modifica `nginx/nginx.conf` para:
 ```bash
 # Cambiar puertos en docker-compose.yml
 ports:
-  - "8080:80"  # En lugar de "80:80"
+  - "3001:3001"  # Backend
+  - "3002:3000"  # Frontend en puerto alternativo
 ```
 
 **Base de datos no conecta**
@@ -329,8 +339,9 @@ docker-compose exec backend bash
 - **TypeScript** estricto habilitado
 - **ESLint** para linting
 - **Prettier** para formateo
-- **Conventional Commits** para mensajes
-- **Tests** requeridos para nuevas funcionalidades
+- **Zustand** para state management (selectores primitivos)
+- **Socket.IO** para tiempo real (no WebSocket genérico)
+- **Sin código comentado** - eliminar en lugar de comentar
 
 ## 📝 Roadmap
 

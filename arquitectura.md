@@ -14,8 +14,8 @@
 - **PostgreSQL 16** con conexión nativa
 
 ### Infraestructura
-- **Docker Compose** para desarrollo
-- **Nginx** como proxy reverso
+- **Docker Compose** para desarrollo (simplificado 2025)
+- **Conexión directa** Frontend ↔ Backend (Nginx eliminado)
 
 ## URLs de Desarrollo
 
@@ -23,10 +23,10 @@
 - **Backend API**: http://localhost:3001/api
 - **Database**: localhost:5432
 
-## Rutas Principales
+## Rutas Principales (Simplificadas 2025)
 
-- `/pedidos-new` - Selector de modelos de dashboard
-- `/dashboard` - Model1QuickEntry (profesional)
+- `/` - Dashboard principal
+- `/pedidos` - Interfaz de pedidos (Quick Entry + Wizard configurable)
 - `/cocina` - Vista de cocina en tiempo real
 
 ## Modelos de Datos
