@@ -354,46 +354,41 @@ export default function Model5Wizard() {
               <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center gap-2">
                 <span>📋</span> Menú de Pizzas Disponibles
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {pizzas.slice(0, 6).map(pizza => (
                   <button
                     key={pizza.id}
                     onClick={() => handlePizzaSelect(pizza)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 text-left hover:scale-[1.02] ${
+                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 text-left hover:scale-[1.02] ${
                       selectedPizzas.find(p => p.id === pizza.id)
                         ? 'border-green-500 bg-green-900/30 hover:bg-green-900/40'
                         : 'border-gray-600 bg-gray-700/70 hover:border-blue-500 hover:bg-gray-600/90'
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-white text-lg">{pizza.nombre}</h3>
-                      <span className="text-green-400 font-bold text-xl">${Math.round(parseFloat(pizza.precio_base.toString()))}</span>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-semibold text-white text-base">{pizza.nombre}</h3>
+                      <span className="text-green-400 font-bold text-lg">${Math.round(parseFloat(pizza.precio_base.toString()))}</span>
                     </div>
-                    <p className="text-gray-400 text-sm mb-3 leading-relaxed">{pizza.descripcion}</p>
                     
                     {pizza.ingredientes.length > 0 && (
-                      <div className="mb-3">
-                        <div className="text-gray-500 text-sm mb-2">
-                          <span className="font-medium">Ingredientes:</span>
-                        </div>
-                        <div className="text-gray-400 text-sm">
-                          {pizza.ingredientes.join(', ')}
+                      <div className="mb-2">
+                        <div className="text-gray-400 text-xs">
+                          {pizza.ingredientes.slice(0, 4).join(', ')}
+                          {pizza.ingredientes.length > 4 && '...'}
                         </div>
                       </div>
                     )}
                     
-                    <div className="mt-3 pt-3 border-t border-gray-600">
-                      <div className="text-center">
-                        {selectedPizzas.find(p => p.id === pizza.id) ? (
-                          <span className="text-green-400 font-medium flex items-center justify-center gap-1">
-                            <span>✓</span> Agregada al Pedido
-                          </span>
-                        ) : (
-                          <span className="text-blue-400 font-medium hover:text-blue-300">
-                            + Agregar al Pedido
-                          </span>
-                        )}
-                      </div>
+                    <div className="text-center">
+                      {selectedPizzas.find(p => p.id === pizza.id) ? (
+                        <span className="text-green-400 font-medium text-sm flex items-center justify-center gap-1">
+                          <span>✓</span> Agregada
+                        </span>
+                      ) : (
+                        <span className="text-blue-400 font-medium hover:text-blue-300 text-sm">
+                          + Agregar
+                        </span>
+                      )}
                     </div>
                   </button>
                 ))}

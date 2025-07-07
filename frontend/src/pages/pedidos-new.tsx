@@ -1,23 +1,17 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { useAppStore } from '@/stores';
 import { menuApi, clientesApi, pedidosApi } from '@/services/api';
-import ModelSelector from '@/components/pedidos/ModelSelector';
 
 // Lazy loading de los modelos seleccionados
 const Model1QuickEntry = lazy(() => import('@/components/pedidos/models/Model1QuickEntry'));
 const Model5Wizard = lazy(() => import('@/components/pedidos/models/Model5Wizard'));
-const Model15PachorraTradicional = lazy(() => import('@/components/pedidos/models/Model15PachorraTradicional'));
 
 export default function PedidosPage() {
   const { setMenu, setClientes, setPedidos, setLoading, setError } = useAppStore();
   
-  // Estado para el modelo seleccionado
+  // Estado para el modelo seleccionado (por defecto QuickEntry)
   const [selectedModel, setSelectedModel] = useState(() => {
     return localStorage.getItem('pizza-pachorra-selected-model') || 'model1';
-  });
-  
-  const [showSelector, setShowSelector] = useState(() => {
-    return localStorage.getItem('pizza-pachorra-show-selector') !== 'false';
   });
 
   // Cargar datos iniciales
@@ -51,51 +45,13 @@ export default function PedidosPage() {
     localStorage.setItem('pizza-pachorra-selected-model', selectedModel);
   }, [selectedModel]);
 
-  useEffect(() => {
-    localStorage.setItem('pizza-pachorra-show-selector', showSelector.toString());
-  }, [showSelector]);
 
-  // Shortcuts globales para cambiar de modelo
-  useEffect(() => {
-    const handleGlobalKeyPress = (e: KeyboardEvent) => {
-      // Ctrl + número para modelos principales
-      if (e.ctrlKey && ['1', '5'].includes(e.key)) {
-        e.preventDefault();
-        setSelectedModel(`model${e.key}`);
-      }
-      
-      // Ctrl + Shift + 5 para modelo 15
-      if (e.ctrlKey && e.shiftKey && e.key === '5') {
-        e.preventDefault();
-        setSelectedModel('model15');
-      }
-      
-      // Ctrl + M para mostrar/ocultar selector
-      if (e.ctrlKey && e.key.toLowerCase() === 'm') {
-        e.preventDefault();
-        setShowSelector(prev => !prev);
-      }
-      
-      // Ctrl + R para resetear a modelo por defecto
-      if (e.ctrlKey && e.key.toLowerCase() === 'r') {
-        e.preventDefault();
-        setSelectedModel('model1');
-      }
-    };
 
-    document.addEventListener('keydown', handleGlobalKeyPress);
-    return () => document.removeEventListener('keydown', handleGlobalKeyPress);
-  }, []);
-
-  const handleModelChange = (modelId: string) => {
-    setSelectedModel(modelId);
-  };
 
   const renderSelectedModel = () => {
     const modelComponents = {
       model1: Model1QuickEntry,
       model5: Model5Wizard,
-      model15: Model15PachorraTradicional,
     };
 
     const SelectedComponent = modelComponents[selectedModel as keyof typeof modelComponents];
@@ -137,40 +93,6 @@ export default function PedidosPage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      
-      {/* Selector de modelos (colapsible) */}
-      {showSelector && (
-        <div className="relative">
-          <ModelSelector 
-            currentModel={selectedModel} 
-            onModelChange={handleModelChange} 
-          />
-          
-          {/* Botón para ocultar selector */}
-          <button
-            onClick={() => setShowSelector(false)}
-            className="absolute top-4 right-4 p-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded transition-colors"
-            title="Ocultar selector (Ctrl+M)"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-      
-      {/* Botón flotante para mostrar selector cuando está oculto */}
-      {!showSelector && (
-        <button
-          onClick={() => setShowSelector(true)}
-          className="fixed top-4 right-4 z-50 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all hover:scale-110"
-          title="Mostrar selector de modelos (Ctrl+M)"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      )}
-      
-
       {/* Renderizar el modelo seleccionado */}
       {renderSelectedModel()}
     </div>

@@ -22,7 +22,6 @@ export default function Model1QuickEntry() {
   const items = useCurrentOrderItems();
   const { addItemToOrder, addCustomizedItemToOrder, updateCustomizedItemInOrder, updateOrderItemQuantity, removeItemFromOrder, clearCurrentOrder, setOrderCustomer } = useAppStore();
   
-  const [quickQuantity, setQuickQuantity] = useState(1);
   const [customerSearch, setCustomerSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Cliente | null>(null);
@@ -162,9 +161,6 @@ export default function Model1QuickEntry() {
     }
     setCustomizationModal({ isOpen: false });
     
-    // Resetear cantidad
-    setQuickQuantity(1);
-    
     // Ocultar mensaje después de 2 segundos
     setTimeout(() => setSuccessMessage(null), 2000);
   }, [customizationModal.editingItem, addCustomizedItemToOrder, updateCustomizedItemInOrder]);
@@ -202,23 +198,6 @@ export default function Model1QuickEntry() {
         }
       `}</style>
       <div className="min-h-screen bg-gray-900 p-4">
-      {/* Header optimizado */}
-      <div className="mb-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <span className="text-blue-400">⚡</span> Quick Entry Dashboard
-          </h1>
-          <div className="flex items-center gap-6">
-            <div className="text-sm text-gray-300">
-              <span className="text-blue-400 font-medium">🍕 F1-F5</span> Pizzas Rápidas
-            </div>
-            <div className="bg-blue-600/20 px-3 py-2 rounded-lg border border-blue-600/30">
-              <span className="text-blue-300 text-sm font-medium">Cantidad:</span>
-              <span className="text-white text-lg font-bold ml-2">{quickQuantity}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Mensaje de éxito */}
       {successMessage && (
@@ -238,8 +217,8 @@ export default function Model1QuickEntry() {
 
           {/* Pizzas Principales (F1-F5) */}
           <div className="bg-gray-800 rounded-lg p-5 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <span className="text-orange-400">🍕</span> Pizzas Principales
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Pizzas Principales
             </h3>
             <div className="space-y-3">
               {popularPizzas.map((pizza, index) => (
@@ -262,15 +241,10 @@ export default function Model1QuickEntry() {
                     </div>
                   )}
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm text-blue-300 font-bold bg-blue-600/20 px-3 py-1 rounded-full border border-blue-600/30 min-w-[3rem] text-center group-hover:bg-blue-600/30 transition-colors">
-                        F{index + 1}
-                      </div>
-                      <div className="text-white font-semibold text-lg group-hover:text-blue-100 transition-colors">{pizza.nombre}</div>
-                    </div>
+                    <div className="text-white font-semibold text-lg group-hover:text-blue-100 transition-colors">{pizza.nombre}</div>
                     <div className="text-green-400 font-bold text-xl">${Math.round(parseFloat(pizza.precio_base))}</div>
                   </div>
-                  <div className="text-gray-400 text-sm leading-relaxed pl-12">
+                  <div className="text-gray-400 text-sm leading-relaxed">
                     <span className="text-gray-500 font-medium">Ingredientes:</span> {pizza.ingredientes.join(', ')}
                   </div>
                 </button>
@@ -285,8 +259,8 @@ export default function Model1QuickEntry() {
           
           {/* Cliente - OPTIMIZADO */}
           <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 relative">
-            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <span className="text-purple-400">👤</span> Cliente
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Cliente
             </h3>
             {currentOrder.cliente ? (
               <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-3">
@@ -388,9 +362,7 @@ export default function Model1QuickEntry() {
           {/* Ticket */}
           <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 flex-1">
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <span className="text-yellow-400">🧾</span> Ticket de Venta
-              </span>
+              <span>Ticket de Venta</span>
               <span className="text-sm bg-blue-600/20 px-3 py-1 rounded-full border border-blue-600/30 text-blue-300">
                 {items.length} {items.length === 1 ? 'item' : 'items'}
               </span>
@@ -604,7 +576,7 @@ export default function Model1QuickEntry() {
             
             {/* Header del Modal */}
             <div className="flex justify-between items-center p-4 border-b border-gray-700">
-              <h2 className="text-lg font-bold text-white">➕ Nuevo Cliente</h2>
+              <h2 className="text-lg font-bold text-white">Nuevo Cliente</h2>
               <button
                 onClick={handleCancelNewCustomer}
                 className="text-gray-400 hover:text-white text-xl"
@@ -702,7 +674,7 @@ export default function Model1QuickEntry() {
           onConfirm={handleCustomizationConfirm}
           pizza={customizationModal.pizza}
           editingItem={customizationModal.editingItem}
-          initialQuantity={customizationModal.editingItem ? undefined : quickQuantity}
+          initialQuantity={customizationModal.editingItem ? undefined : 1}
         />
       )}
       </div>

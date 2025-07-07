@@ -327,7 +327,7 @@ export default function PizzaCustomizationModal({
                 <div className="flex items-center gap-1 bg-white rounded-lg overflow-hidden shadow-md">
                   <button
                     onClick={() => setCantidad(Math.max(1, cantidad - 1))}
-                    className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white font-bold transition-all duration-200 flex items-center justify-center text-xs hover:shadow-lg active:scale-95"
+                    className="w-8 h-8 bg-gray-500 hover:bg-gray-600 text-white font-bold transition-all duration-200 flex items-center justify-center text-xs hover:shadow-lg active:scale-95"
                   >
                     −
                   </button>
@@ -336,7 +336,7 @@ export default function PizzaCustomizationModal({
                   </span>
                   <button
                     onClick={() => setCantidad(cantidad + 1)}
-                    className="w-8 h-8 bg-green-500 hover:bg-green-600 text-white font-bold transition-all duration-200 flex items-center justify-center text-xs hover:shadow-lg active:scale-95"
+                    className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white font-bold transition-all duration-200 flex items-center justify-center text-xs hover:shadow-lg active:scale-95"
                   >
                     +
                   </button>
@@ -361,11 +361,11 @@ export default function PizzaCustomizationModal({
               {esMitadYMitad && (
                 <>
                   <div className="flex items-center gap-1">
-                    <span className="w-4 h-4 bg-orange-600 rounded-full flex items-center justify-center text-white text-xs font-bold">1</span>
+                    <span className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">1</span>
                     <select
                       value={pizzaMitad1}
                       onChange={(e) => setPizzaMitad1(parseInt(e.target.value))}
-                      className={`${getThemeClass.input} text-xs py-1 ${theme === 'traditional' ? 'border-l-4 border-l-orange-600' : 'border-l-4 border-l-orange-500'} min-w-[140px]`}
+                      className={`${getThemeClass.input} text-xs py-1 ${theme === 'traditional' ? 'border-l-4 border-l-blue-600' : 'border-l-4 border-l-blue-500'} min-w-[140px]`}
                     >
                       {pizzas.map(p => (
                         <option key={p.id} value={p.id}>
@@ -376,11 +376,11 @@ export default function PizzaCustomizationModal({
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    <span className="w-4 h-4 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">2</span>
+                    <span className="w-4 h-4 bg-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold">2</span>
                     <select
                       value={pizzaMitad2}
                       onChange={(e) => setPizzaMitad2(parseInt(e.target.value))}
-                      className={`${getThemeClass.input} text-xs py-1 ${theme === 'traditional' ? 'border-l-4 border-l-purple-600' : 'border-l-4 border-l-purple-500'} min-w-[140px]`}
+                      className={`${getThemeClass.input} text-xs py-1 ${theme === 'traditional' ? 'border-l-4 border-l-slate-600' : 'border-l-4 border-l-slate-500'} min-w-[140px]`}
                     >
                       {pizzas.map(p => (
                         <option key={p.id} value={p.id}>
@@ -396,7 +396,7 @@ export default function PizzaCustomizationModal({
           </div>
 
           {/* SECCIÓN PRINCIPAL: Personalización de Ingredientes */}
-          <div className={`${theme === 'traditional' ? 'bg-green-50 border border-green-200' : 'bg-gray-800'} rounded-xl p-4 space-y-4`}>
+          <div className={`${theme === 'traditional' ? 'bg-gray-50 border border-gray-200' : 'bg-gray-800'} rounded-xl p-4 space-y-4`}>
             {/* Header principal */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -414,7 +414,7 @@ export default function PizzaCustomizationModal({
             
             {/* Pestañas compactas */}
             {esMitadYMitad && (
-              <div className={`flex gap-1 p-1 ${theme === 'traditional' ? 'bg-white border border-green-300' : 'bg-gray-700'} rounded-lg`}>
+              <div className={`flex gap-1 p-1 ${theme === 'traditional' ? 'bg-white border border-gray-300' : 'bg-gray-700'} rounded-lg`}>
                 <button
                   onClick={() => setActiveTab('mitad1')}
                   className={`flex-1 px-2 py-2 rounded-md font-bold transition-all text-xs ${
@@ -424,7 +424,7 @@ export default function PizzaCustomizationModal({
                   }`}
                 >
                   <div className="flex items-center gap-1 justify-center">
-                    <span className="w-5 h-5 bg-orange-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md">1</span>
+                    <span className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md">1</span>
                     <span>Izquierda</span>
                   </div>
                 </button>
@@ -437,7 +437,7 @@ export default function PizzaCustomizationModal({
                   }`}
                 >
                   <div className="flex items-center gap-1 justify-center">
-                    <span className="w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md">2</span>
+                    <span className="w-5 h-5 bg-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md">2</span>
                     <span>Derecha</span>
                   </div>
                 </button>
@@ -451,8 +451,8 @@ export default function PizzaCustomizationModal({
                 >
                   <div className="flex items-center gap-1 justify-center">
                     <div className="w-5 h-5 relative flex items-center justify-center">
-                      <div className="w-2.5 h-5 bg-orange-600 rounded-l-full"></div>
-                      <div className="w-2.5 h-5 bg-purple-600 rounded-r-full"></div>
+                      <div className="w-2.5 h-5 bg-blue-600 rounded-l-full"></div>
+                      <div className="w-2.5 h-5 bg-slate-600 rounded-r-full"></div>
                     </div>
                     <span>Toda</span>
                   </div>
@@ -465,7 +465,7 @@ export default function PizzaCustomizationModal({
               {/* Ingredientes base - compactos */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-5 h-5 ${theme === 'traditional' ? 'bg-red-500' : 'bg-red-600'} rounded-full flex items-center justify-center text-white font-bold text-xs`}>
+                  <div className={`w-5 h-5 ${theme === 'traditional' ? 'bg-gray-500' : 'bg-gray-600'} rounded-full flex items-center justify-center text-white font-bold text-xs`}>
                     ➖
                   </div>
                   <h4 className={`text-sm font-bold ${getThemeClass.text.primary}`}>
@@ -513,10 +513,10 @@ export default function PizzaCustomizationModal({
                         }}
                         className={`px-3 py-1 rounded text-center transition-all duration-200 text-xs transform ${
                           estaRemovido
-                            ? 'bg-red-500 text-white border-2 border-red-600 shadow-lg scale-95'
+                            ? 'bg-gray-500 text-white border-2 border-gray-600 shadow-lg scale-95'
                             : theme === 'traditional' 
-                              ? 'bg-white border border-gray-300 text-gray-800 hover:border-red-400 hover:bg-red-50 hover:shadow-md hover:scale-105 active:scale-95'
-                              : 'bg-gray-600 hover:bg-gray-500 text-gray-200 border border-gray-500 hover:border-red-400 hover:shadow-md hover:scale-105 active:scale-95'
+                              ? 'bg-white border border-gray-300 text-gray-800 hover:border-gray-400 hover:bg-gray-50 hover:shadow-md hover:scale-105 active:scale-95'
+                              : 'bg-gray-600 hover:bg-gray-500 text-gray-200 border border-gray-500 hover:border-gray-400 hover:shadow-md hover:scale-105 active:scale-95'
                         }`}
                       >
                         <div className="text-xs font-bold leading-tight">
@@ -534,7 +534,7 @@ export default function PizzaCustomizationModal({
               {/* Extras disponibles - compactos sin scroll */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className={`w-5 h-5 ${theme === 'traditional' ? 'bg-green-500' : 'bg-green-600'} rounded-full flex items-center justify-center text-white font-bold text-xs`}>
+                  <div className={`w-5 h-5 ${theme === 'traditional' ? 'bg-blue-500' : 'bg-blue-600'} rounded-full flex items-center justify-center text-white font-bold text-xs`}>
                     ➕
                   </div>
                   <h4 className={`text-sm font-bold ${getThemeClass.text.primary}`}>
@@ -553,10 +553,10 @@ export default function PizzaCustomizationModal({
                       onClick={() => toggleExtraAgregado(extra.id)}
                       className={`px-3 py-1 rounded text-center transition-all duration-200 text-xs transform ${
                         estaAgregado
-                          ? 'bg-green-500 text-white border-2 border-green-600 shadow-lg scale-105'
+                          ? 'bg-blue-500 text-white border-2 border-blue-600 shadow-lg scale-105'
                           : theme === 'traditional'
-                            ? 'bg-white border border-gray-300 text-gray-800 hover:border-green-400 hover:bg-green-50 hover:shadow-md hover:scale-105 active:scale-95'
-                            : 'bg-gray-600 hover:bg-gray-500 text-gray-200 border border-gray-500 hover:border-green-400 hover:shadow-md hover:scale-105 active:scale-95'
+                            ? 'bg-white border border-gray-300 text-gray-800 hover:border-blue-400 hover:bg-blue-50 hover:shadow-md hover:scale-105 active:scale-95'
+                            : 'bg-gray-600 hover:bg-gray-500 text-gray-200 border border-gray-500 hover:border-blue-400 hover:shadow-md hover:scale-105 active:scale-95'
                       }`}
                     >
                       <div className="text-xs font-bold leading-tight">
@@ -565,8 +565,8 @@ export default function PizzaCustomizationModal({
                           estaAgregado 
                             ? 'text-white' 
                             : theme === 'traditional' 
-                              ? 'text-green-600' 
-                              : 'text-green-400'
+                              ? 'text-blue-600' 
+                              : 'text-blue-400'
                         }`}>
                           +${Math.round(parseFloat(extra.precio))}
                         </div>
@@ -588,7 +588,7 @@ export default function PizzaCustomizationModal({
                 </h4>
               </div>
               
-              <div className={`${theme === 'traditional' ? 'bg-white border border-blue-200' : 'bg-gray-600'} rounded p-2 space-y-1 text-xs`}>
+              <div className={`${theme === 'traditional' ? 'bg-white border border-gray-200' : 'bg-gray-600'} rounded p-2 space-y-1 text-xs`}>
                 {/* Precio base */}
                 <div className="flex justify-between">
                   <span className={`${getThemeClass.text.muted}`}>
@@ -613,10 +613,10 @@ export default function PizzaCustomizationModal({
                   if (extrasAgregadosActivos.length > 0) {
                     return (
                       <div className="flex justify-between">
-                        <span className={`${theme === 'traditional' ? 'text-green-700' : 'text-green-300'}`}>
+                        <span className={`${theme === 'traditional' ? 'text-blue-700' : 'text-blue-300'}`}>
                           Extras (+{extrasAgregadosActivos.length}):
                         </span>
-                        <span className={`font-bold ${theme === 'traditional' ? 'text-green-700' : 'text-green-300'}`}>
+                        <span className={`font-bold ${theme === 'traditional' ? 'text-blue-700' : 'text-blue-300'}`}>
                           +${Math.round(precioExtrasAgregados)}
                         </span>
                       </div>
@@ -636,10 +636,10 @@ export default function PizzaCustomizationModal({
                   if (extrasRemovidosActivos.length > 0) {
                     return (
                       <div className="flex justify-between">
-                        <span className={`${theme === 'traditional' ? 'text-red-700' : 'text-red-300'}`}>
+                        <span className={`${theme === 'traditional' ? 'text-gray-700' : 'text-gray-300'}`}>
                           Removidos (-{extrasRemovidosActivos.length}):
                         </span>
-                        <span className={`font-bold ${theme === 'traditional' ? 'text-red-700' : 'text-red-300'}`}>
+                        <span className={`font-bold ${theme === 'traditional' ? 'text-gray-700' : 'text-gray-300'}`}>
                           -${Math.round(precioExtrasRemovidos)}
                         </span>
                       </div>
@@ -659,11 +659,11 @@ export default function PizzaCustomizationModal({
                 </div>
                 
                 {/* Total final */}
-                <div className={`flex justify-between text-sm pt-1 border-t ${theme === 'traditional' ? 'border-blue-200' : 'border-gray-500'}`}>
+                <div className={`flex justify-between text-sm pt-1 border-t ${theme === 'traditional' ? 'border-gray-200' : 'border-gray-500'}`}>
                   <span className={`font-black ${getThemeClass.text.primary}`}>
                     TOTAL:
                   </span>
-                  <span className={`font-black text-lg ${theme === 'traditional' ? 'text-green-600' : 'text-green-400'}`}>
+                  <span className={`font-black text-lg ${theme === 'traditional' ? 'text-blue-600' : 'text-blue-400'}`}>
                     ${precioTotal}
                   </span>
                 </div>
@@ -671,7 +671,7 @@ export default function PizzaCustomizationModal({
             </div>
 
             {/* Notas compactas */}
-            <div className={`${theme === 'traditional' ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-700'} rounded-lg p-3`}>
+            <div className={`${theme === 'traditional' ? 'bg-gray-50 border border-gray-200' : 'bg-gray-700'} rounded-lg p-3`}>
               <div className="flex items-center gap-2 mb-2">
                 <label className={`text-sm font-bold ${getThemeClass.text.primary}`}>
                   Notas Especiales
@@ -682,7 +682,7 @@ export default function PizzaCustomizationModal({
                 onChange={(e) => setNotas(e.target.value)}
                 placeholder="Ej: Poco cocida, sin cebolla..."
                 className={`w-full px-2 py-1 ${theme === 'traditional' 
-                  ? 'bg-white border border-yellow-300 text-gray-900' 
+                  ? 'bg-white border border-gray-300 text-gray-900' 
                   : 'bg-gray-600 border border-gray-500 text-white'
                 } rounded focus:outline-none resize-none text-xs`}
                 rows={3}
@@ -696,8 +696,8 @@ export default function PizzaCustomizationModal({
               onClick={onClose}
               className={`flex-1 px-3 py-2 rounded-lg font-bold transition-all text-sm ${
                 theme === 'traditional'
-                  ? 'bg-red-500 hover:bg-red-600 text-white border border-red-600'
-                  : 'bg-red-600 hover:bg-red-700 text-white'
+                  ? 'bg-gray-500 hover:bg-gray-600 text-white border border-gray-600'
+                  : 'bg-gray-600 hover:bg-gray-700 text-white'
               }`}
             >
               ❌ Cancelar
@@ -738,8 +738,8 @@ export default function PizzaCustomizationModal({
               onClick={handleConfirm}
               className={`flex-1 px-3 py-2 rounded-lg font-bold transition-all text-sm ${
                 theme === 'traditional'
-                  ? 'bg-green-500 hover:bg-green-600 text-white border border-green-600'
-                  : 'bg-green-600 hover:bg-green-700 text-white'
+                  ? 'bg-blue-500 hover:bg-blue-600 text-white border border-blue-600'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >
               🎨 {editingItem ? 'Actualizar' : 'Confirmar'}

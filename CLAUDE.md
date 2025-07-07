@@ -30,7 +30,7 @@ docker-compose up -d
 - **Backend Health**: http://localhost:3001/api/health
 
 ### Key URLs
-- **Dashboard Selection**: http://localhost:3000/pedidos-new
+- **Pedidos (Main Interface)**: http://localhost:3000/pedidos
 - **Kitchen View**: http://localhost:3000/cocina
 - **Dashboard**: http://localhost:3000/dashboard
 
@@ -44,9 +44,8 @@ docker-compose up -d
 - **Services**: `/src/services/` - API calls and external services
 
 ### Current Working Models
-1. **Model1QuickEntry**: Expert interface with keyboard shortcuts (F1-F5)
-2. **Model5Wizard**: Guided step-by-step workflow with inline customization
-3. **Model15PachorraTradicional**: Traditional brand-themed interface
+1. **Model1QuickEntry**: Expert interface optimized for speed and efficiency (Default)
+2. **Model5Wizard**: Guided step-by-step workflow for new users with validations
 
 ## Development Standards
 
@@ -94,7 +93,8 @@ export const useMenu = () => useAppStore((state) => ({
 - **PizzaCustomizationModal**: Ultra-optimized pizza customization interface with detailed pricing
 - **CustomerSearch**: Advanced search with dropdown results
 - **TicketSection**: Real-time order display with edit capabilities
-- **Dashboard Models**: 3 optimized interfaces for different operational needs
+- **Interface Models**: 2 streamlined interfaces optimized for different user types
+- **Configuration System**: Built-in interface switching through settings menu
 
 ### PizzaCustomizationModal - Ultra-Optimized Design
 
@@ -126,6 +126,33 @@ export const useMenu = () => useAppStore((state) => ({
 - **Responsive design**: Works on mobile and desktop with appropriate adjustments
 - **Theme support**: Traditional and default themes with consistent styling
 
+### Interface Configuration System
+
+#### **⚙️ Settings Menu Integration:**
+- **Location**: Configuration icon (⚙️) in the main header navigation
+- **Access**: Available in all sections, with contextual options in Pedidos
+- **Persistence**: Settings stored in localStorage for user preferences
+- **Live switching**: Interface changes apply immediately with page reload
+
+#### **🔧 Available Interface Options:**
+1. **Quick Entry (Default)**:
+   - Optimized for expert users and high-speed operations
+   - Minimal visual elements, maximum space efficiency
+   - Direct pizza selection with streamlined workflows
+   - Ideal for experienced staff during busy periods
+
+2. **Wizard (Guided)**:
+   - Step-by-step guided workflow with validation
+   - User-friendly for new staff or complex orders
+   - Built-in error prevention and progress tracking
+   - Ideal for training and reducing order mistakes
+
+#### **🚀 Optimizations Applied:**
+- **Space efficiency**: Removed decorative headers, emojis, and unnecessary visual elements
+- **Streamlined navigation**: Eliminated redundant menu options and floating selectors
+- **Clean interface**: No F1-F5 badges, quantity counters moved to ticket section
+- **Professional appearance**: Focus on operational efficiency over branding elements
+
 ### Database Schema
 - **pizzas**: Base pizza products with ingredients and pricing
 - **extras**: Additional toppings and modifications
@@ -148,6 +175,15 @@ export const useMenu = () => useAppStore((state) => ({
 - **Zustand selectors**: Use primitive selectors to prevent infinite loops
 - **React optimization**: Avoid creating new objects in render cycles
 - **State updates**: Check if state actually changed before updating
+
+### Navigation & Routing
+- **Main Layout**: `app/root.tsx` - Primary navigation and configuration system
+- **Simplified Routing**: Direct access to interfaces without intermediate selectors
+- **Route Structure**:
+  - `/` - Dashboard
+  - `/pedidos` - Main order interface (Quick Entry by default)
+  - `/cocina` - Kitchen view
+- **Configuration**: Settings accessible via ⚙️ icon in header navigation
 
 ## Testing and Verification
 
@@ -190,4 +226,23 @@ docker-compose logs --tail=10 backend
 - **Database**: PostgreSQL with persistent volumes
 - **Assets**: Vite build process for frontend optimization
 
-This setup provides a complete pizzeria management system optimized for real-world operations with professional UX standards. The PizzaCustomizationModal represents a benchmark for operational efficiency, featuring detailed price transparency, no-scroll design, and space optimization that reduces interaction time by 70%.
+This setup provides a complete pizzeria management system optimized for real-world operations with professional UX standards. The interface has been streamlined for maximum operational efficiency:
+
+## Key Achievements
+
+### ✅ **Streamlined Interface Design**
+- **Space-optimized**: Removed decorative elements, headers, and unnecessary visual clutter
+- **Direct access**: Simplified navigation eliminates intermediate selection screens
+- **Professional focus**: Clean, efficient interface prioritizing operational speed
+
+### ✅ **Flexible Configuration System** 
+- **Built-in settings**: Configuration accessible via header ⚙️ icon
+- **User preference persistence**: Interface choices saved automatically
+- **Context-aware options**: Relevant settings shown based on current section
+
+### ✅ **Dual Interface Strategy**
+- **Quick Entry**: Default expert interface for experienced users
+- **Wizard Mode**: Guided workflow for training and complex orders
+- **Seamless switching**: Change interfaces without losing work progress
+
+The system now provides maximum operational efficiency while maintaining flexibility for different user skill levels and operational contexts.
