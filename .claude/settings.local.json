@@ -53,7 +53,8 @@
       "Bash(sudo service:*)",
       "Bash(timeout 10 npm run dev)",
       "Bash(timeout 10 npm run dev --prefix frontend)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(git merge:*)"
     ],
     "deny": []
   }
