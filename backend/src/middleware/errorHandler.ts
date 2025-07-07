@@ -73,25 +73,6 @@ export class BusinessError extends ApplicationError {
   }
 }
 
-/**
- * Errores de autenticación
- */
-export class AuthenticationError extends ApplicationError {
-  constructor(message: string = 'No autorizado') {
-    super(message, 401, true, 'AUTHENTICATION_ERROR');
-    this.name = 'AuthenticationError';
-  }
-}
-
-/**
- * Errores de autorización
- */
-export class AuthorizationError extends ApplicationError {
-  constructor(message: string = 'Acceso denegado') {
-    super(message, 403, true, 'AUTHORIZATION_ERROR');
-    this.name = 'AuthorizationError';
-  }
-}
 
 /**
  * Errores de recurso no encontrado

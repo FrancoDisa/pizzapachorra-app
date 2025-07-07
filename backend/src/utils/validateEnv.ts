@@ -8,7 +8,6 @@ interface EnvConfig {
   NODE_ENV: string;
   PORT: string;
   DATABASE_URL: string;
-  JWT_SECRET?: string | undefined;
   CORS_ORIGIN?: string | undefined;
 }
 
@@ -25,7 +24,6 @@ const requiredEnvVars = [
 const defaultEnvVars = {
   NODE_ENV: 'development',
   PORT: '3001',
-  JWT_SECRET: 'pizzapachorra_default_secret_change_in_production',
   CORS_ORIGIN: 'http://localhost:3000',
 } as const;
 
@@ -47,11 +45,7 @@ export function validateEnv(): EnvConfig {
   for (const [key, defaultValue] of Object.entries(defaultEnvVars)) {
     if (!process.env[key]) {
       process.env[key] = defaultValue;
-      if (key === 'JWT_SECRET' && process.env.NODE_ENV === 'production') {
-        warnings.push(`Usando JWT_SECRET por defecto en producción. ¡Cambiar inmediatamente!`);
-      } else {
-        warnings.push(`Usando valor por defecto para ${key}: ${defaultValue}`);
-      }
+      warnings.push(`Usando valor por defecto para ${key}: ${defaultValue}`);
     }
   }
 
@@ -95,14 +89,12 @@ export function validateEnv(): EnvConfig {
     PORT: process.env.PORT,
     DATABASE_URL: maskDatabaseUrl(process.env.DATABASE_URL || ''),
     CORS_ORIGIN: process.env.CORS_ORIGIN,
-    JWT_SECRET_SET: !!process.env.JWT_SECRET,
   });
 
   return {
     NODE_ENV: process.env.NODE_ENV!,
     PORT: process.env.PORT!,
     DATABASE_URL: process.env.DATABASE_URL!,
-    JWT_SECRET: process.env.JWT_SECRET || defaultEnvVars.JWT_SECRET,
     CORS_ORIGIN: process.env.CORS_ORIGIN || defaultEnvVars.CORS_ORIGIN,
   } as EnvConfig;
 }
@@ -145,7 +137,6 @@ export function getEnvConfig(): EnvConfig {
     NODE_ENV: process.env.NODE_ENV!,
     PORT: process.env.PORT!,
     DATABASE_URL: process.env.DATABASE_URL!,
-    JWT_SECRET: process.env.JWT_SECRET || defaultEnvVars.JWT_SECRET,
     CORS_ORIGIN: process.env.CORS_ORIGIN || defaultEnvVars.CORS_ORIGIN,
   } as EnvConfig;
 }
