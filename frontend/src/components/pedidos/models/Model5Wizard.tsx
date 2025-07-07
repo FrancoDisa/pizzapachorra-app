@@ -224,22 +224,8 @@ export default function Model5Wizard() {
   return (
     <div className="min-h-screen bg-gray-900 p-6">
       
-      {/* Header del Wizard - OPTIMIZADO */}
+      {/* Indicador de progreso - COMPACTO */}
       <div className="mb-6">
-        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 mb-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <span className="text-purple-400">🧙‍♂️</span> Wizard de Pedidos
-            </h1>
-            <div className="text-sm text-gray-300">
-              <kbd className="bg-gray-700 px-2 py-1 rounded mr-1">Enter</kbd> Siguiente •
-              <kbd className="bg-gray-700 px-2 py-1 rounded mx-1">Backspace</kbd> Anterior •
-              <kbd className="bg-gray-700 px-2 py-1 rounded mx-1">1-3</kbd> Saltar
-            </div>
-          </div>
-        </div>
-        
-        {/* Indicador de progreso - COMPACTO */}
         <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => (

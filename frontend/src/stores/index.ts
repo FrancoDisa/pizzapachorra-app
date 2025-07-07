@@ -77,7 +77,6 @@ const createSafeUpdater = <T>(updater: (state: T) => Partial<T>) => {
   let isUpdating = false;
   return (state: T): T => {
     if (isUpdating) {
-      console.warn('Prevented potential infinite loop in store update');
       return state;
     }
     
@@ -91,18 +90,6 @@ const createSafeUpdater = <T>(updater: (state: T) => Partial<T>) => {
   };
 };
 
-// Rate limiting para updates frecuentes (unused pero disponible para futuro uso)
-// const createRateLimitedUpdate = <T>(updateFn: (updates: Partial<T>) => void, limit = 100) => {
-//   let lastUpdate = 0;
-//   return (updates: Partial<T>) => {
-//     const now = Date.now();
-//     if (now - lastUpdate < limit) {
-//       return; // Skip update if too frequent
-//     }
-//     lastUpdate = now;
-//     updateFn(updates);
-//   };
-// };
 
 export const useAppStore = create<AppStore>()(
   devtools(
@@ -400,7 +387,6 @@ export const useAppStore = create<AppStore>()(
             
             // Verificar que pedidos sea un array
             if (!Array.isArray(state.pedidos)) {
-              console.warn('state.pedidos is not an array:', state.pedidos);
               return [];
             }
             
@@ -444,7 +430,6 @@ export const useAppStore = create<AppStore>()(
             
             // Verificar que pedidos sea un array
             if (!Array.isArray(state.pedidos)) {
-              console.warn('state.pedidos is not an array in getOrderWithDetails:', state.pedidos);
               return null;
             }
             

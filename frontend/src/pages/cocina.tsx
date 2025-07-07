@@ -248,22 +248,15 @@ function CocinaContent() {
 
   // Conectar WebSocket y cargar datos iniciales al montar
   useEffect(() => {
-    console.log('🏠 Cocina montada, verificando conexión WebSocket...');
-    console.log('🔍 Estado actual de conexión:', ws.isConnected);
-    
     // Conectar WebSocket para tiempo real
     if (!ws.isConnected) {
-      console.log('🔌 Iniciando conexión WebSocket desde cocina...');
       ws.connect();
-    } else {
-      console.log('✅ WebSocket ya está conectado');
     }
     
     // Cargar datos iniciales
     refreshOrders();
 
     return () => {
-      console.log('🏠 Cocina desmontada');
       // No desconectar WebSocket aquí para mantener conexión entre páginas
     };
   }, []); // Removido refreshOrders de dependencias para evitar loops
